@@ -1,0 +1,7 @@
+routeEnhancers:
+  PageTypeSuffix:
+    type: PageType
+    map:
+      llms.txt: 1699
+      .well-known/llms.txt: 1699
+      .md: 1701

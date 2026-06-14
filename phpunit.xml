@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation=".Build/vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap=".Build/vendor/autoload.php"
+    colors="true"
+    cacheDirectory=".Build/.phpunit.cache"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>Tests/Unit</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="TYPO3_PATH_WEB" value=".Build/Web"/>
+        <env name="TYPO3_PATH_ROOT" value=".Build/Web"/>
+    </php>
+</phpunit>

@@ -1,0 +1,84 @@
+{
+    "name": "web-nomads/wn-ai-bridge",
+    "type": "typo3-cms-extension",
+    "description": "TYPO3 extension for generating llms.txt links based on the llmstxt.org specification to control how Large Language Models crawl and use website content.",
+    "keywords": ["TYPO3", "CMS", "llm", "ai", "crawling", "policy"],
+    "homepage": "https://github.com/web-nomads/wn-ai-bridge",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Marcel Marty",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2 || ^8.3 || ^8.4",
+        "league/html-to-markdown": "^5.1",
+        "typo3/cms-backend": "^13.4 || ^14.1",
+        "typo3/cms-core": "^13.4 || ^14.1",
+        "typo3/cms-extbase": "^13.4 || ^14.1",
+        "typo3/cms-fluid": "^13.4 || ^14.1",
+        "typo3/cms-seo": "^13.4 || ^14.1"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.70",
+        "helhum/typo3-console": "^8.3",
+        "helmich/typo3-typoscript-lint": "^3.1.0",
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^10.0 || ^11.0",
+        "typo3/cms-fluid-styled-content": "^13.4 || ^14.3",
+        "typo3/cms-tstemplate": "^13.4 || ^14.3",
+        "typo3/coding-standards": "^0.8",
+        "typo3/testing-framework": "^8.0 || ^9.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "WebNomads\\WnAiBridge\\": "Classes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WebNomads\\WnAiBridge\\Tests\\": "Tests/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "extension-key": "wn_ai_bridge",
+			"ignore-as-root": false,
+			"web-dir": ".Build/Web",
+			"app-dir": ".Build"
+		}
+    },
+    "scripts": {
+        "test": "./Build/Scripts/runTests.sh",
+        "test:unit": "./Build/Scripts/runTests.sh -s unit",
+        "test:functional": "./Build/Scripts/runTests.sh -s functional",
+        "test:php": "./Build/Scripts/runTests.sh -s lintPhp",
+        "cs:fix": "./Build/Scripts/runTests.sh -s cgl",
+        "cs:check": "./Build/Scripts/runTests.sh -s cgl -n",
+        "stan": "./Build/Scripts/runTests.sh -s phpstan",
+        "stan:baseline": "./Build/Scripts/runTests.sh -s phpstanGenerateBaseline",
+        "docs": "./Build/Scripts/runTests.sh -s renderDocumentation",
+        "ci:test": [
+            "@test:php",
+            "@cs:check",
+            "@stan",
+            "@test:unit",
+            "@test:functional"
+        ],
+        "fix": [
+            "@cs:fix"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "typo3/cms-composer-installers": true,
+            "typo3/class-alias-loader": true
+        },
+        "sort-packages": true,
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin",
+        "optimize-autoloader": true
+    }
+}

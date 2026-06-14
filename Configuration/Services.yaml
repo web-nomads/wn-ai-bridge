@@ -1,0 +1,18 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  WebNomads\WnAiBridge\:
+    resource: '../Classes/*'
+    exclude: '../Classes/Domain/Model/*'
+
+  WebNomads\WnAiBridge\Controller\LlmsTxtController:
+    public: true
+
+  WebNomads\WnAiBridge\Command\DownloadMarkdownCommand:
+    tags:
+      - name: 'console.command'
+        command: 'ai-bridge:download-markdown'
+        description: 'Download TYPO3 pages as Markdown files'

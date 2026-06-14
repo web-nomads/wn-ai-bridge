@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf" date="2025-07-21T12:00:00Z">
+		<header>
+			<description>Language labels for LLMS TXT extension</description>
+		</header>
+		<body>
+			<trans-unit id="module.title">
+				<source>LLMS TXT Generator</source>
+			</trans-unit>
+			<trans-unit id="module.description">
+				<source>Generate and manage .well-known/llm.txt files</source>
+			</trans-unit>
+			<trans-unit id="scheduler.task.title">
+				<source>Generate LLMS TXT file</source>
+			</trans-unit>
+			<trans-unit id="scheduler.task.description">
+				<source>Periodically generate the .well-known/llm.txt file based on extension configuration</source>
+			</trans-unit>
+			<trans-unit id="file.exists">
+				<source>File exists</source>
+			</trans-unit>
+			<trans-unit id="file.not_exists">
+				<source>File does not exist</source>
+			</trans-unit>
+			<trans-unit id="file.path">
+				<source>File path</source>
+			</trans-unit>
+			<trans-unit id="file.last_modified">
+				<source>Last modified</source>
+			</trans-unit>
+			<trans-unit id="file.size">
+				<source>File size</source>
+			</trans-unit>
+			<trans-unit id="action.generate">
+				<source>Generate File</source>
+			</trans-unit>
+			<trans-unit id="action.preview">
+				<source>Preview</source>
+			</trans-unit>
+			<trans-unit id="action.validate">
+				<source>Validate</source>
+			</trans-unit>
+			<trans-unit id="configuration.title">
+				<source>Configuration</source>
+			</trans-unit>
+			<trans-unit id="configuration.contact_email">
+				<source>Contact Email</source>
+			</trans-unit>
+			<trans-unit id="configuration.license">
+				<source>License</source>
+			</trans-unit>
+			<trans-unit id="configuration.topics">
+				<source>Topics</source>
+			</trans-unit>
+			<trans-unit id="configuration.include_paths">
+				<source>Include Paths</source>
+			</trans-unit>
+			<trans-unit id="configuration.exclude_paths">
+				<source>Exclude Paths</source>
+			</trans-unit>
+			<trans-unit id="configuration.llm_policy">
+				<source>LLM Policy</source>
+			</trans-unit>
+			<trans-unit id="configuration.custom_headers">
+				<source>Custom Headers</source>
+			</trans-unit>
+			<trans-unit id="validation.errors">
+				<source>Validation Errors</source>
+			</trans-unit>
+			<trans-unit id="validation.warnings">
+				<source>Validation Warnings</source>
+			</trans-unit>
+			<trans-unit id="validation.success">
+				<source>No validation issues found</source>
+			</trans-unit>
+			<trans-unit id="site.tab.llmstxt">
+				<source>LLMS.TXT Configuration</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtEnabled">
+				<source>Enable LLMS.TXT Generation</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtEnabled.description">
+				<source>Enable automatic generation of llms.txt file for this site</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtTitle">
+				<source>Site Title Override</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtTitle.description">
+				<source>Override the homepage title for llms.txt. Leave empty to use the page title.</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtTitle.placeholder">
+				<source>e.g., University of Worms - Study Programs &amp; Research</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtDescription">
+				<source>Site Description Override</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtDescription.description">
+				<source>Override the homepage description for llms.txt. Leave empty to use the page description.</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtAdditionalInfo">
+				<source>Additional Information (Markdown)</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtAdditionalInfo.description">
+				<source>Add custom content to llms.txt in Markdown format. This will be appended after the navigation structure. Use this for special instructions, policies, or additional context for LLMs.</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtContactEmail">
+				<source>Contact Email</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtContactEmail.description">
+				<source>Contact email for inquiries about the site content</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtKeywords">
+				<source>Keywords/Topics</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtKeywords.description">
+				<source>Comma-separated keywords or topics that describe your site (e.g., "higher education, computer science, business administration")</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtKeywords.placeholder">
+				<source>higher education, research, international programs</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtMaxDepth">
+				<source>Navigation Depth</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtMaxDepth.description">
+				<source>Maximum depth of page hierarchy to include in navigation (1-5 levels)</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

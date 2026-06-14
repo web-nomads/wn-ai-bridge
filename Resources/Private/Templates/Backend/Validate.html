@@ -1,0 +1,81 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Backend" />
+
+<f:section name="Content">
+    <h1>LLMS TXT Validation</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Current File Content</h3>
+                    <div class="text-muted">
+                        <small>File: {filePath -> f:format.htmlentities()}</small>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <pre class="bg-light p-3" style="white-space: pre-wrap;">{content -> f:format.htmlentities()}</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Validation Results</h3>
+                </div>
+                <div class="card-body">
+                    <f:if condition="{hasErrors}">
+                        <div class="alert alert-danger">
+                            <h5><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:validation.errors" /></h5>
+                            <ul>
+                                <f:for each="{validation.errors}" as="error">
+                                    <li>{error -> f:format.htmlentities()}</li>
+                                </f:for>
+                            </ul>
+                        </div>
+                    </f:if>
+
+                    <f:if condition="{hasWarnings}">
+                        <div class="alert alert-warning">
+                            <h5><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:validation.warnings" /></h5>
+                            <ul>
+                                <f:for each="{validation.warnings}" as="warning">
+                                    <li>{warning -> f:format.htmlentities()}</li>
+                                </f:for>
+                            </ul>
+                        </div>
+                    </f:if>
+
+                    <f:if condition="{hasErrors} == 0 && {hasWarnings} == 0">
+                        <div class="alert alert-success">
+                            <i class="fa fa-check-circle"></i>
+                            <f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:validation.success" />
+                        </div>
+                    </f:if>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <div class="btn-group" role="group">
+            <f:link.action action="index" class="btn btn-secondary">
+                <i class="fa fa-arrow-left"></i> Back
+            </f:link.action>
+
+            <f:link.action action="preview" class="btn btn-info">
+                <i class="fa fa-eye"></i> Preview New Version
+            </f:link.action>
+
+            <f:link.action action="generate" class="btn btn-primary">
+                <i class="fa fa-refresh"></i> Regenerate File
+            </f:link.action>
+        </div>
+    </div>
+</f:section>
+
+</html>

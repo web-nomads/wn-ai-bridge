@@ -1,0 +1,117 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Backend" />
+
+<f:section name="Content">
+    <h1><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:module.title" /></h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:configuration.title" /></h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:configuration.contact_email" />:</dt>
+                        <dd class="col-sm-9">{configuration.contactEmail -> f:format.htmlentities()}</dd>
+
+                        <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:configuration.license" />:</dt>
+                        <dd class="col-sm-9">{configuration.license -> f:format.htmlentities()}</dd>
+
+                        <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:configuration.topics" />:</dt>
+                        <dd class="col-sm-9">{configuration.topics -> f:format.htmlentities()}</dd>
+
+                        <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:configuration.include_paths" />:</dt>
+                        <dd class="col-sm-9">
+                            <f:if condition="{configuration.includePaths}">
+                                <f:then><pre>{configuration.includePaths -> f:format.htmlentities()}</pre></f:then>
+                                <f:else><em>None specified</em></f:else>
+                            </f:if>
+                        </dd>
+
+                        <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:configuration.exclude_paths" />:</dt>
+                        <dd class="col-sm-9">
+                            <f:if condition="{configuration.excludePaths}">
+                                <f:then><pre>{configuration.excludePaths -> f:format.htmlentities()}</pre></f:then>
+                                <f:else><em>None specified</em></f:else>
+                            </f:if>
+                        </dd>
+
+                        <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:configuration.llm_policy" />:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge {f:if(condition: '{configuration.llmPolicy} == \'allow\'', then: 'badge-success', else: 'badge-warning')}">
+                                {configuration.llmPolicy -> f:format.htmlentities()}
+                            </span>
+                        </dd>
+
+                        <f:if condition="{configuration.customHeaders}">
+                            <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:configuration.custom_headers" />:</dt>
+                            <dd class="col-sm-9"><pre>{configuration.customHeaders -> f:format.htmlentities()}</pre></dd>
+                        </f:if>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3>File Status</h3>
+                </div>
+                <div class="card-body">
+                    <dl>
+                        <dt><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:file.exists" />:</dt>
+                        <dd>
+                            <f:if condition="{fileInfo.exists}">
+                                <f:then><span class="badge badge-success">Yes</span></f:then>
+                                <f:else><span class="badge badge-warning">No</span></f:else>
+                            </f:if>
+                        </dd>
+
+                        <dt><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:file.path" />:</dt>
+                        <dd><code>{fileInfo.path -> f:format.htmlentities()}</code></dd>
+
+                        <f:if condition="{fileInfo.exists}">
+                            <dt><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:file.last_modified" />:</dt>
+                            <dd>{fileInfo.lastModified}</dd>
+
+                            <dt><f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:file.size" />:</dt>
+                            <dd>{fileInfo.size} bytes</dd>
+                        </f:if>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <div class="btn-group" role="group">
+            <f:link.action action="generate" class="btn btn-primary">
+                <i class="fa fa-save"></i>  <f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:action.generate" />
+            </f:link.action>
+
+            <f:link.action action="preview" class="btn btn-info">
+                <f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:action.preview" />
+            </f:link.action>
+
+            <f:if condition="{fileInfo.exists}">
+                <f:link.action action="validate" class="btn btn-secondary">
+                    <f:translate key="LLL:EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf:action.validate" />
+                </f:link.action>
+            </f:if>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h4>Site Information</h4>
+        <dl class="row">
+            <dt class="col-sm-2">Site URL:</dt>
+            <dd class="col-sm-10"><code>{siteUrl -> f:format.htmlentities()}</code></dd>
+        </dl>
+    </div>
+</f:section>
+
+</html>
