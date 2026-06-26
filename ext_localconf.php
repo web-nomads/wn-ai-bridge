@@ -22,3 +22,12 @@ ExtensionManagementUtility::addTypoScript(
     'setup',
     '@import "EXT:wn_ai_bridge/Configuration/TypoScript/markdown.typoscript"'
 );
+
+// Register cache for markdown content
+if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_markdown'])) {
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_markdown'] = [
+        'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
+        'backend' => \TYPO3\CMS\Core\Cache\Backend\FileBackend::class,
+        'groups' => ['pages']
+    ];
+}

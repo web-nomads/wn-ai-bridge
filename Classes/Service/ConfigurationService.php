@@ -169,4 +169,22 @@ class ConfigurationService
 
         return (int)($site->getConfiguration()['llmsTxtMaxDepth'] ?? 2);
     }
+
+    public function isFallbackHtmlEnabled(): bool
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return (bool)($extConf['parsingFallbackHtml'] ?? false);
+    }
+
+    public function isDebugEnabled(): bool
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return (bool)($extConf['debug'] ?? false);
+    }
+
+    public function isCacheEnabled(): bool
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return (bool)($extConf['cacheMarkdown'] ?? false);
+    }
 }

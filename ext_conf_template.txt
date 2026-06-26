@@ -1,2 +1,8 @@
 # cat=basic; type=boolean; label=Parsing-Fallback: HTML
 parsingFallbackHtml = 0
+
+# cat=basic; type=boolean; label=Debug
+debug = 0
+
+# cat=basic; type=boolean; label=Cache Markdown
+cacheMarkdown = 0

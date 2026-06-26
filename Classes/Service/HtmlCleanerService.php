@@ -21,23 +21,19 @@ class HtmlCleanerService
         // Step 0: Remove tags that shouldn't be in Markdown along with their content
         $html = preg_replace('/<(script|style|noscript|iframe|video|audio|picture|figure|source)[^>]*>.*?<\/\1>/is', '', $html);
 
-        // Step 1: Remove empty elements (run multiple times for nested elements)
-        for ($i = 0; $i < 3; $i++) {
-            $html = preg_replace('/<a[^>]*>\s*<\/a>/i', '', $html);
-            $html = preg_replace('/<div[^>]*>\s*<\/div>/i', '', $html);
-            $html = preg_replace('/<span[^>]*>\s*<\/span>/i', '', $html);
-            $html = preg_replace('/<p[^>]*>[\s\r\n&nbsp;]*<\/p>/i', '', $html);
-            $html = preg_replace('/<(section|article|aside)[^>]*>\s*<\/\1>/i', '', $html);
-        }
-
-        // Step 2: Normalize whitespace
+        // Step 1: Normalize whitespace - collapse all internal whitespace to a single space
         $html = preg_replace('/\s+/u', ' ', $html);
         $html = preg_replace('/>\s+</u', '><', $html);
-        $html = preg_replace('/\s*(<\/?(?:h[1-6]|p|ul|ol|li|blockquote|pre|table|tr|td|th)(?:\s[^>]*)?>)\s*/i', '$1', $html);
 
-        // Step 3: Remove common layout/column wrapper divs that create empty lines
-        $html = preg_replace('/<div[^>]*class="[^"]*(?:container|row|col|column|grid|layout|wrapper)[^"]*"[^>]*>/i', '', $html);
-        $html = preg_replace('/<\/div>/i', '', $html);
+        // Step 2: Handle vertical structure
+        // We only want newlines around real block elements that represent sections/items
+        $blockElements = 'h1|h2|h3|h4|h5|h6|p|section|article|li|ul|ol|blockquote|table|tr';
+        $html = preg_replace('/<(?:' . $blockElements . ')(?:\s[^>]*)?>/i', "\n$0", $html);
+        $html = preg_replace('/<\/(?:' . $blockElements . ')>/i', "$0\n", $html);
+
+        // For specific elements like count-box or skill, ensure they start on a new line 
+        // but don't break their internal content (like numbers and labels)
+        $html = preg_replace('/<(?:div|span)[^>]*class="[^"]*(?:count-box|skill|progress)[^"]*"[^>]*>/i', "\n$0", $html);
 
         return trim($html);
     }

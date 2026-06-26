@@ -101,6 +101,23 @@ class MarkdownConverterService
             }, $markdown);
 
             $markdown = html_entity_decode($markdown, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            
+            // Post-process: Remove leading spaces from each line and normalize newlines
+            $lines = explode("\n", $markdown);
+            $processedLines = [];
+            foreach ($lines as $line) {
+                $trimmedLine = trim($line);
+                if ($trimmedLine !== '') {
+                    $processedLines[] = $trimmedLine;
+                }
+            }
+            // Join with double newlines for a clear separation between blocks
+            // as requested by the user ("je einen Leerschlag zwischen jeden Block")
+            $markdown = implode("\n\n", $processedLines);
+            
+            // Final pass: ensure headers are clean (sometimes library adds trailing space)
+            $markdown = preg_replace('/^(#+ .*?) +$/m', '$1', $markdown);
+            
             return trim($markdown);
         } catch (\Exception $e) {
             return '';
