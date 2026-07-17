@@ -31,3 +31,15 @@ if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][
         'groups' => ['pages']
     ];
 }
+
+// Register cache for the rate limiter counters.
+// Uses the database backend so counters survive across requests and are shared
+// between PHP workers. It is intentionally not part of the 'pages' group so a
+// page cache flush does not reset the rate limit windows.
+if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_ratelimit'])) {
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_ratelimit'] = [
+        'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
+        'backend' => \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend::class,
+        'groups' => ['system'],
+    ];
+}

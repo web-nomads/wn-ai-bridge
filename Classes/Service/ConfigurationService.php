@@ -187,4 +187,33 @@ class ConfigurationService
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
         return (bool)($extConf['cacheMarkdown'] ?? false);
     }
+
+    /**
+     * Whether the rate limiter for AI-Bridge requests is globally enabled.
+     */
+    public function isRateLimiterEnabled(): bool
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return (bool)($extConf['rateLimiterEnabled'] ?? false);
+    }
+
+    /**
+     * Maximum number of AI-Bridge requests per minute per client IP.
+     * A value of 0 (or lower) disables the per-IP limit.
+     */
+    public function getRateLimiterRequestsPerMinute(): int
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return max(0, (int)($extConf['rateLimiterRequestsPerMinute'] ?? 60));
+    }
+
+    /**
+     * Maximum number of AI-Bridge requests per minute per API key / bot ID.
+     * A value of 0 (or lower) disables the per-key limit.
+     */
+    public function getRateLimiterPerKeyRequestsPerMinute(): int
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return max(0, (int)($extConf['rateLimiterPerKeyRequestsPerMinute'] ?? 120));
+    }
 }

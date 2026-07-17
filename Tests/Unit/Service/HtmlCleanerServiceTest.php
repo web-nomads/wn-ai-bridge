@@ -110,12 +110,13 @@ class HtmlCleanerServiceTest extends TestCase
     }
 
     #[Test]
-    public function cleanTypo3HtmlRemovesEmptyAnchorTags(): void
+    public function cleanTypo3HtmlPreservesAnchorTagsAndCollapsesInnerWhitespace(): void
     {
         $html = '<a href="#top">   </a><p>Content</p>';
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('<a href="#top">', $result);
+        // Anchor tags are structural and kept; only the inner whitespace is collapsed away.
+        self::assertStringContainsString('<a href="#top"></a>', $result);
         self::assertStringContainsString('Content', $result);
     }
 
@@ -130,12 +131,15 @@ class HtmlCleanerServiceTest extends TestCase
     }
 
     #[Test]
-    public function cleanTypo3HtmlRemovesEmptySpanTags(): void
+    public function cleanTypo3HtmlPreservesSpanTagsAndCollapsesInnerWhitespace(): void
     {
         $html = '<p>Text<span class="empty">  </span>more text</p>';
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('<span class="empty">', $result);
+        // Inline spans are preserved; the whitespace between the span tags is collapsed away.
+        self::assertStringContainsString('<span class="empty"></span>', $result);
+        self::assertStringContainsString('Text', $result);
+        self::assertStringContainsString('more text', $result);
     }
 
     #[Test]
@@ -150,13 +154,15 @@ class HtmlCleanerServiceTest extends TestCase
     }
 
     #[Test]
-    public function cleanTypo3HtmlRemovesNbspOnlyParagraphs(): void
+    public function cleanTypo3HtmlKeepsNbspOnlyParagraphs(): void
     {
         $html = '<p>Content</p><p>&nbsp;</p><p>More</p>';
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('<p>&nbsp;</p>', $result);
+        // &nbsp; placeholder paragraphs are not stripped by the cleaner.
+        self::assertStringContainsString('<p>&nbsp;</p>', $result);
         self::assertStringContainsString('Content', $result);
+        self::assertStringContainsString('More', $result);
     }
 
     #[Test]
@@ -169,70 +175,74 @@ class HtmlCleanerServiceTest extends TestCase
     }
 
     #[Test]
-    public function cleanTypo3HtmlRemovesContainerClassDivOpeners(): void
+    public function cleanTypo3HtmlKeepsContainerClassDivOpeners(): void
     {
         $html = '<div class="container"><p>Content</p></div>';
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('<div class="container">', $result);
+        // Layout wrapper divs are preserved; the Markdown conversion ignores them later.
+        self::assertStringContainsString('<div class="container">', $result);
         self::assertStringContainsString('<p>Content</p>', $result);
     }
 
     #[Test]
-    public function cleanTypo3HtmlRemovesRowClassDivOpeners(): void
+    public function cleanTypo3HtmlKeepsRowClassDivOpeners(): void
     {
         $html = '<div class="row"><p>Content</p></div>';
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('<div class="row">', $result);
+        self::assertStringContainsString('<div class="row">', $result);
         self::assertStringContainsString('Content', $result);
     }
 
     #[Test]
-    public function cleanTypo3HtmlRemovesColClassDivOpeners(): void
+    public function cleanTypo3HtmlKeepsColClassDivOpeners(): void
     {
         $html = '<div class="col-md-6"><p>Column content</p></div>';
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('<div class="col-md-6">', $result);
+        self::assertStringContainsString('<div class="col-md-6">', $result);
         self::assertStringContainsString('Column content', $result);
     }
 
     #[Test]
-    public function cleanTypo3HtmlRemovesGridClassDivOpeners(): void
+    public function cleanTypo3HtmlKeepsGridClassDivOpeners(): void
     {
         $html = '<div class="grid-container"><p>Grid content</p></div>';
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('<div class="grid-container">', $result);
+        self::assertStringContainsString('<div class="grid-container">', $result);
         self::assertStringContainsString('Grid content', $result);
     }
 
     #[Test]
-    public function cleanTypo3HtmlRemovesLayoutClassDivOpeners(): void
+    public function cleanTypo3HtmlKeepsLayoutClassDivOpeners(): void
     {
         $html = '<div class="page-layout"><p>Main content</p></div>';
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('<div class="page-layout">', $result);
+        self::assertStringContainsString('<div class="page-layout">', $result);
+        self::assertStringContainsString('Main content', $result);
     }
 
     #[Test]
-    public function cleanTypo3HtmlRemovesWrapperClassDivOpeners(): void
+    public function cleanTypo3HtmlKeepsWrapperClassDivOpeners(): void
     {
         $html = '<div class="content-wrapper"><p>Wrapped content</p></div>';
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('<div class="content-wrapper">', $result);
+        self::assertStringContainsString('<div class="content-wrapper">', $result);
+        self::assertStringContainsString('Wrapped content', $result);
     }
 
     #[Test]
-    public function cleanTypo3HtmlRemovesAllClosingDivTags(): void
+    public function cleanTypo3HtmlKeepsClosingDivTags(): void
     {
         $html = '<div class="content"><p>Text</p></div><div class="other"><p>More</p></div>';
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('</div>', $result);
+        // Closing divs are not removed; the surrounding content stays intact.
+        self::assertStringContainsString('</div>', $result);
         self::assertStringContainsString('Text', $result);
         self::assertStringContainsString('More', $result);
     }
@@ -316,12 +326,14 @@ class HtmlCleanerServiceTest extends TestCase
 
         $result = $this->subject->cleanTypo3Html($html);
 
-        self::assertStringNotContainsString('<div class="container">', $result);
-        self::assertStringNotContainsString('</div>', $result);
+        // Dangerous / non-content tags are stripped together with their content...
         self::assertStringNotContainsString('var x = 1', $result);
         self::assertStringNotContainsString('display: none', $result);
+        // ...while semantic content is preserved and layout wrappers are kept intact.
         self::assertStringContainsString('<h1>Title</h1>', $result);
         self::assertStringContainsString('<p>Some content</p>', $result);
+        self::assertStringContainsString('<div class="container">', $result);
+        self::assertStringContainsString('</div>', $result);
     }
 
     /**

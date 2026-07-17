@@ -1,6 +1,7 @@
 {
     "name": "web-nomads/wn-ai-bridge",
     "type": "typo3-cms-extension",
+    "version": "1.1.0",
     "description": "TYPO3 extension for generating llms.txt links based on the llmstxt.org specification to control how Large Language Models crawl and use website content.",
     "keywords": ["TYPO3", "CMS", "llm", "ai", "crawling", "policy"],
     "homepage": "https://github.com/web-nomads/wn-ai-bridge",

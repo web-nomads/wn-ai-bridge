@@ -6,3 +6,12 @@ debug = 0
 
 # cat=basic; type=boolean; label=Cache Markdown
 cacheMarkdown = 0
+
+# cat=rateLimiter; type=boolean; label=Rate-Limiter aktivieren: Schaltet die Drosselung der AI-Bridge-Requests (llms.txt / .md) global ein oder aus
+rateLimiterEnabled = 0
+
+# cat=rateLimiter; type=int+; label=Requests pro Minute pro IP: Maximale Anzahl an AI-Bridge-Requests pro Minute je Client-IP (0 = unbegrenzt)
+rateLimiterRequestsPerMinute = 60
+
+# cat=rateLimiter; type=int+; label=Requests pro Minute pro API-Key/Bot-ID: Maximale Anzahl an AI-Bridge-Requests pro Minute je API-Key bzw. Bot-ID (0 = unbegrenzt)
+rateLimiterPerKeyRequestsPerMinute = 120

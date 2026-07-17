@@ -11,6 +11,9 @@ services:
   WebNomads\WnAiBridge\Controller\LlmsTxtController:
     public: true
 
+  WebNomads\WnAiBridge\Middleware\RateLimiterMiddleware:
+    public: true
+
   WebNomads\WnAiBridge\Command\DownloadMarkdownCommand:
     tags:
       - name: 'console.command'
