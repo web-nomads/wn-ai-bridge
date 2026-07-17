@@ -68,7 +68,8 @@ final class RateLimiterMiddleware implements MiddlewareInterface
 
         return str_ends_with($path, '/llms.txt')
             || $path === '/llms.txt'
-            || str_ends_with($path, '.md');
+            || str_ends_with($path, '.md')
+            || str_ends_with($path, AssistantRequestMiddleware::ENDPOINT_PATH);
     }
 
     /**

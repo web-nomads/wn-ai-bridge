@@ -1,9 +1,9 @@
 {
     "name": "web-nomads/wn-ai-bridge",
     "type": "typo3-cms-extension",
-    "version": "1.1.0",
-    "description": "TYPO3 extension for generating llms.txt links based on the llmstxt.org specification to control how Large Language Models crawl and use website content.",
-    "keywords": ["TYPO3", "CMS", "llm", "ai", "crawling", "policy"],
+    "version": "1.2.0",
+    "description": "TYPO3 extension for generating llms.txt links based on the llmstxt.org specification and an on-site AI search assistant that helps visitors find information via ke_search and indexed_search.",
+    "keywords": ["TYPO3", "CMS", "llm", "ai", "crawling", "policy", "search", "assistant", "chatbot"],
     "homepage": "https://github.com/web-nomads/wn-ai-bridge",
     "license": "GPL-2.0-or-later",
     "authors": [
@@ -31,6 +31,10 @@
         "typo3/cms-tstemplate": "^13.4 || ^14.3",
         "typo3/coding-standards": "^0.8",
         "typo3/testing-framework": "^8.0 || ^9.3"
+    },
+    "suggest": {
+        "typo3/cms-indexed-search": "Use the TYPO3 core indexed search index as a source for the AI search assistant",
+        "tpwd/ke_search": "Use the ke_search index as a source for the AI search assistant"
     },
     "autoload": {
         "psr-4": {

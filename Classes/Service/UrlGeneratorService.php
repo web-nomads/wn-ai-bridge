@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace WebNomads\WnAiBridge\Service;
 
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Site\SiteFinder;
 
 class UrlGeneratorService
 {
     private readonly SiteFinder $siteFinder;
     private readonly ConfigurationService $configurationService;
+    private readonly ConnectionPool $connectionPool;
 
     public function __construct(
         ?SiteFinder $siteFinder = null,
-        ?ConfigurationService $configurationService = null
+        ?ConfigurationService $configurationService = null,
+        ?ConnectionPool $connectionPool = null
     ) {
         $this->siteFinder = $siteFinder ?? \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(SiteFinder::class);
         $this->configurationService = $configurationService ?? \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConfigurationService::class);
+        $this->connectionPool = $connectionPool ?? \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConnectionPool::class);
     }
 
     /**
@@ -109,6 +114,104 @@ class UrlGeneratorService
         }
 
         return $uri;
+    }
+
+    /**
+     * Generate an absolute HTML URL for a page id, used for search result links.
+     *
+     * On OnePager sites (enabled per site via aiAssistantOnePager) the sections
+     * are direct children of the root page and are rendered as anchors on the
+     * homepage, so a hit on such a page must link to "https://site/#section"
+     * instead of "https://site/section". This delegates to generateHtmlUrl()
+     * which already contains that anchor logic. On normal multipage sites the
+     * flag stays off and real page URLs are produced.
+     *
+     * Returns an empty string when the page cannot be routed (e.g. deleted or
+     * outside any site) so callers can skip the hit.
+     */
+    public function generateUrlForPageId(int $pageId, int $languageId = 0): string
+    {
+        if ($pageId <= 0) {
+            return '';
+        }
+
+        try {
+            if ($this->configurationService->isAssistantOnePagerEnabled()) {
+                $pid = $this->fetchPid($pageId);
+                if ($pid !== null) {
+                    return $this->generateHtmlUrl([
+                        'uid' => $pageId,
+                        'pid' => $pid,
+                        'sys_language_uid' => $languageId,
+                    ]);
+                }
+            }
+
+            return $this->generatePlainUrlForPageId($pageId, $languageId);
+        } catch (\Throwable $e) {
+            return '';
+        }
+    }
+
+    /**
+     * Plain absolute page URL without any OnePager anchor handling.
+     */
+    private function generatePlainUrlForPageId(int $pageId, int $languageId): string
+    {
+        try {
+            $site = $this->siteFinder->getSiteByPageId($pageId);
+        } catch (\Exception $e) {
+            return '';
+        }
+
+        try {
+            $siteLanguage = $site->getLanguageById($languageId);
+        } catch (\Exception $e) {
+            $siteLanguage = $site->getDefaultLanguage();
+        }
+
+        try {
+            $uri = (string)$site->getRouter()->generateUri(
+                $pageId,
+                ['_language' => $siteLanguage],
+                '',
+                \TYPO3\CMS\Core\Routing\RouterInterface::ABSOLUTE_URL
+            );
+        } catch (\Exception $e) {
+            return '';
+        }
+
+        if (str_starts_with($uri, '/')) {
+            $uri = $this->configurationService->getSiteUrl() . $uri;
+        }
+
+        return $uri;
+    }
+
+    /**
+     * Fetch the parent page id (pid) for a page, needed to detect OnePager
+     * sections (direct children of the site root). Returns null when unknown.
+     */
+    private function fetchPid(int $pageId): ?int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
+        $queryBuilder->getRestrictions()->removeAll();
+
+        try {
+            $pid = $queryBuilder
+                ->select('pid')
+                ->from('pages')
+                ->where(
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($pageId, Connection::PARAM_INT))
+                )
+                ->setMaxResults(1)
+                ->executeQuery()
+                ->fetchOne();
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        return $pid !== false ? (int)$pid : null;
     }
 
 }

@@ -1,0 +1,10 @@
+# AI search assistant widget.
+#
+# Rendered as an uncached USER_INT into the page footer so the per-site enable
+# flag is evaluated on every request and the CSS/JS assets are only loaded when
+# the widget is actually shown. The controller returns an empty string when the
+# assistant is disabled for the current site.
+page.footerData.1699124800 = USER_INT
+page.footerData.1699124800 {
+    userFunc = WebNomads\WnAiBridge\Controller\AssistantWidgetController->render
+}

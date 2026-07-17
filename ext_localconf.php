@@ -23,6 +23,12 @@ ExtensionManagementUtility::addTypoScript(
     '@import "EXT:wn_ai_bridge/Configuration/TypoScript/markdown.typoscript"'
 );
 
+ExtensionManagementUtility::addTypoScript(
+    'wn_ai_bridge',
+    'setup',
+    '@import "EXT:wn_ai_bridge/Configuration/TypoScript/assistant.typoscript"'
+);
+
 // Register cache for markdown content
 if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_markdown'])) {
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_markdown'] = [

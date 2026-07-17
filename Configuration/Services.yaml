@@ -8,11 +8,42 @@ services:
     resource: '../Classes/*'
     exclude: '../Classes/Domain/Model/*'
 
+  # Search providers, highest priority first (dedicated indexes before the
+  # dependency-free page/content fallback). The tagged iterator is injected
+  # into the SearchService. Third-party providers can join by tagging their
+  # service with "wn_ai_bridge.search_provider".
+  WebNomads\WnAiBridge\Search\KeSearchProvider:
+    tags:
+      - { name: 'wn_ai_bridge.search_provider', priority: 30 }
+
+  WebNomads\WnAiBridge\Search\IndexedSearchProvider:
+    tags:
+      - { name: 'wn_ai_bridge.search_provider', priority: 20 }
+
+  WebNomads\WnAiBridge\Search\PageContentSearchProvider:
+    tags:
+      - { name: 'wn_ai_bridge.search_provider', priority: 10 }
+
+  WebNomads\WnAiBridge\Search\SearchService:
+    arguments:
+      $providers: !tagged_iterator wn_ai_bridge.search_provider
+
   WebNomads\WnAiBridge\Controller\LlmsTxtController:
+    public: true
+
+  WebNomads\WnAiBridge\Controller\AssistantWidgetController:
     public: true
 
   WebNomads\WnAiBridge\Middleware\RateLimiterMiddleware:
     public: true
+
+  WebNomads\WnAiBridge\Middleware\AssistantRequestMiddleware:
+    public: true
+
+  # Bind the LLM abstraction to the Anthropic implementation. Swap this alias to
+  # add another provider without touching the assistant service.
+  WebNomads\WnAiBridge\Llm\LlmClientInterface:
+    alias: WebNomads\WnAiBridge\Llm\AnthropicClient
 
   WebNomads\WnAiBridge\Command\DownloadMarkdownCommand:
     tags:

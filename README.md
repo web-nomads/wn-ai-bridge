@@ -12,7 +12,25 @@ TYPO3 extension for generating `llms.txt` links according to the [llmstxt.org sp
 - **Site navigation structure** - Includes your site's navigation hierarchy in the llms.txt file
 - **Configurable metadata** - Add topics, contact information, and custom descriptions
 - **Markdown export** - Convert any TYPO3 page to Markdown format via `.md` suffix
-- **TYPO3 v13 compatibility** - Built specifically for TYPO3 v13 using modern PHP practices
+- **AI search assistant** - A floating chat widget that helps visitors find information on the site and answers with suggestions and links. Works search-only out of the box (via `ke_search`, `indexed_search` or a built-in page/content fallback) and can produce grounded, cited answers with an LLM (Anthropic Claude) when an API key is configured
+- **TYPO3 v13 & v14 compatibility** - Built for TYPO3 v13.4 and v14.3 using modern PHP practices
+
+## AI Search Assistant
+
+The extension ships an on-site chat bot ("AI search assistant") that helps
+visitors find information. Enable it via the extension configuration
+(`assistantEnabled`) and, per site, on the **AI Search Assistant** tab of the
+site configuration.
+
+- **Search-only mode** (no API key): returns ranked matching pages as
+  suggestions with links — fast, free, privacy friendly.
+- **Hybrid mode** (with an LLM API key in `assistantApiKey`): additionally lets
+  Claude compose a short, cited answer from the retrieved pages (RAG). Any LLM
+  failure falls back to search-only automatically.
+
+The assistant aggregates `ke_search` and `indexed_search` when installed and
+always keeps a dependency-free `pages`/`tt_content` fallback so it works even
+without a search index. See `Documentation/AiAssistant/Index.rst` for details.
 
 ## What is llms.txt?
 

@@ -43,6 +43,7 @@ LLMS TXT Generator for TYPO3
    Administrator/Index
    Editor/Index
    Configuration/Index
+   AiAssistant/Index
    Developer/Index
    KnownProblems/Index
    ChangeLog/Index

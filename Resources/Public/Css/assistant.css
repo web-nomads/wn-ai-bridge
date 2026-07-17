@@ -1,0 +1,307 @@
+/*
+ * wn_ai_bridge — site search assistant widget styles.
+ * Self-contained and scoped under #wn-ai-assistant to avoid clashing with the
+ * host theme. Honours prefers-color-scheme and prefers-reduced-motion.
+ */
+#wn-ai-assistant {
+    --wn-ai-accent: #2563eb;
+    --wn-ai-accent-contrast: #ffffff;
+    --wn-ai-bg: #ffffff;
+    --wn-ai-fg: #1f2933;
+    --wn-ai-muted: #6b7280;
+    --wn-ai-border: #e5e7eb;
+    --wn-ai-user-bg: #2563eb;
+    --wn-ai-user-fg: #ffffff;
+    --wn-ai-assistant-bg: #f3f4f6;
+    --wn-ai-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    --wn-ai-radius: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* Toggle button ------------------------------------------------------- */
+#wn-ai-assistant .wn-ai-toggle {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 58px;
+    height: 58px;
+    border: none;
+    border-radius: 50%;
+    background: var(--wn-ai-accent);
+    color: var(--wn-ai-accent-contrast);
+    cursor: pointer;
+    box-shadow: var(--wn-ai-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2147483000;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+#wn-ai-assistant .wn-ai-toggle:hover {
+    transform: scale(1.06);
+}
+
+#wn-ai-assistant .wn-ai-toggle:focus-visible {
+    outline: 3px solid var(--wn-ai-accent);
+    outline-offset: 3px;
+}
+
+#wn-ai-assistant.wn-ai--open .wn-ai-toggle {
+    transform: scale(0.9);
+    opacity: 0.85;
+}
+
+/* Panel --------------------------------------------------------------- */
+#wn-ai-assistant .wn-ai-panel {
+    position: fixed;
+    right: 24px;
+    bottom: 96px;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    height: 560px;
+    max-height: calc(100vh - 120px);
+    background: var(--wn-ai-bg);
+    color: var(--wn-ai-fg);
+    border: 1px solid var(--wn-ai-border);
+    border-radius: var(--wn-ai-radius);
+    box-shadow: var(--wn-ai-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 2147483000;
+    animation: wn-ai-in 0.18s ease;
+}
+
+@keyframes wn-ai-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#wn-ai-assistant .wn-ai-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--wn-ai-accent);
+    color: var(--wn-ai-accent-contrast);
+}
+
+#wn-ai-assistant .wn-ai-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#wn-ai-assistant .wn-ai-close {
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 8px;
+    display: flex;
+}
+
+#wn-ai-assistant .wn-ai-close:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+#wn-ai-assistant .wn-ai-close:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+/* Messages ------------------------------------------------------------ */
+#wn-ai-assistant .wn-ai-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#wn-ai-assistant .wn-ai-msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+}
+
+#wn-ai-assistant .wn-ai-bubble {
+    padding: 10px 13px;
+    border-radius: 14px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+#wn-ai-assistant .wn-ai-msg--user {
+    align-items: flex-end;
+}
+
+#wn-ai-assistant .wn-ai-msg--user .wn-ai-bubble {
+    background: var(--wn-ai-user-bg);
+    color: var(--wn-ai-user-fg);
+    border-bottom-right-radius: 4px;
+    max-width: 85%;
+}
+
+#wn-ai-assistant .wn-ai-msg--assistant .wn-ai-bubble {
+    background: var(--wn-ai-assistant-bg);
+    color: var(--wn-ai-fg);
+    border-bottom-left-radius: 4px;
+    max-width: 90%;
+}
+
+/* Sources ------------------------------------------------------------- */
+#wn-ai-assistant .wn-ai-sources__label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--wn-ai-muted);
+    margin-bottom: 6px;
+}
+
+#wn-ai-assistant .wn-ai-sources {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#wn-ai-assistant .wn-ai-source {
+    display: block;
+    padding: 10px 12px;
+    border: 1px solid var(--wn-ai-border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--wn-ai-accent);
+    font-weight: 600;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+#wn-ai-assistant .wn-ai-source:hover {
+    border-color: var(--wn-ai-accent);
+    background: rgba(37, 99, 235, 0.06);
+}
+
+#wn-ai-assistant .wn-ai-source:focus-visible {
+    outline: 2px solid var(--wn-ai-accent);
+    outline-offset: 2px;
+}
+
+#wn-ai-assistant .wn-ai-source__snippet {
+    display: block;
+    margin-top: 4px;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--wn-ai-muted);
+}
+
+/* Typing indicator ---------------------------------------------------- */
+#wn-ai-assistant .wn-ai-typing .wn-ai-bubble {
+    color: var(--wn-ai-muted);
+    font-style: italic;
+}
+
+/* Input --------------------------------------------------------------- */
+#wn-ai-assistant .wn-ai-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid var(--wn-ai-border);
+    background: var(--wn-ai-bg);
+}
+
+#wn-ai-assistant .wn-ai-input {
+    flex: 1;
+    resize: none;
+    border: 1px solid var(--wn-ai-border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font: inherit;
+    color: var(--wn-ai-fg);
+    background: var(--wn-ai-bg);
+    max-height: 140px;
+}
+
+#wn-ai-assistant .wn-ai-input:focus-visible {
+    outline: 2px solid var(--wn-ai-accent);
+    outline-offset: 1px;
+    border-color: var(--wn-ai-accent);
+}
+
+#wn-ai-assistant .wn-ai-send {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 12px;
+    background: var(--wn-ai-accent);
+    color: var(--wn-ai-accent-contrast);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#wn-ai-assistant .wn-ai-send:hover {
+    filter: brightness(1.05);
+}
+
+#wn-ai-assistant .wn-ai-send:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+#wn-ai-assistant .wn-ai-send:focus-visible {
+    outline: 2px solid var(--wn-ai-accent);
+    outline-offset: 2px;
+}
+
+/* Mobile -------------------------------------------------------------- */
+@media (max-width: 480px) {
+    #wn-ai-assistant .wn-ai-panel {
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        max-width: 100vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+    }
+
+    #wn-ai-assistant .wn-ai-toggle {
+        right: 16px;
+        bottom: 16px;
+    }
+}
+
+/* Dark mode ----------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+    #wn-ai-assistant {
+        --wn-ai-bg: #1f2430;
+        --wn-ai-fg: #e5e7eb;
+        --wn-ai-muted: #9ca3af;
+        --wn-ai-border: #374151;
+        --wn-ai-assistant-bg: #2d3340;
+        --wn-ai-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* Reduced motion ------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+    #wn-ai-assistant .wn-ai-panel,
+    #wn-ai-assistant .wn-ai-toggle {
+        animation: none;
+        transition: none;
+    }
+}

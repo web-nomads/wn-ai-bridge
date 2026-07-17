@@ -15,3 +15,27 @@ rateLimiterRequestsPerMinute = 60
 
 # cat=rateLimiter; type=int+; label=Requests pro Minute pro API-Key/Bot-ID: Maximale Anzahl an AI-Bridge-Requests pro Minute je API-Key bzw. Bot-ID (0 = unbegrenzt)
 rateLimiterPerKeyRequestsPerMinute = 120
+
+# cat=assistant; type=boolean; label=KI-Suchassistent aktivieren: Globaler Hauptschalter für den Chat-Bot, der Besuchern beim Finden von Informationen auf der Seite hilft
+assistantEnabled = 0
+
+# cat=assistant; type=options[Anthropic Claude=anthropic]; label=LLM-Provider: Anbieter für die Antwortgenerierung (ohne API-Key antwortet der Bot rein suchbasiert)
+assistantProvider = anthropic
+
+# cat=assistant; type=string; label=LLM API-Key: API-Key des Providers. Leer lassen für den reinen Suchmodus (Treffer + Links ohne KI-Antwort)
+assistantApiKey =
+
+# cat=assistant; type=string; label=LLM-Modell: Modell-ID für die Antwortgenerierung (z. B. claude-haiku-4-5 für schnell/günstig oder claude-opus-4-8 für höchste Qualität)
+assistantModel = claude-haiku-4-5
+
+# cat=assistant; type=options[Automatisch=auto,ke_search=kesearch,Indexed Search=indexed,Nur Seiteninhalt=pages]; label=Suchquellen: Welche Suchindizes berücksichtigt werden (Automatisch nutzt alle verfügbaren)
+assistantSearchSources = auto
+
+# cat=assistant; type=int+; label=Maximale Suchtreffer: Anzahl der Treffer, die als Kontext/Vorschläge herangezogen werden
+assistantMaxResults = 5
+
+# cat=assistant; type=int+; label=Antwort-Token-Limit: Maximale Länge der KI-Antwort in Tokens
+assistantMaxTokens = 1024
+
+# cat=assistant; type=boolean; label=Bot-Schutz: Blockiert Anfragen an den Assistenten, die nicht von einem menschlichen Besucher über das Widget stammen (Crawler, Skripte, bekannte Bots)
+assistantBotProtection = 1

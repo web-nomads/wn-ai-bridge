@@ -125,6 +125,69 @@
 			<trans-unit id="site.llmsTxtMaxDepth.description">
 				<source>Maximum depth of page hierarchy to include in navigation (1-5 levels)</source>
 			</trans-unit>
+			<trans-unit id="site.tab.assistant">
+				<source>AI Search Assistant</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantEnabled">
+				<source>Enable AI Search Assistant</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantEnabled.description">
+				<source>Show the floating chat assistant on this site (requires the global assistant switch in the extension configuration).</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantTitle">
+				<source>Assistant Title</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantTitle.description">
+				<source>Heading shown in the assistant window. Leave empty for the default.</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantWelcome">
+				<source>Welcome Message</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantWelcome.description">
+				<source>First message the assistant shows when the window is opened.</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantPlaceholder">
+				<source>Input Placeholder</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantPlaceholder.description">
+				<source>Placeholder text shown in the question input field.</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantAccentColor">
+				<source>Accent Color</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantAccentColor.description">
+				<source>Accent color for the button, header and links (hex, e.g. #2563eb). Choose one that fits your design and is visible on your background.</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantAutoOpen">
+				<source>Open Automatically</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantAutoOpen.description">
+				<source>Automatically open the assistant overlay after a delay when a visitor lands on a page. It will not reopen after the visitor closes it during the same visit.</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantAutoOpenDelay">
+				<source>Auto-Open Delay (seconds)</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantAutoOpenDelay.description">
+				<source>Number of seconds to wait before the overlay opens automatically (0 = immediately).</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantSystemPrompt">
+				<source>Additional Instructions</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantSystemPrompt.description">
+				<source>Extra instructions for the assistant (persona, tone, what to recommend). Appended to the base system prompt. Only used when an LLM API key is configured.</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantOnePager">
+				<source>OnePager Mode</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantOnePager.description">
+				<source>Enable if this site is a OnePager (sub-pages are rendered as sections on the homepage). Result links to direct children of the site root then use anchors (e.g. "/#customers") instead of separate sub-page URLs.</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantSearchPid">
+				<source>Search Root Page</source>
+			</trans-unit>
+			<trans-unit id="site.aiAssistantSearchPid.description">
+				<source>Optional page id to restrict the search to a subtree. 0 = search the whole site.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

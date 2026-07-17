@@ -216,4 +216,195 @@ class ConfigurationService
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
         return max(0, (int)($extConf['rateLimiterPerKeyRequestsPerMinute'] ?? 120));
     }
+
+    // ------------------------------------------------------------------
+    // AI search assistant (site chat bot)
+    // ------------------------------------------------------------------
+
+    /**
+     * Global master switch (extension configuration) for the AI search assistant.
+     * When disabled, the assistant endpoint and widget are inactive on every site.
+     */
+    public function isAssistantEnabled(): bool
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return (bool)($extConf['assistantEnabled'] ?? false);
+    }
+
+    /**
+     * Whether the assistant is active for the current site: requires both the
+     * global master switch and the per-site toggle (defaults to on when the
+     * global switch is set, so a single global flag is enough to get started).
+     */
+    public function isAssistantEnabledForCurrentSite(): bool
+    {
+        if (!$this->isAssistantEnabled()) {
+            return false;
+        }
+
+        $site = $this->getCurrentSite();
+        if (!$site instanceof Site) {
+            return false;
+        }
+
+        return (bool)($site->getConfiguration()['aiAssistantEnabled'] ?? true);
+    }
+
+    public function getAssistantProvider(): string
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        $provider = trim((string)($extConf['assistantProvider'] ?? 'anthropic'));
+        return $provider !== '' ? $provider : 'anthropic';
+    }
+
+    public function getAssistantApiKey(): string
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return trim((string)($extConf['assistantApiKey'] ?? ''));
+    }
+
+    /**
+     * Whether an LLM is configured. Without a key the assistant runs in
+     * search-only mode (ranked hits + links, no generated answer).
+     */
+    public function isAssistantLlmConfigured(): bool
+    {
+        return $this->getAssistantApiKey() !== '';
+    }
+
+    public function getAssistantModel(): string
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        $model = trim((string)($extConf['assistantModel'] ?? ''));
+        return $model !== '' ? $model : 'claude-haiku-4-5';
+    }
+
+    /**
+     * Configured search sources: auto | kesearch | indexed | pages.
+     */
+    public function getAssistantSearchSources(): string
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        $sources = trim((string)($extConf['assistantSearchSources'] ?? 'auto'));
+        return $sources !== '' ? $sources : 'auto';
+    }
+
+    public function getAssistantMaxResults(): int
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return max(1, (int)($extConf['assistantMaxResults'] ?? 5));
+    }
+
+    public function getAssistantMaxTokens(): int
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return max(256, (int)($extConf['assistantMaxTokens'] ?? 1024));
+    }
+
+    /**
+     * Whether requests to the assistant endpoint are checked for being made by a
+     * real human via the widget rather than a bot/crawler/script. On by default.
+     */
+    public function isAssistantBotProtectionEnabled(): bool
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return (bool)($extConf['assistantBotProtection'] ?? true);
+    }
+
+    /**
+     * Whether this site is a OnePager, i.e. its sub-pages are rendered as
+     * anchor sections on the homepage. When enabled, assistant result links to
+     * direct children of the site root point to "site/#section" instead of a
+     * separate sub-page URL.
+     */
+    public function isAssistantOnePagerEnabled(): bool
+    {
+        $site = $this->getCurrentSite();
+        return $site instanceof Site && (bool)($site->getConfiguration()['aiAssistantOnePager'] ?? false);
+    }
+
+    /**
+     * Optional per-site page id that limits the search to a subtree (0 = whole site).
+     */
+    public function getAssistantSearchRootPageId(): int
+    {
+        $site = $this->getCurrentSite();
+        if (!$site instanceof Site) {
+            return 0;
+        }
+        return max(0, (int)($site->getConfiguration()['aiAssistantSearchPid'] ?? 0));
+    }
+
+    public function getAssistantTitle(): string
+    {
+        $site = $this->getCurrentSite();
+        $title = $site instanceof Site ? trim((string)($site->getConfiguration()['aiAssistantTitle'] ?? '')) : '';
+        return $title !== '' ? $title : 'Wie kann ich helfen?';
+    }
+
+    public function getAssistantWelcomeMessage(): string
+    {
+        $site = $this->getCurrentSite();
+        $welcome = $site instanceof Site ? trim((string)($site->getConfiguration()['aiAssistantWelcome'] ?? '')) : '';
+        return $welcome !== ''
+            ? $welcome
+            : 'Stellen Sie mir eine Frage – ich durchsuche die Website und zeige Ihnen, wo Sie die passenden Informationen finden.';
+    }
+
+    public function getAssistantPlaceholder(): string
+    {
+        $site = $this->getCurrentSite();
+        $placeholder = $site instanceof Site ? trim((string)($site->getConfiguration()['aiAssistantPlaceholder'] ?? '')) : '';
+        return $placeholder !== '' ? $placeholder : 'Ihre Frage …';
+    }
+
+    /**
+     * Whether the assistant overlay should open automatically after a delay.
+     */
+    public function isAssistantAutoOpenEnabled(): bool
+    {
+        $site = $this->getCurrentSite();
+        return $site instanceof Site && (bool)($site->getConfiguration()['aiAssistantAutoOpen'] ?? false);
+    }
+
+    /**
+     * Delay in seconds before the overlay opens automatically (min 0).
+     */
+    public function getAssistantAutoOpenDelay(): int
+    {
+        $site = $this->getCurrentSite();
+        if (!$site instanceof Site) {
+            return 5;
+        }
+        return max(0, (int)($site->getConfiguration()['aiAssistantAutoOpenDelay'] ?? 5));
+    }
+
+    /**
+     * Accent colour (button, header, links) as a CSS hex value so the widget can
+     * match the site design. Falls back to the default blue when unset/invalid.
+     */
+    public function getAssistantAccentColor(): string
+    {
+        $default = '#2563eb';
+        $site = $this->getCurrentSite();
+        if (!$site instanceof Site) {
+            return $default;
+        }
+
+        $color = trim((string)($site->getConfiguration()['aiAssistantAccentColor'] ?? ''));
+        // Accept #rgb / #rrggbb only; ignore anything else to avoid CSS injection.
+        return preg_match('/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $color) === 1
+            ? $color
+            : $default;
+    }
+
+    /**
+     * Additional site-specific instructions appended to the assistant system prompt
+     * (persona, tone, escalation hints, etc.).
+     */
+    public function getAssistantSystemPrompt(): string
+    {
+        $site = $this->getCurrentSite();
+        return $site instanceof Site ? trim((string)($site->getConfiguration()['aiAssistantSystemPrompt'] ?? '')) : '';
+    }
 }
