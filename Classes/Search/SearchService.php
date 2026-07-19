@@ -55,6 +55,8 @@ final class SearchService
             return [];
         }
 
+        $terms = SearchQuery::terms($query);
+
         /** @var array<string, array{item: SearchResultItem, weight: float}> $merged */
         $merged = [];
 
@@ -68,8 +70,9 @@ final class SearchService
 
                 if (isset($merged[$key])) {
                     $merged[$key]['weight'] += $weight;
-                    // Prefer the richer snippet if the earlier one was empty.
-                    if ($merged[$key]['item']->snippet === '' && $item->snippet !== '') {
+                    // Keep the most useful snippet: one that actually contains the
+                    // query terms beats a generic (e.g. navigational) excerpt.
+                    if ($this->snippetScore($item->snippet, $terms) > $this->snippetScore($merged[$key]['item']->snippet, $terms)) {
                         $merged[$key]['item'] = $item;
                     }
                 } else {
@@ -130,9 +133,44 @@ final class SearchService
         return $active;
     }
 
+    /**
+     * Normalise a URL for de-duplication. The anchor is kept as part of the key
+     * because on OnePager sites the sections ("/#about", "/#services") are
+     * distinct destinations and must not collapse into each other — or into the
+     * anchor-less homepage.
+     */
     private function normaliseUrl(string $url): string
     {
-        $url = explode('#', $url)[0];
-        return rtrim($url, '/');
+        $anchor = '';
+        $hashPos = strpos($url, '#');
+        if ($hashPos !== false) {
+            $anchor = substr($url, $hashPos);
+            $url = substr($url, 0, $hashPos);
+        }
+
+        return rtrim($url, '/') . $anchor;
+    }
+
+    /**
+     * Relevance of a snippet for de-dup tie-breaking: how many query terms it
+     * contains. An empty snippet ranks below any non-empty one.
+     *
+     * @param list<string> $terms
+     */
+    private function snippetScore(string $snippet, array $terms): int
+    {
+        if (trim($snippet) === '') {
+            return -1;
+        }
+
+        $lower = mb_strtolower($snippet);
+        $score = 0;
+        foreach ($terms as $term) {
+            if (mb_strpos($lower, mb_strtolower($term)) !== false) {
+                $score++;
+            }
+        }
+
+        return $score;
     }
 }

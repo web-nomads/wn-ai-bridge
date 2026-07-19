@@ -1,0 +1,98 @@
+/*
+ * wn_ai_bridge — frontend base / isolation layer.
+ *
+ * Loaded on EVERY frontend page as the LAST element of the document body (via a
+ * footerData USER_INT rendered after the widget), independent of whether the
+ * widget markup is present. Being last in the document, it wins the cascade
+ * against head-loaded host CSS (Bootstrap, the theme) on equal specificity.
+ * Purpose:
+ *
+ *   1. Never interfere with the host page. Every selector is scoped under
+ *      #wn-ai-assistant, so this file adds nothing to Bootstrap, the theme, or
+ *      any other site CSS — when the widget is absent it is completely inert.
+ *
+ *   2. Shield the widget from the host. `all: revert` strips inherited and
+ *      foreign author styles from the widget subtree, so rules like
+ *      `button { min-width: 100px }` (Bootstrap and friends) can no longer bleed
+ *      in — that stray min-width is exactly what stretched the round chat button
+ *      into an oval.
+ *
+ * The widget's visual styling lives in assistant.css; this file only resets and
+ * locks the geometry so the look is deterministic regardless of the theme.
+ */
+
+/* 1. Hard reset — drop foreign author styles from the widget's DESCENDANTS while
+      keeping the sensible user-agent defaults (block/inline/list semantics),
+      then restore a predictable box model. Custom properties (--wn-ai-*) are
+      unaffected by `all`, so the widget's theming variables survive.
+
+      Two things are deliberately excluded from the reset:
+      - The #wn-ai-assistant container itself: its typography (font-size, family,
+        line-height) is owned by assistant.css. Since this file loads last,
+        reverting the container here would wipe that and let the text fall back
+        to the host/UA size.
+      - SVG icons (svg and everything inside them): they are sized and coloured
+        via presentation attributes (width/height, fill="currentColor",
+        fill="var(--wn-ai-accent)"); `all: revert` would strip those and break
+        the icons. */
+#wn-ai-assistant *:not(svg, svg *),
+#wn-ai-assistant *:not(svg, svg *)::before,
+#wn-ai-assistant *:not(svg, svg *)::after {
+    all: revert;
+    box-sizing: border-box;
+}
+
+#wn-ai-assistant {
+    box-sizing: border-box;
+}
+
+/* 2. Neutralise framework form-control quirks that reach the widget through bare
+      element selectors (button/input/textarea/select) and survive the reset:
+      forced min/max-width, uppercase text, letter-spacing, native appearance,
+      drop shadows, floats and margins. */
+#wn-ai-assistant button,
+#wn-ai-assistant input,
+#wn-ai-assistant textarea,
+#wn-ai-assistant select {
+    min-width: 0;
+    max-width: none;
+    margin: 0;
+    font: inherit;
+    line-height: normal;
+    letter-spacing: normal;
+    text-transform: none;
+    box-shadow: none;
+    float: none;
+    background-image: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* 3. Belt-and-braces geometry lock for the round floating button and the send
+      button. Width and height are clamped with !important so that even a host
+      `min-width` — including an `!important` one that would outrank the reset —
+      cannot pull them out of their fixed square (and therefore round) shape. */
+#wn-ai-assistant .wn-ai-toggle {
+    box-sizing: border-box !important;
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+    max-width: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    flex: 0 0 auto !important;
+}
+
+#wn-ai-assistant .wn-ai-send {
+    box-sizing: border-box !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 !important;
+    flex: 0 0 auto !important;
+}

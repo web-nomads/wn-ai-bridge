@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="ru" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_widget.xlf" date="2026-07-17T12:00:00Z">
+		<header><description>Russian translations for the AI search assistant chat widget.</description></header>
+		<body>
+			<trans-unit id="widget.toggle"><source>Open the search assistant</source><target>Открыть помощника по поиску</target></trans-unit>
+			<trans-unit id="widget.send"><source>Send</source><target>Отправить</target></trans-unit>
+			<trans-unit id="widget.close"><source>Close</source><target>Закрыть</target></trans-unit>
+			<trans-unit id="widget.newChat"><source>Start a new discussion</source><target>Начать новый разговор</target></trans-unit>
+			<trans-unit id="widget.newChatConfirm"><source>Start a new discussion? The current conversation will be discarded.</source><target>Начать новый разговор? Текущая переписка будет удалена.</target></trans-unit>
+			<trans-unit id="widget.newChatYes"><source>Start</source><target>Начать</target></trans-unit>
+			<trans-unit id="widget.newChatNo"><source>Cancel</source><target>Отмена</target></trans-unit>
+			<trans-unit id="widget.sources"><source>Related links</source><target>Полезные ссылки по теме</target></trans-unit>
+			<trans-unit id="widget.thinking"><source>Searching the website …</source><target>Ищу по сайту …</target></trans-unit>
+			<trans-unit id="widget.error"><source>Something went wrong. Please try again.</source><target>Произошла ошибка. Пожалуйста, попробуйте ещё раз.</target></trans-unit>
+			<trans-unit id="widget.rateLimited"><source>Too many requests. Please wait a moment.</source><target>Слишком много запросов. Пожалуйста, подождите немного.</target></trans-unit>
+			<trans-unit id="widget.title.default"><source>How can I help?</source><target>Чем я могу помочь?</target></trans-unit>
+			<trans-unit id="widget.welcome.default"><source>Ask me a question — I'll search the website and show you where to find the right information.</source><target>Задайте мне вопрос — я поищу по сайту и покажу, где найти нужную информацию.</target></trans-unit>
+			<trans-unit id="widget.placeholder.default"><source>Your question …</source><target>Ваш вопрос …</target></trans-unit>
+			<trans-unit id="message.noResults"><source>I couldn't find anything about that on the website. Please try different search terms or rephrase your question.</source><target>К сожалению, я ничего не нашёл по этому запросу на сайте. Попробуйте другие ключевые слова или переформулируйте вопрос.</target></trans-unit>
+			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>Я нашёл одну подходящую страницу:</target></trans-unit>
+			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>Я нашёл подходящих страниц: %d</target></trans-unit>
+			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>Посмотрите предложения ниже — там вы найдёте нужную информацию.</target></trans-unit>
+		</body>
+	</file>
+</xliff>

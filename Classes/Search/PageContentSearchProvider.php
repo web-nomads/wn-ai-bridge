@@ -55,9 +55,12 @@ final class PageContentSearchProvider implements SearchProviderInterface
         $restrictToPages = $rootPageId > 0 ? $this->collectSubtreePageIds($rootPageId) : [];
 
         // Score is accumulated per page across page metadata and content elements.
+        // $contentText keeps the best-matching content passage per page so the
+        // snippet can show the relevant text (not just the page description).
         $scores = [];
+        $contentText = [];
         $this->collectFromPages($terms, $languageId, $restrictToPages, $scores);
-        $this->collectFromContent($terms, $languageId, $restrictToPages, $scores);
+        $this->collectFromContent($terms, $languageId, $restrictToPages, $scores, $contentText);
 
         if ($scores === []) {
             return [];
@@ -78,7 +81,11 @@ final class PageContentSearchProvider implements SearchProviderInterface
             }
 
             $title = ($page['seo_title'] ?? '') ?: ($page['title'] ?? '');
-            $snippet = (string)(($page['description'] ?? '') ?: ($page['abstract'] ?? ''));
+            // Prefer a keyword-centred excerpt from the matching content, then
+            // the page description/abstract.
+            $snippetSource = ($contentText[(int)$pageId]['text'] ?? '')
+                ?: (($page['description'] ?? '') ?: ($page['abstract'] ?? ''));
+            $snippet = SearchQuery::snippet((string)$snippetSource, $terms);
             $items[] = SearchResultItem::create(
                 (string)$title,
                 $url,
@@ -143,8 +150,9 @@ final class PageContentSearchProvider implements SearchProviderInterface
      * @param list<string>  $terms
      * @param list<int>     $restrictToPages
      * @param array<int, float> $scores
+     * @param array<int, array{score: float, text: string}> $contentText Best matching content passage per page (by ref)
      */
-    private function collectFromContent(array $terms, int $languageId, array $restrictToPages, array &$scores): void
+    private function collectFromContent(array $terms, int $languageId, array $restrictToPages, array &$scores, array &$contentText = []): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('tt_content');
         $queryBuilder->getRestrictions()->removeAll()
@@ -173,10 +181,20 @@ final class PageContentSearchProvider implements SearchProviderInterface
 
         foreach ($rows as $row) {
             $pageId = (int)$row['pid'];
-            $scores[$pageId] = ($scores[$pageId] ?? 0.0)
-                + $this->fieldScore($terms, (string)($row['header'] ?? '')) * 4.0
+            $bodyText = strip_tags((string)($row['bodytext'] ?? ''));
+            $rowScore = $this->fieldScore($terms, (string)($row['header'] ?? '')) * 4.0
                 + $this->fieldScore($terms, (string)($row['subheader'] ?? '')) * 2.0
-                + $this->fieldScore($terms, strip_tags((string)($row['bodytext'] ?? ''))) * 1.0;
+                + $this->fieldScore($terms, $bodyText) * 1.0;
+
+            $scores[$pageId] = ($scores[$pageId] ?? 0.0) + $rowScore;
+
+            // Remember the highest-scoring matching passage for the snippet.
+            if ($rowScore > 0 && $rowScore >= ($contentText[$pageId]['score'] ?? 0.0)) {
+                $contentText[$pageId] = [
+                    'score' => $rowScore,
+                    'text' => trim(((string)($row['header'] ?? '')) . ' ' . $bodyText),
+                ];
+            }
         }
     }
 

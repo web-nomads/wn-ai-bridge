@@ -91,6 +91,59 @@ final class BotDetectionService
         return null;
     }
 
+    /**
+     * User-Agent markers of AI/LLM crawlers specifically, so the bot access log
+     * can highlight AI bots. Subset of {@see BOT_USER_AGENT_MARKERS}.
+     *
+     * @var list<string>
+     */
+    private const AI_BOT_MARKERS = [
+        'gptbot', 'oai-searchbot', 'chatgpt-user', 'claudebot', 'claude-web',
+        'anthropic-ai', 'ccbot', 'perplexitybot', 'perplexity-user', 'bytespider',
+        'google-extended', 'applebot-extended', 'meta-externalagent', 'diffbot',
+        'youbot', 'duckassistbot', 'cohere-ai', 'imagesiftbot', 'timpibot',
+    ];
+
+    /**
+     * Whether the given User-Agent looks like a known crawler/HTTP client.
+     */
+    public function isBotUserAgent(string $userAgent): bool
+    {
+        return $this->matchesBotUserAgent($userAgent);
+    }
+
+    /**
+     * Whether the User-Agent belongs to a known AI/LLM crawler.
+     */
+    public function isAiBot(string $userAgent): bool
+    {
+        $userAgent = strtolower($userAgent);
+        foreach (self::AI_BOT_MARKERS as $marker) {
+            if (str_contains($userAgent, $marker)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The identifying bot marker found in the User-Agent (e.g. "gptbot",
+     * "googlebot"), or null when none matches.
+     */
+    public function botName(string $userAgent): ?string
+    {
+        $userAgent = strtolower($userAgent);
+        // Prefer the more specific AI markers, then the general list.
+        foreach ([self::AI_BOT_MARKERS, self::BOT_USER_AGENT_MARKERS] as $markers) {
+            foreach ($markers as $marker) {
+                if (str_contains($userAgent, $marker)) {
+                    return rtrim($marker, '/');
+                }
+            }
+        }
+        return null;
+    }
+
     private function matchesBotUserAgent(string $userAgent): bool
     {
         $userAgent = strtolower($userAgent);

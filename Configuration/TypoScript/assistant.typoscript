@@ -8,3 +8,14 @@ page.footerData.1699124800 = USER_INT
 page.footerData.1699124800 {
     userFunc = WebNomads\WnAiBridge\Controller\AssistantWidgetController->render
 }
+
+# Base / isolation stylesheet. Emitted as the very LAST element of the page body
+# (footerData, with a key after the widget) rather than into the <head>, so it is
+# the last stylesheet in the document and therefore wins the cascade against the
+# host theme / Bootstrap on equal specificity. Loaded on every frontend page and
+# independent of the per-site enable flag, so the isolation is always in place.
+# Scoped entirely under #wn-ai-assistant — inert when the widget is absent.
+page.footerData.1699124900 = USER_INT
+page.footerData.1699124900 {
+    userFunc = WebNomads\WnAiBridge\Controller\AssistantWidgetController->renderBaseCss
+}

@@ -1,0 +1,174 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module"/>
+
+<f:section name="Content">
+
+    <f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_botaccess.xlf:</f:variable>
+
+    <div class="wn-ai-log">
+
+    <h1><f:translate key="{ll}module.title"/></h1>
+
+    <f:if condition="{tableError}">
+        <div class="callout callout-danger"><div class="callout-body">
+            <f:translate key="{ll}module.tableMissing"/>
+        </div></div>
+    </f:if>
+
+    <f:if condition="{loggingEnabled} == 0">
+        <div class="callout callout-warning"><div class="callout-body">
+            <f:translate key="{ll}module.disabled"/>
+        </div></div>
+    </f:if>
+
+    <f:comment>Statistics overview</f:comment>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
+        <div class="col"><div class="card h-100"><div class="card-body">
+            <div class="h2 mb-0">{stats.total}</div>
+            <div class="text-body-secondary"><f:translate key="{ll}stats.total"/></div>
+        </div></div></div>
+        <div class="col"><div class="card h-100"><div class="card-body">
+            <div class="h2 mb-0">{stats.ai}</div>
+            <div class="text-body-secondary"><f:translate key="{ll}stats.ai"/></div>
+        </div></div></div>
+        <div class="col"><div class="card h-100"><div class="card-body">
+            <div class="h2 mb-0">{stats.llmstxt}</div>
+            <div class="text-body-secondary">llms.txt</div>
+        </div></div></div>
+        <div class="col"><div class="card h-100"><div class="card-body">
+            <div class="h2 mb-0">{stats.markdown}</div>
+            <div class="text-body-secondary"><f:translate key="{ll}stats.markdown"/></div>
+        </div></div></div>
+        <div class="col"><div class="card h-100"><div class="card-body">
+            <div class="h2 mb-0">{stats.page}</div>
+            <div class="text-body-secondary"><f:translate key="{ll}stats.page"/></div>
+        </div></div></div>
+    </div>
+
+    <f:comment>Filter</f:comment>
+    <form method="get" action="{moduleUrl}" class="row g-2 align-items-end mb-3">
+        <div class="col-auto">
+            <label class="form-label"><f:translate key="{ll}filter.dateFrom"/></label>
+            <input type="date" name="dateFrom" value="{filter.dateFrom}" class="form-control form-control-sm">
+        </div>
+        <div class="col-auto">
+            <label class="form-label"><f:translate key="{ll}filter.dateTo"/></label>
+            <input type="date" name="dateTo" value="{filter.dateTo}" class="form-control form-control-sm">
+        </div>
+        <div class="col-auto">
+            <label class="form-label"><f:translate key="{ll}filter.type"/></label>
+            <select name="requestType" class="form-select form-select-sm">
+                <option value=""><f:translate key="{ll}filter.all"/></option>
+                <option value="llmstxt"<f:if condition="{filter.requestType} == 'llmstxt'"> selected</f:if>>llms.txt</option>
+                <option value="markdown"<f:if condition="{filter.requestType} == 'markdown'"> selected</f:if>>Markdown (.md)</option>
+                <option value="page"<f:if condition="{filter.requestType} == 'page'"> selected</f:if>><f:translate key="{ll}stats.page"/></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-label"><f:translate key="{ll}filter.bot"/></label>
+            <select name="botName" class="form-select form-select-sm">
+                <option value=""><f:translate key="{ll}filter.all"/></option>
+                <f:for each="{botNames}" as="name">
+                    <option value="{name}"<f:if condition="{filter.botName} == {name}"> selected</f:if>>{name}</option>
+                </f:for>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-label"><f:translate key="{ll}filter.ip"/></label>
+            <input type="text" name="ip" value="{filter.ip}" class="form-control form-control-sm" placeholder="1.2.3.">
+        </div>
+        <div class="col-auto">
+            <label class="form-label"><f:translate key="{ll}filter.search"/></label>
+            <input type="text" name="search" value="{filter.search}" class="form-control form-control-sm" placeholder="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_botaccess.xlf:filter.searchPlaceholder')}">
+        </div>
+        <div class="col-auto">
+            <div class="form-check mt-4">
+                <input type="checkbox" name="aiOnly" value="1" class="form-check-input" id="aiOnly" {f:if(condition: filter.aiOnly, then: 'checked')}>
+                <label class="form-check-label" for="aiOnly"><f:translate key="{ll}filter.aiOnly"/></label>
+            </div>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-primary"><f:translate key="{ll}filter.apply"/></button>
+            <a href="{moduleUrl}" class="btn btn-sm btn-default"><f:translate key="{ll}filter.reset"/></a>
+        </div>
+    </form>
+
+    <f:comment>Result table</f:comment>
+    <f:if condition="{entries}">
+        <f:then>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th><f:translate key="{ll}col.date"/></th>
+                            <th><f:translate key="{ll}col.type"/></th>
+                            <th><f:translate key="{ll}col.bot"/></th>
+                            <th><f:translate key="{ll}col.status"/></th>
+                            <th><f:translate key="{ll}col.path"/></th>
+                            <th><f:translate key="{ll}col.ip"/></th>
+                            <th><f:translate key="{ll}col.userAgent"/></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <f:for each="{entries}" as="e">
+                            <tr>
+                                <td class="text-nowrap small"><f:format.date date="{e.createdAt}" format="d.m.Y H:i:s"/></td>
+                                <td>
+                                    <f:switch expression="{e.requestType}">
+                                        <f:case value="llmstxt"><span class="badge bg-primary">llms.txt</span></f:case>
+                                        <f:case value="markdown"><span class="badge bg-info">.md</span></f:case>
+                                        <f:defaultCase><span class="badge bg-secondary"><f:translate key="{ll}stats.page"/></span></f:defaultCase>
+                                    </f:switch>
+                                </td>
+                                <td>
+                                    {e.botName}
+                                    <f:if condition="{e.isAiBot}"><span class="badge bg-success">AI</span></f:if>
+                                </td>
+                                <td>
+                                    <f:if condition="{e.httpStatus} >= 400">
+                                        <f:then><span class="badge bg-danger">{e.httpStatus}</span></f:then>
+                                        <f:else><span class="badge bg-secondary">{e.httpStatus}</span></f:else>
+                                    </f:if>
+                                    <span class="text-body-secondary small">{e.method}</span>
+                                </td>
+                                <td class="small" style="max-width: 320px; word-break: break-all;">
+                                    {e.path}<f:if condition="{e.queryString}">?{e.queryString}</f:if>
+                                    <f:if condition="{e.referer}"><div class="text-body-secondary" style="word-break: break-all;"><f:translate key="{ll}col.referer"/>: {e.referer}</div></f:if>
+                                </td>
+                                <td class="text-nowrap small">{e.ipAddress}</td>
+                                <td class="small text-body-secondary" style="max-width: 340px; word-break: break-all;">{e.userAgent}</td>
+                            </tr>
+                        </f:for>
+                    </tbody>
+                </table>
+            </div>
+
+            <f:if condition="{pagination.totalPages} > 1">
+                <nav class="mt-2">
+                    <ul class="pagination pagination-sm">
+                        <f:for each="{pagination.pages}" as="p">
+                            <li class="page-item {f:if(condition: p.active, then: 'active')}">
+                                <a class="page-link" href="{p.url}">{p.num}</a>
+                            </li>
+                        </f:for>
+                    </ul>
+                    <div class="text-body-secondary small">{pagination.current} / {pagination.totalPages} ({total})</div>
+                </nav>
+            </f:if>
+
+            <form method="post" action="{moduleUrl}" class="mt-4" onsubmit="return confirm('{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_botaccess.xlf:action.clearConfirm')}');">
+                <input type="hidden" name="action" value="deleteAll">
+                <button type="submit" class="btn btn-sm btn-danger"><f:translate key="{ll}action.clear"/></button>
+            </form>
+        </f:then>
+        <f:else>
+            <div class="callout callout-info"><div class="callout-body"><f:translate key="{ll}table.empty"/></div></div>
+        </f:else>
+    </f:if>
+
+    </div>
+
+</f:section>
+</html>

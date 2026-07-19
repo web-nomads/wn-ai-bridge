@@ -40,7 +40,7 @@ final class AnthropicClient implements LlmClientInterface
         return 'anthropic';
     }
 
-    public function complete(string $systemPrompt, array $messages, string $model, int $maxTokens): string
+    public function complete(string $systemPrompt, array $messages, string $model, int $maxTokens, ?float $temperature = null): LlmResult
     {
         $apiKey = $this->configurationService->getAssistantApiKey();
         if ($apiKey === '') {
@@ -61,6 +61,11 @@ final class AnthropicClient implements LlmClientInterface
             ],
             'messages' => $this->normaliseMessages($messages),
         ];
+
+        // Only send a temperature when configured; otherwise use the API default.
+        if ($temperature !== null) {
+            $payload['temperature'] = max(0.0, min(1.0, $temperature));
+        }
 
         try {
             $response = $this->requestFactory->request(
@@ -87,7 +92,7 @@ final class AnthropicClient implements LlmClientInterface
             throw new LlmException('Anthropic API returned HTTP ' . $status . ': ' . $body, 1765400003);
         }
 
-        return $this->extractText($body);
+        return $this->extractResult($body);
     }
 
     /**
@@ -114,7 +119,7 @@ final class AnthropicClient implements LlmClientInterface
         return $normalised;
     }
 
-    private function extractText(string $body): string
+    private function extractResult(string $body): LlmResult
     {
         try {
             $data = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
@@ -134,6 +139,12 @@ final class AnthropicClient implements LlmClientInterface
             throw new LlmException('Anthropic returned an empty answer.', 1765400006);
         }
 
-        return $text;
+        $usage = $data['usage'] ?? [];
+
+        return new LlmResult(
+            $text,
+            (int)($usage['input_tokens'] ?? 0),
+            (int)($usage['output_tokens'] ?? 0),
+        );
     }
 }

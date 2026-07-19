@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf" date="2026-07-17T12:00:00Z">
+		<header>
+			<description>Language labels for the AI assistant log backend module</description>
+		</header>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>AI Assistant Log</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>AI Assistant Log</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>Review logged questions and answers of the AI search assistant, filter them and see provider and token usage.</source>
+			</trans-unit>
+
+			<trans-unit id="module.title">
+				<source>AI Assistant Log</source>
+			</trans-unit>
+			<trans-unit id="module.loggingDisabled">
+				<source>Logging is currently disabled. Enable "Log inputs and answers" in the extension configuration to record new interactions. Existing entries are still shown below.</source>
+			</trans-unit>
+			<trans-unit id="module.tableMissing">
+				<source>The log table does not exist yet. Please run the database schema update (Admin Tools › Maintenance › Analyze Database Structure).</source>
+			</trans-unit>
+			<trans-unit id="stats.total">
+				<source>Interactions</source>
+			</trans-unit>
+			<trans-unit id="stats.llm">
+				<source>LLM answers</source>
+			</trans-unit>
+			<trans-unit id="stats.search">
+				<source>Search-only</source>
+			</trans-unit>
+			<trans-unit id="stats.tokens">
+				<source>Tokens (in / out / total)</source>
+			</trans-unit>
+			<trans-unit id="stats.byProvider">
+				<source>By provider</source>
+			</trans-unit>
+			<trans-unit id="stats.cost">
+				<source>Estimated cost</source>
+			</trans-unit>
+			<trans-unit id="filter.heading">
+				<source>Filter</source>
+			</trans-unit>
+			<trans-unit id="filter.dateFrom">
+				<source>From</source>
+			</trans-unit>
+			<trans-unit id="filter.dateTo">
+				<source>To</source>
+			</trans-unit>
+			<trans-unit id="filter.ip">
+				<source>IP address</source>
+			</trans-unit>
+			<trans-unit id="filter.provider">
+				<source>Provider</source>
+			</trans-unit>
+			<trans-unit id="filter.mode">
+				<source>Mode</source>
+			</trans-unit>
+			<trans-unit id="filter.search">
+				<source>Search text</source>
+			</trans-unit>
+			<trans-unit id="filter.apply">
+				<source>Apply</source>
+			</trans-unit>
+			<trans-unit id="filter.reset">
+				<source>Reset</source>
+			</trans-unit>
+			<trans-unit id="filter.all">
+				<source>All</source>
+			</trans-unit>
+			<trans-unit id="table.date">
+				<source>Date</source>
+			</trans-unit>
+			<trans-unit id="table.ip">
+				<source>IP</source>
+			</trans-unit>
+			<trans-unit id="table.question">
+				<source>Question</source>
+			</trans-unit>
+			<trans-unit id="table.answer">
+				<source>Answer</source>
+			</trans-unit>
+			<trans-unit id="table.mode">
+				<source>Mode</source>
+			</trans-unit>
+			<trans-unit id="table.provider">
+				<source>Provider</source>
+			</trans-unit>
+			<trans-unit id="table.model">
+				<source>Model</source>
+			</trans-unit>
+			<trans-unit id="table.tokens">
+				<source>Tokens</source>
+			</trans-unit>
+			<trans-unit id="table.empty">
+				<source>No log entries found for the current filter.</source>
+			</trans-unit>
+			<trans-unit id="table.open">
+				<source>Open thread</source>
+			</trans-unit>
+			<trans-unit id="thread.heading">
+				<source>Conversation thread</source>
+			</trans-unit>
+			<trans-unit id="thread.back">
+				<source>Back to list</source>
+			</trans-unit>
+			<trans-unit id="thread.turns">
+				<source>Turns</source>
+			</trans-unit>
+			<trans-unit id="thread.question">
+				<source>Question</source>
+			</trans-unit>
+			<trans-unit id="thread.answer">
+				<source>Answer</source>
+			</trans-unit>
+			<trans-unit id="thread.sources">
+				<source>Suggested pages</source>
+			</trans-unit>
+			<trans-unit id="thread.empty">
+				<source>This log entry could not be found (it may have been deleted).</source>
+			</trans-unit>
+			<trans-unit id="learning.pendingTitle">
+				<source>Visitor corrections awaiting review</source>
+			</trans-unit>
+			<trans-unit id="learning.pendingHint">
+				<source>A visitor corrected an answer. Approve a correction to use it as a known hint in future answers (only when a question thematically matches), or reject it to discard.</source>
+			</trans-unit>
+			<trans-unit id="learning.topic">
+				<source>Topic</source>
+			</trans-unit>
+			<trans-unit id="learning.wrongAnswer">
+				<source>Given answer</source>
+			</trans-unit>
+			<trans-unit id="learning.correction">
+				<source>Correction</source>
+			</trans-unit>
+			<trans-unit id="learning.approve">
+				<source>Approve</source>
+			</trans-unit>
+			<trans-unit id="learning.reject">
+				<source>Reject</source>
+			</trans-unit>
+			<trans-unit id="visitor.local">
+				<source>local / internal</source>
+			</trans-unit>
+			<trans-unit id="action.clear">
+				<source>Clear log</source>
+			</trans-unit>
+			<trans-unit id="action.clearConfirm">
+				<source>Delete all log entries? This cannot be undone.</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="nl" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_widget.xlf" date="2026-07-17T12:00:00Z">
+		<header><description>Dutch translations for the AI search assistant chat widget.</description></header>
+		<body>
+			<trans-unit id="widget.toggle"><source>Open the search assistant</source><target>Zoekassistent openen</target></trans-unit>
+			<trans-unit id="widget.send"><source>Send</source><target>Verzenden</target></trans-unit>
+			<trans-unit id="widget.close"><source>Close</source><target>Sluiten</target></trans-unit>
+			<trans-unit id="widget.newChat"><source>Start a new discussion</source><target>Nieuw gesprek starten</target></trans-unit>
+			<trans-unit id="widget.newChatConfirm"><source>Start a new discussion? The current conversation will be discarded.</source><target>Een nieuw gesprek starten? Het huidige gesprek wordt verwijderd.</target></trans-unit>
+			<trans-unit id="widget.newChatYes"><source>Start</source><target>Starten</target></trans-unit>
+			<trans-unit id="widget.newChatNo"><source>Cancel</source><target>Annuleren</target></trans-unit>
+			<trans-unit id="widget.sources"><source>Related links</source><target>Relevante links over dit onderwerp</target></trans-unit>
+			<trans-unit id="widget.thinking"><source>Searching the website …</source><target>Ik doorzoek de website …</target></trans-unit>
+			<trans-unit id="widget.error"><source>Something went wrong. Please try again.</source><target>Er is iets misgegaan. Probeer het opnieuw.</target></trans-unit>
+			<trans-unit id="widget.rateLimited"><source>Too many requests. Please wait a moment.</source><target>Te veel verzoeken. Wacht een moment.</target></trans-unit>
+			<trans-unit id="widget.title.default"><source>How can I help?</source><target>Waarmee kan ik helpen?</target></trans-unit>
+			<trans-unit id="widget.welcome.default"><source>Ask me a question — I'll search the website and show you where to find the right information.</source><target>Stel me een vraag — ik doorzoek de website en laat u zien waar u de juiste informatie vindt.</target></trans-unit>
+			<trans-unit id="widget.placeholder.default"><source>Your question …</source><target>Uw vraag …</target></trans-unit>
+			<trans-unit id="message.noResults"><source>I couldn't find anything about that on the website. Please try different search terms or rephrase your question.</source><target>Ik heb daarover niets op de website gevonden. Probeer andere zoektermen of formuleer uw vraag anders.</target></trans-unit>
+			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>Ik heb één relevante pagina gevonden:</target></trans-unit>
+			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>Ik heb %d relevante pagina's gevonden:</target></trans-unit>
+			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>Bekijk de suggesties hieronder — daar vindt u de gezochte informatie.</target></trans-unit>
+		</body>
+	</file>
+</xliff>

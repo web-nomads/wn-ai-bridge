@@ -9,10 +9,14 @@ use PHPUnit\Framework\TestCase;
 use WebNomads\WnAiBridge\Dto\SearchResultItem;
 use WebNomads\WnAiBridge\Llm\LlmClientInterface;
 use WebNomads\WnAiBridge\Llm\LlmException;
+use WebNomads\WnAiBridge\Llm\LlmResult;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use WebNomads\WnAiBridge\Domain\Repository\AssistantLearningRepository;
 use WebNomads\WnAiBridge\Search\SearchProviderInterface;
 use WebNomads\WnAiBridge\Search\SearchService;
 use WebNomads\WnAiBridge\Service\AssistantService;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
+use WebNomads\WnAiBridge\Service\LearningService;
 
 class AssistantServiceTest extends TestCase
 {
@@ -49,12 +53,12 @@ class AssistantServiceTest extends TestCase
             {
                 return 'anthropic';
             }
-            public function complete(string $systemPrompt, array $messages, string $model, int $maxTokens): string
+            public function complete(string $systemPrompt, array $messages, string $model, int $maxTokens, ?float $temperature = null): LlmResult
             {
                 if ($this->throws !== null) {
                     throw $this->throws;
                 }
-                return (string)$this->answer;
+                return new LlmResult((string)$this->answer, 12, 34);
             }
         };
     }
@@ -69,9 +73,23 @@ class AssistantServiceTest extends TestCase
         $configuration->method('getAssistantProvider')->willReturn('anthropic');
         $configuration->method('getAssistantModel')->willReturn('claude-haiku-4-5');
         $configuration->method('getAssistantMaxTokens')->willReturn(1024);
+        $configuration->method('getAssistantTemperature')->willReturn(0.7);
+        $configuration->method('getAssistantInstructions')->willReturn('');
         $configuration->method('getAssistantSystemPrompt')->willReturn('');
         $configuration->method('getSiteName')->willReturn('Test Site');
+        $configuration->method('isAssistantLearningEnabled')->willReturn(false);
         return $configuration;
+    }
+
+    /**
+     * Learning disabled — no correction capture, no prompt injection.
+     */
+    private function learningService(ConfigurationService $configuration): LearningService
+    {
+        return new LearningService(
+            $configuration,
+            new AssistantLearningRepository($this->createMock(ConnectionPool::class)),
+        );
     }
 
     /**
@@ -92,6 +110,7 @@ class AssistantServiceTest extends TestCase
             $this->searchService([], $configuration),
             $configuration,
             $this->llmClient('unused'),
+            $this->learningService($configuration),
         );
 
         $response = $service->ask('etwas völlig unbekanntes', [], 0);
@@ -109,6 +128,7 @@ class AssistantServiceTest extends TestCase
             $this->searchService($this->sampleResults(), $configuration),
             $configuration,
             $this->llmClient('should not be used'),
+            $this->learningService($configuration),
         );
 
         $response = $service->ask('Studium', [], 0);
@@ -126,6 +146,7 @@ class AssistantServiceTest extends TestCase
             $this->searchService($this->sampleResults(), $configuration),
             $configuration,
             $this->llmClient('Das Studium beginnt im Herbst [1].'),
+            $this->learningService($configuration),
         );
 
         $response = $service->ask('Wann beginnt das Studium?', [], 0);
@@ -133,6 +154,11 @@ class AssistantServiceTest extends TestCase
         self::assertSame('llm', $response->mode);
         self::assertSame('Das Studium beginnt im Herbst [1].', $response->answer);
         self::assertCount(1, $response->sources);
+        // Provider/model and token usage are captured for logging.
+        self::assertSame('anthropic', $response->provider);
+        self::assertSame('claude-haiku-4-5', $response->model);
+        self::assertSame(12, $response->inputTokens);
+        self::assertSame(34, $response->outputTokens);
     }
 
     #[Test]
@@ -143,6 +169,7 @@ class AssistantServiceTest extends TestCase
             $this->searchService($this->sampleResults(), $configuration),
             $configuration,
             $this->llmClient(null, new LlmException('boom')),
+            $this->learningService($configuration),
         );
 
         $response = $service->ask('Studium', [], 0);

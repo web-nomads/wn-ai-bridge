@@ -84,6 +84,32 @@ class SearchServiceTest extends TestCase
     }
 
     #[Test]
+    public function keepsDistinctOnePagerSectionAnchorsSeparate(): void
+    {
+        // On a OnePager the sections share the same base URL but differ only by
+        // their anchor. They must stay distinct results (and distinct from the
+        // anchor-less homepage), not collapse into one.
+        $home = SearchResultItem::create('Home', 'https://example.com/', 'home', 5.0, 'indexed', 1);
+        $about = SearchResultItem::create('Über mich', 'https://example.com/#about', '', 4.0, 'pages', 2);
+        $services = SearchResultItem::create('Dienstleistungen', 'https://example.com/#services', '', 3.0, 'pages', 3);
+
+        $service = new SearchService(
+            [$this->provider('indexed', [$home]), $this->provider('pages', [$about, $services])],
+            $this->configuration(),
+        );
+
+        $urls = array_map(
+            static fn(SearchResultItem $item): string => $item->url,
+            $service->search('anything', 10, 0),
+        );
+
+        self::assertCount(3, $urls);
+        self::assertContains('https://example.com/', $urls);
+        self::assertContains('https://example.com/#about', $urls);
+        self::assertContains('https://example.com/#services', $urls);
+    }
+
+    #[Test]
     public function honoursExplicitSourceSelection(): void
     {
         $keItem = SearchResultItem::create('Ke', 'https://example.com/ke', '', 5.0, 'kesearch', 1);

@@ -34,10 +34,22 @@ services:
   WebNomads\WnAiBridge\Controller\AssistantWidgetController:
     public: true
 
+  WebNomads\WnAiBridge\Controller\Backend\LogModuleController:
+    public: true
+
+  WebNomads\WnAiBridge\Controller\Backend\CorrectionsModuleController:
+    public: true
+
+  WebNomads\WnAiBridge\Controller\Backend\BotAccessModuleController:
+    public: true
+
   WebNomads\WnAiBridge\Middleware\RateLimiterMiddleware:
     public: true
 
   WebNomads\WnAiBridge\Middleware\AssistantRequestMiddleware:
+    public: true
+
+  WebNomads\WnAiBridge\Middleware\BotAccessLogMiddleware:
     public: true
 
   # Bind the LLM abstraction to the Anthropic implementation. Swap this alias to

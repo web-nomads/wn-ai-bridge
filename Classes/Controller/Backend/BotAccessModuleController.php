@@ -1,0 +1,101 @@
+<?php
+
+declare(strict_types=1);
+
+namespace WebNomads\WnAiBridge\Controller\Backend;
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Http\RedirectResponse;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WebNomads\WnAiBridge\Domain\Model\BotAccessFilter;
+use WebNomads\WnAiBridge\Domain\Repository\BotAccessRepository;
+use WebNomads\WnAiBridge\Service\ConfigurationService;
+
+/**
+ * Backend module: a filterable list of bot/crawler accesses to llms.txt, the
+ * Markdown versions and normal pages.
+ */
+final class BotAccessModuleController
+{
+    private const MODULE_NAME = 'wn_ai_bridge_botaccess';
+
+    public function __construct(
+        private readonly ModuleTemplateFactory $moduleTemplateFactory,
+        private readonly BotAccessRepository $repository,
+        private readonly ConfigurationService $configurationService,
+        private readonly BackendUriBuilder $uriBuilder,
+    ) {}
+
+    public function handleRequest(ServerRequestInterface $request): ResponseInterface
+    {
+        $parsedBody = $request->getParsedBody();
+        $params = array_merge($request->getQueryParams(), is_array($parsedBody) ? $parsedBody : []);
+
+        if ($request->getMethod() === 'POST' && ($params['action'] ?? '') === 'deleteAll') {
+            $this->repository->deleteAll();
+            return new RedirectResponse((string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME));
+        }
+
+        $filter = BotAccessFilter::fromQueryParams($params);
+
+        $tableError = false;
+        $entries = [];
+        $total = 0;
+        $stats = ['total' => 0, 'llmstxt' => 0, 'markdown' => 0, 'page' => 0, 'ai' => 0];
+        $botNames = [];
+        try {
+            $entries = $this->repository->findByFilter($filter);
+            $total = $this->repository->countByFilter($filter);
+            $stats = $this->repository->getStatistics($filter);
+            $botNames = $this->repository->findDistinctBotNames();
+        } catch (\Throwable $e) {
+            $tableError = true;
+        }
+
+        GeneralUtility::makeInstance(PageRenderer::class)
+            ->addCssFile('EXT:wn_ai_bridge/Resources/Public/Css/backend.css');
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($request);
+        $moduleTemplate->setTitle('Bot Access Log');
+        $moduleTemplate->assignMultiple([
+            'loggingEnabled' => $this->configurationService->isBotAccessLoggingEnabled(),
+            'tableError' => $tableError,
+            'entries' => $entries,
+            'total' => $total,
+            'stats' => $stats,
+            'botNames' => $botNames,
+            'filter' => $filter->toFormValues(),
+            'pagination' => $this->buildPagination($filter, $total),
+            'moduleUrl' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME),
+        ]);
+
+        return $moduleTemplate->renderResponse('BotAccess/Index');
+    }
+
+    /**
+     * @return array{current: int, totalPages: int, pages: list<array{num: int, url: string, active: bool}>}
+     */
+    private function buildPagination(BotAccessFilter $filter, int $total): array
+    {
+        $totalPages = (int)max(1, ceil($total / $filter->perPage));
+        $current = min($filter->page, $totalPages);
+
+        $pages = [];
+        $from = max(1, $current - 3);
+        $to = min($totalPages, $current + 3);
+        for ($i = $from; $i <= $to; $i++) {
+            $query = array_merge($filter->toFormValues(), ['page' => $i]);
+            $pages[] = [
+                'num' => $i,
+                'url' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME, $query),
+                'active' => $i === $current,
+            ];
+        }
+
+        return ['current' => $current, 'totalPages' => $totalPages, 'pages' => $pages];
+    }
+}

@@ -9,10 +9,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Http\NormalizedParams;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use WebNomads\WnAiBridge\Security\BotDetectionService;
+use WebNomads\WnAiBridge\Service\AssistantLogWriter;
 use WebNomads\WnAiBridge\Service\AssistantService;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
+use WebNomads\WnAiBridge\Service\LearningService;
 
 /**
  * Frontend JSON endpoint for the site assistant.
@@ -34,6 +38,8 @@ final class AssistantRequestMiddleware implements MiddlewareInterface
         private readonly ConfigurationService $configurationService,
         private readonly AssistantService $assistantService,
         private readonly BotDetectionService $botDetectionService,
+        private readonly AssistantLogWriter $logWriter,
+        private readonly LearningService $learningService,
     ) {}
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -73,12 +79,26 @@ final class AssistantRequestMiddleware implements MiddlewareInterface
 
         $history = $this->sanitiseHistory($payload['history'] ?? []);
         $languageId = $this->resolveLanguageId($request);
+        $conversationId = $this->sanitiseConversationId($payload['conversationId'] ?? '');
 
         try {
             $response = $this->assistantService->ask($question, $history, $languageId);
         } catch (\Throwable $e) {
             return $this->error('The assistant is temporarily unavailable.', 503);
         }
+
+        // Persist the interaction when logging is enabled (best-effort).
+        $this->logWriter->log($request, $question, $response, $languageId, $conversationId);
+
+        // Capture a visitor correction for owner-moderated learning (best-effort).
+        $this->learningService->captureCorrection(
+            $question,
+            $history,
+            $languageId,
+            $this->resolveSiteIdentifier($request),
+            $conversationId,
+            $this->resolveClientIp($request),
+        );
 
         return new JsonResponse([
             'answer' => $response->answer,
@@ -139,6 +159,33 @@ final class AssistantRequestMiddleware implements MiddlewareInterface
     {
         $language = $request->getAttribute('language');
         return $language instanceof SiteLanguage ? $language->getLanguageId() : 0;
+    }
+
+    private function resolveSiteIdentifier(ServerRequestInterface $request): string
+    {
+        $site = $request->getAttribute('site');
+        return $site instanceof Site ? $site->getIdentifier() : '';
+    }
+
+    private function resolveClientIp(ServerRequestInterface $request): string
+    {
+        $normalizedParams = $request->getAttribute('normalizedParams');
+        if ($normalizedParams instanceof NormalizedParams) {
+            return $normalizedParams->getRemoteAddress();
+        }
+        return '';
+    }
+
+    /**
+     * Keep only a safe, bounded conversation identifier (client-generated).
+     */
+    private function sanitiseConversationId(mixed $value): string
+    {
+        if (!is_string($value)) {
+            return '';
+        }
+        $value = preg_replace('/[^A-Za-z0-9._-]/', '', $value) ?? '';
+        return substr($value, 0, 40);
     }
 
     private function error(string $message, int $status): ResponseInterface

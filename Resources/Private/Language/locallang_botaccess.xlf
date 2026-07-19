@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_botaccess.xlf" date="2026-07-17T12:00:00Z">
+		<header>
+			<description>Language labels for the bot access log backend module</description>
+		</header>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Bot Access Log</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>Bot Access Log</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>See when bots and crawlers access your llms.txt, the Markdown (.md) versions and normal pages. Filterable per type, bot and IP.</source>
+			</trans-unit>
+
+			<trans-unit id="module.title">
+				<source>Bot Access Log</source>
+			</trans-unit>
+			<trans-unit id="module.disabled">
+				<source>Bot access logging is currently disabled. Enable "Log bot accesses" in the extension configuration to record new accesses. Existing entries are still shown below.</source>
+			</trans-unit>
+			<trans-unit id="module.tableMissing">
+				<source>The bot access table does not exist yet. Please run the database schema update (Admin Tools › Maintenance › Analyze Database Structure).</source>
+			</trans-unit>
+
+			<trans-unit id="stats.total">
+				<source>Accesses</source>
+			</trans-unit>
+			<trans-unit id="stats.ai">
+				<source>AI crawlers</source>
+			</trans-unit>
+			<trans-unit id="stats.markdown">
+				<source>Markdown</source>
+			</trans-unit>
+			<trans-unit id="stats.page">
+				<source>Pages</source>
+			</trans-unit>
+
+			<trans-unit id="filter.dateFrom">
+				<source>From</source>
+			</trans-unit>
+			<trans-unit id="filter.dateTo">
+				<source>To</source>
+			</trans-unit>
+			<trans-unit id="filter.type">
+				<source>Type</source>
+			</trans-unit>
+			<trans-unit id="filter.all">
+				<source>All</source>
+			</trans-unit>
+			<trans-unit id="filter.bot">
+				<source>Bot</source>
+			</trans-unit>
+			<trans-unit id="filter.ip">
+				<source>IP</source>
+			</trans-unit>
+			<trans-unit id="filter.search">
+				<source>Search</source>
+			</trans-unit>
+			<trans-unit id="filter.searchPlaceholder">
+				<source>Path or user agent</source>
+			</trans-unit>
+			<trans-unit id="filter.aiOnly">
+				<source>AI crawlers only</source>
+			</trans-unit>
+			<trans-unit id="filter.apply">
+				<source>Filter</source>
+			</trans-unit>
+			<trans-unit id="filter.reset">
+				<source>Reset</source>
+			</trans-unit>
+
+			<trans-unit id="col.date">
+				<source>Date</source>
+			</trans-unit>
+			<trans-unit id="col.type">
+				<source>Type</source>
+			</trans-unit>
+			<trans-unit id="col.bot">
+				<source>Bot</source>
+			</trans-unit>
+			<trans-unit id="col.status">
+				<source>Status</source>
+			</trans-unit>
+			<trans-unit id="col.path">
+				<source>Path</source>
+			</trans-unit>
+			<trans-unit id="col.ip">
+				<source>IP</source>
+			</trans-unit>
+			<trans-unit id="col.userAgent">
+				<source>User agent</source>
+			</trans-unit>
+			<trans-unit id="col.referer">
+				<source>Referer</source>
+			</trans-unit>
+
+			<trans-unit id="table.empty">
+				<source>No bot accesses recorded for the current filter.</source>
+			</trans-unit>
+			<trans-unit id="action.clear">
+				<source>Clear log</source>
+			</trans-unit>
+			<trans-unit id="action.clearConfirm">
+				<source>Delete all bot access entries?</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

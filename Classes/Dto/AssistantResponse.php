@@ -17,9 +17,16 @@ final class AssistantResponse implements \JsonSerializable
         public readonly string $answer,
         public readonly array $sources,
         public readonly string $mode,
+        public readonly ?string $provider = null,
+        public readonly ?string $model = null,
+        public readonly ?int $inputTokens = null,
+        public readonly ?int $outputTokens = null,
     ) {}
 
     /**
+     * Only answer/sources/mode are exposed to the frontend — provider/model and
+     * token usage are internal (used for logging) and never sent to the browser.
+     *
      * @return array{answer: string, sources: list<SearchResultItem>, mode: string}
      */
     public function jsonSerialize(): array

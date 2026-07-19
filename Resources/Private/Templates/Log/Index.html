@@ -1,0 +1,215 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module"/>
+
+<f:section name="Content">
+
+    <f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf:</f:variable>
+
+    <div class="wn-ai-log">
+
+    <h1><f:translate key="{ll}module.title"/></h1>
+
+    <f:if condition="{tableError}">
+        <div class="callout callout-danger"><div class="callout-body">
+            <f:translate key="{ll}module.tableMissing"/>
+        </div></div>
+    </f:if>
+
+    <f:if condition="{loggingEnabled} == 0">
+        <div class="callout callout-warning"><div class="callout-body">
+            <f:translate key="{ll}module.loggingDisabled"/>
+        </div></div>
+    </f:if>
+
+    <f:comment>Statistics overview</f:comment>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-3 mb-4">
+        <div class="col">
+            <div class="card h-100"><div class="card-body">
+                <div class="h2 mb-0">{stats.total}</div>
+                <div class="text-body-secondary"><f:translate key="{ll}stats.total"/></div>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card h-100"><div class="card-body">
+                <div class="h2 mb-0">{stats.llm} <span class="text-body-secondary fs-6">/ {stats.search}</span></div>
+                <div class="text-body-secondary"><f:translate key="{ll}stats.llm"/> / <f:translate key="{ll}stats.search"/></div>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card h-100"><div class="card-body">
+                <div class="h4 mb-0">{stats.inputTokens} / {stats.outputTokens} / {stats.totalTokens}</div>
+                <div class="text-body-secondary"><f:translate key="{ll}stats.tokens"/></div>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card h-100 border-primary"><div class="card-body">
+                <div class="h4 mb-0 text-primary">{totalCostChf}</div>
+                <div class="text-body-secondary"><f:translate key="{ll}stats.cost"/></div>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card h-100"><div class="card-body">
+                <div class="text-body-secondary mb-1"><f:translate key="{ll}stats.byProvider"/></div>
+                <f:if condition="{stats.providers}">
+                    <f:then>
+                        <f:for each="{stats.providers}" as="p">
+                            <div class="d-flex justify-content-between">
+                                <span>{p.provider}</span>
+                                <span class="badge bg-primary">{p.count}</span>
+                            </div>
+                        </f:for>
+                    </f:then>
+                    <f:else><span class="text-body-secondary">–</span></f:else>
+                </f:if>
+            </div></div>
+        </div>
+    </div>
+
+    <f:comment>Filter form (POST keeps the module route token in the action URL)</f:comment>
+    <form method="post" action="{moduleUrl}" class="card mb-4">
+        <div class="card-header"><f:translate key="{ll}filter.heading"/></div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-sm-2">
+                    <label class="form-label"><f:translate key="{ll}filter.dateFrom"/></label>
+                    <input type="date" name="dateFrom" value="{filter.dateFrom}" class="form-control">
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label"><f:translate key="{ll}filter.dateTo"/></label>
+                    <input type="date" name="dateTo" value="{filter.dateTo}" class="form-control">
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label"><f:translate key="{ll}filter.ip"/></label>
+                    <input type="text" name="ip" value="{filter.ip}" class="form-control" autocomplete="off">
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label"><f:translate key="{ll}filter.provider"/></label>
+                    <select name="provider" class="form-select">
+                        <option value=""><f:translate key="{ll}filter.all"/></option>
+                        <f:for each="{providers}" as="prov">
+                            <option value="{prov}"<f:if condition="{filter.provider} == {prov}"> selected</f:if>>{prov}</option>
+                        </f:for>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label"><f:translate key="{ll}filter.mode"/></label>
+                    <select name="mode" class="form-select">
+                        <option value=""><f:translate key="{ll}filter.all"/></option>
+                        <option value="llm"<f:if condition="{filter.mode} == 'llm'"> selected</f:if>>llm</option>
+                        <option value="search"<f:if condition="{filter.mode} == 'search'"> selected</f:if>>search</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label"><f:translate key="{ll}filter.search"/></label>
+                    <input type="text" name="search" value="{filter.search}" class="form-control" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary"><f:translate key="{ll}filter.apply"/></button>
+            <a href="{moduleUrl}" class="btn btn-default"><f:translate key="{ll}filter.reset"/></a>
+        </div>
+    </form>
+
+    <f:comment>Thread list — one collapsible entry per conversation</f:comment>
+    <f:if condition="{threads}">
+        <f:then>
+            <f:for each="{threads}" as="thread">
+                <details class="card mb-2 wn-ai-thread">
+                    <summary class="card-header">
+                        <span class="wn-ai-thread__chevron"></span>
+                        <span class="wn-ai-thread__date text-nowrap">
+                            <f:format.date date="{thread.first.createdAt}" format="d.m.Y H:i"/>
+                        </span>
+                        <span class="wn-ai-thread__meta text-body-secondary small text-nowrap">
+                            <span title="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf:table.ip')}">{thread.visitor.ip}</span>
+                            <f:if condition="{thread.visitor.hostname}"> &middot; <span title="Hostname">{thread.visitor.hostname}</span></f:if>
+                            <f:if condition="{thread.visitor.countryCode}"> &middot; <span class="badge bg-light text-dark">{thread.visitor.countryCode}</span> {thread.visitor.country}</f:if>
+                            <f:if condition="{thread.visitor.private}"> &middot; <span class="badge bg-light text-dark"><f:translate key="{ll}visitor.local"/></span></f:if>
+                        </span>
+                        <span class="wn-ai-thread__question">{thread.first.question}</span>
+                        <span class="wn-ai-thread__badges ms-auto">
+                            <span class="badge bg-secondary">{thread.turnCount} <f:translate key="{ll}thread.turns"/></span>
+                            <f:if condition="{thread.totalTokens} > 0">
+                                <span class="badge bg-primary">{thread.totalTokens} <f:translate key="{ll}table.tokens"/></span>
+                                <span class="badge bg-success" title="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf:stats.cost')}">{thread.costChf}</span>
+                            </f:if>
+                        </span>
+                    </summary>
+                    <div class="card-body">
+                        <f:for each="{thread.turns}" as="turn" iteration="it">
+                            <div class="{f:if(condition: it.isLast, then: '', else: 'mb-3 pb-3 border-bottom')}">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">
+                                    <strong>#{it.cycle} &middot; <f:format.date date="{turn.entry.createdAt}" format="d.m.Y H:i:s"/></strong>
+                                    <span>
+                                        <f:if condition="{turn.entry.llm}">
+                                            <f:then><span class="badge bg-success">llm</span></f:then>
+                                            <f:else><span class="badge bg-secondary">search</span></f:else>
+                                        </f:if>
+                                        <f:if condition="{turn.entry.provider}"><span class="badge bg-info">{turn.entry.provider} {turn.entry.model}</span></f:if>
+                                        <f:if condition="{turn.entry.totalTokens} > 0">
+                                            <span class="badge bg-primary">{turn.entry.inputTokens} / {turn.entry.outputTokens} / {turn.entry.totalTokens} <f:translate key="{ll}table.tokens"/></span>
+                                            <span class="badge bg-success">{turn.costChf}</span>
+                                        </f:if>
+                                    </span>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="text-body-secondary text-uppercase small mb-1"><f:translate key="{ll}thread.question"/></div>
+                                    <div><f:format.nl2br>{turn.entry.question}</f:format.nl2br></div>
+                                </div>
+                                <div>
+                                    <div class="text-body-secondary text-uppercase small mb-1"><f:translate key="{ll}thread.answer"/></div>
+                                    <div><f:format.raw>{turn.answerHtml}</f:format.raw></div>
+                                </div>
+                                <f:if condition="{turn.entry.sources}">
+                                    <div class="mt-2">
+                                        <div class="text-body-secondary text-uppercase small mb-1"><f:translate key="{ll}thread.sources"/></div>
+                                        <ol class="mb-0 ps-3 small">
+                                            <f:for each="{turn.entry.sources}" as="source">
+                                                <li><a href="{source.url}" target="_blank" rel="noopener noreferrer">{source.title}</a></li>
+                                            </f:for>
+                                        </ol>
+                                    </div>
+                                </f:if>
+                            </div>
+                        </f:for>
+                    </div>
+                </details>
+            </f:for>
+
+            <f:comment>Pagination</f:comment>
+            <f:if condition="{pagination.totalPages} > 1">
+                <nav class="mt-3">
+                    <ul class="pagination">
+                        <f:for each="{pagination.pages}" as="p">
+                            <li class="page-item {f:if(condition: p.active, then: 'active')}">
+                                <a class="page-link" href="{p.url}">{p.num}</a>
+                            </li>
+                        </f:for>
+                    </ul>
+                    <div class="text-body-secondary">{pagination.current} / {pagination.totalPages} ({total})</div>
+                </nav>
+            </f:if>
+        </f:then>
+        <f:else>
+            <div class="callout callout-info"><div class="callout-body">
+                <f:translate key="{ll}table.empty"/>
+            </div></div>
+        </f:else>
+    </f:if>
+
+    <f:comment>Clear log</f:comment>
+    <f:if condition="{total} > 0">
+        <form method="post" action="{moduleUrl}" class="mt-4">
+            <input type="hidden" name="action" value="deleteAll">
+            <button type="submit" class="btn btn-danger"><f:translate key="{ll}action.clear"/></button>
+        </form>
+    </f:if>
+
+    </div>
+
+</f:section>
+</html>

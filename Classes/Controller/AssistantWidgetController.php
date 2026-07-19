@@ -24,6 +24,7 @@ use WebNomads\WnAiBridge\Service\ConfigurationService;
  */
 final class AssistantWidgetController
 {
+    private const BASE_CSS_PATH = 'EXT:wn_ai_bridge/Resources/Public/Css/assistant-base.css';
     private const CSS_PATH = 'EXT:wn_ai_bridge/Resources/Public/Css/assistant.css';
     private const JS_PATH = 'EXT:wn_ai_bridge/Resources/Public/JavaScript/assistant.js';
 
@@ -50,15 +51,20 @@ final class AssistantWidgetController
             'placeholder' => $this->configurationService->getAssistantPlaceholder(),
             'autoOpen' => $this->configurationService->isAssistantAutoOpenEnabled(),
             'autoOpenDelay' => $this->configurationService->getAssistantAutoOpenDelay(),
-            'accentColor' => $this->configurationService->getAssistantAccentColor(),
+            'avatar' => $this->configurationService->getAssistantAvatarUrl(),
+            'colors' => $this->configurationService->getAssistantColors(),
             'labels' => [
-                'toggle' => 'Suchassistent öffnen',
-                'send' => 'Senden',
-                'close' => 'Schließen',
-                'sources' => 'Passende Seiten',
-                'thinking' => 'Ich durchsuche die Website …',
-                'error' => 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-                'rateLimited' => 'Zu viele Anfragen. Bitte warten Sie einen Moment.',
+                'toggle' => $this->label('widget.toggle', 'Suchassistent öffnen'),
+                'send' => $this->label('widget.send', 'Senden'),
+                'close' => $this->label('widget.close', 'Schließen'),
+                'newChat' => $this->label('widget.newChat', 'Neue Diskussion starten'),
+                'newChatConfirm' => $this->label('widget.newChatConfirm', 'Neue Diskussion starten? Der aktuelle Gesprächsverlauf wird gelöscht.'),
+                'newChatYes' => $this->label('widget.newChatYes', 'Starten'),
+                'newChatNo' => $this->label('widget.newChatNo', 'Abbrechen'),
+                'sources' => $this->label('widget.sources', 'Weiterführende Links zum Thema'),
+                'thinking' => $this->label('widget.thinking', 'Ich durchsuche die Website …'),
+                'error' => $this->label('widget.error', 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.'),
+                'rateLimited' => $this->label('widget.rateLimited', 'Zu viele Anfragen. Bitte warten Sie einen Moment.'),
             ],
         ];
 
@@ -67,14 +73,54 @@ final class AssistantWidgetController
         $cssUrl = htmlspecialchars($this->assetWebPath(self::CSS_PATH), ENT_QUOTES, 'UTF-8');
         $jsUrl = htmlspecialchars($this->assetWebPath(self::JS_PATH), ENT_QUOTES, 'UTF-8');
 
+        // Optional per-site custom stylesheet, loaded after the default one so
+        // the site's own rules win.
+        $customCssTag = '';
+        $customCssUrl = $this->configurationService->getAssistantCustomCssUrl();
+        if ($customCssUrl !== '') {
+            $customCssTag = "\n" . sprintf(
+                '<link rel="stylesheet" href="%s">',
+                htmlspecialchars($customCssUrl, ENT_QUOTES, 'UTF-8')
+            );
+        }
+
         return sprintf(
             '<div id="wn-ai-assistant" data-wn-ai-config="%s"></div>'
                 . "\n" . '<link rel="stylesheet" href="%s">'
+                . '%s'
                 . "\n" . '<script src="%s" defer></script>',
             htmlspecialchars((string)$json, ENT_QUOTES, 'UTF-8'),
             $cssUrl,
+            $customCssTag,
             $jsUrl,
         );
+    }
+
+    /**
+     * Emit the base/isolation stylesheet as the last element of the page body.
+     *
+     * Registered as its own USER_INT in footerData (after the widget), so the
+     * <link> is the last stylesheet in the document and wins the cascade against
+     * the host theme. Output unconditionally — independent of the per-site enable
+     * flag — so the widget isolation is always in place. The stylesheet is fully
+     * scoped under #wn-ai-assistant and therefore inert when the widget is absent.
+     */
+    #[AsAllowedCallable]
+    public function renderBaseCss(string $content, array $conf): string
+    {
+        $url = htmlspecialchars($this->assetWebPath(self::BASE_CSS_PATH), ENT_QUOTES, 'UTF-8');
+
+        return sprintf('<link rel="stylesheet" href="%s">', $url);
+    }
+
+    /**
+     * Translate a widget label into the current site language, falling back to
+     * the given German default when no translation is available.
+     */
+    private function label(string $key, string $fallback): string
+    {
+        $translated = $this->configurationService->translate($key);
+        return $translated !== '' ? $translated : $fallback;
     }
 
     /**

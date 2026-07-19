@@ -21,13 +21,14 @@ interface LlmClientInterface
     /**
      * Produce a completion.
      *
-     * @param string $systemPrompt          The system instructions.
+     * @param string     $systemPrompt      The system instructions.
      * @param list<array{role: string, content: string}> $messages Conversation turns (user/assistant).
-     * @param string $model                 Model id.
-     * @param int    $maxTokens             Output token limit.
-     * @return string The assistant's text answer.
+     * @param string     $model             Model id.
+     * @param int        $maxTokens         Output token limit.
+     * @param float|null $temperature       Sampling temperature (0.0–1.0); null uses the provider default.
+     * @return LlmResult The answer text plus token usage.
      *
      * @throws LlmException on any failure.
      */
-    public function complete(string $systemPrompt, array $messages, string $model, int $maxTokens): string;
+    public function complete(string $systemPrompt, array $messages, string $model, int $maxTokens, ?float $temperature = null): LlmResult;
 }

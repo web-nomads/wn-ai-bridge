@@ -38,6 +38,17 @@ if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][
     ];
 }
 
+// Register cache for resolved visitor information (hostname / country) shown in
+// the assistant log backend module. Uses the database backend so lookups are
+// shared across requests and survive a page cache flush.
+if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_visitorinfo'])) {
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_visitorinfo'] = [
+        'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
+        'backend' => \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend::class,
+        'groups' => ['system'],
+    ];
+}
+
 // Register cache for the rate limiter counters.
 // Uses the database backend so counters survive across requests and are shared
 // between PHP workers. It is intentionally not part of the 'pages' group so a

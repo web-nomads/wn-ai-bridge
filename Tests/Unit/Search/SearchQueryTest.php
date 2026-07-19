@@ -59,4 +59,38 @@ class SearchQueryTest extends TestCase
     {
         self::assertSame('+studium*', SearchQuery::booleanMode(['+studium*']));
     }
+
+    #[Test]
+    public function snippetReturnsShortTextUnchanged(): void
+    {
+        self::assertSame('Kurzer Text', SearchQuery::snippet('Kurzer Text', ['text']));
+    }
+
+    #[Test]
+    public function snippetCentresOnTheMatchedKeyword(): void
+    {
+        $text = str_repeat('bla ', 100) . 'Marcel bietet TYPO3-Upgrades auf die neueste Version an. ' . str_repeat('bla ', 100);
+        $snippet = SearchQuery::snippet($text, ['upgrades'], 80);
+
+        // The excerpt shows the relevant passage, not the (repeated) start.
+        self::assertStringContainsStringIgnoringCase('upgrades', $snippet);
+        self::assertStringStartsWith('…', $snippet);
+        self::assertLessThanOrEqual(90, mb_strlen($snippet));
+    }
+
+    #[Test]
+    public function snippetFallsBackToStartWhenNoTermMatches(): void
+    {
+        $text = str_repeat('Anfang ', 100);
+        $snippet = SearchQuery::snippet($text, ['nichtvorhanden'], 60);
+
+        self::assertStringStartsWith('Anfang', $snippet);
+        self::assertStringEndsWith('…', $snippet);
+    }
+
+    #[Test]
+    public function snippetStripsTagsAndCollapsesWhitespace(): void
+    {
+        self::assertSame('Hallo Welt', SearchQuery::snippet("<p>Hallo   \n Welt</p>", ['welt']));
+    }
 }

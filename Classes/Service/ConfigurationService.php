@@ -6,9 +6,12 @@ namespace WebNomads\WnAiBridge\Service;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 
 class ConfigurationService
 {
@@ -189,6 +192,17 @@ class ConfigurationService
     }
 
     /**
+     * Whether bot/crawler accesses to llms.txt, the Markdown (.md) versions and
+     * normal pages are recorded for review in the "Bot Access Log" backend
+     * module. Off by default.
+     */
+    public function isBotAccessLoggingEnabled(): bool
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return (bool)($extConf['botAccessLogging'] ?? false);
+    }
+
+    /**
      * Whether the rate limiter for AI-Bridge requests is globally enabled.
      */
     public function isRateLimiterEnabled(): bool
@@ -302,6 +316,32 @@ class ConfigurationService
     }
 
     /**
+     * Sampling temperature for the LLM answer: a decimal between 0.0
+     * (deterministic/precise) and 1.0 (more creative). Non-numeric input falls
+     * back to 0.2; values outside the range are clamped.
+     */
+    public function getAssistantTemperature(): float
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        $raw = str_replace(',', '.', trim((string)($extConf['assistantTemperature'] ?? '0.2')));
+        if (!is_numeric($raw)) {
+            return 0.2;
+        }
+        return max(0.0, min(1.0, (float)$raw));
+    }
+
+    /**
+     * Global agent instructions (persona, tone, rules) configured in the
+     * extension configuration and applied to every site's assistant answers.
+     * Per-site instructions can additionally be set via getAssistantSystemPrompt().
+     */
+    public function getAssistantInstructions(): string
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return trim((string)($extConf['assistantInstructions'] ?? ''));
+    }
+
+    /**
      * Whether requests to the assistant endpoint are checked for being made by a
      * real human via the widget rather than a bot/crawler/script. On by default.
      */
@@ -309,6 +349,55 @@ class ConfigurationService
     {
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
         return (bool)($extConf['assistantBotProtection'] ?? true);
+    }
+
+    /**
+     * Whether every question/answer is persisted to the assistant log (with
+     * date, IP, provider and token usage) for review in the backend module.
+     * Off by default for data-protection reasons.
+     */
+    public function isAssistantLoggingEnabled(): bool
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return (bool)($extConf['assistantLogging'] ?? false);
+    }
+
+    /**
+     * Whether the assistant captures visitor corrections for owner-moderated
+     * learning on the current site. Configured per site in the Site settings and
+     * off by default. When on, a detected correction is stored as "pending" for
+     * review in the backend; only approved corrections are fed back into future
+     * answers (and only when the question thematically matches).
+     */
+    public function isAssistantLearningEnabled(): bool
+    {
+        try {
+            $site = $this->getCurrentSite();
+            return $site instanceof Site && (bool)($site->getConfiguration()['aiAssistantLearning'] ?? false);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Whether the backend log module may resolve the country for an IP via an
+     * external geolocation service. Off by default (privacy).
+     */
+    public function isAssistantGeoLookupEnabled(): bool
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return (bool)($extConf['assistantLogGeoLookup'] ?? false);
+    }
+
+    /**
+     * USD-to-CHF conversion rate used to estimate LLM cost in the log module.
+     * Model prices are quoted in USD; this converts them to CHF.
+     */
+    public function getAssistantUsdToChfRate(): float
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        $rate = (float)str_replace(',', '.', (string)($extConf['assistantUsdToChfRate'] ?? '0.90'));
+        return $rate > 0 ? $rate : 0.90;
     }
 
     /**
@@ -337,25 +426,88 @@ class ConfigurationService
 
     public function getAssistantTitle(): string
     {
-        $site = $this->getCurrentSite();
-        $title = $site instanceof Site ? trim((string)($site->getConfiguration()['aiAssistantTitle'] ?? '')) : '';
-        return $title !== '' ? $title : 'Wie kann ich helfen?';
+        return $this->getLocalizedSiteText('aiAssistantTitle', 'widget.title.default', 'Wie kann ich helfen?');
     }
 
     public function getAssistantWelcomeMessage(): string
     {
-        $site = $this->getCurrentSite();
-        $welcome = $site instanceof Site ? trim((string)($site->getConfiguration()['aiAssistantWelcome'] ?? '')) : '';
-        return $welcome !== ''
-            ? $welcome
-            : 'Stellen Sie mir eine Frage – ich durchsuche die Website und zeige Ihnen, wo Sie die passenden Informationen finden.';
+        return $this->getLocalizedSiteText(
+            'aiAssistantWelcome',
+            'widget.welcome.default',
+            'Stellen Sie mir eine Frage – ich durchsuche die Website und zeige Ihnen, wo Sie die passenden Informationen finden.'
+        );
     }
 
     public function getAssistantPlaceholder(): string
     {
-        $site = $this->getCurrentSite();
-        $placeholder = $site instanceof Site ? trim((string)($site->getConfiguration()['aiAssistantPlaceholder'] ?? '')) : '';
-        return $placeholder !== '' ? $placeholder : 'Ihre Frage …';
+        return $this->getLocalizedSiteText('aiAssistantPlaceholder', 'widget.placeholder.default', 'Ihre Frage …');
+    }
+
+    /**
+     * Resolve a per-site text that can be maintained per language: prefer the
+     * value set on the current site language, then the site-level value, then a
+     * translated default for the current language (finally the hard fallback).
+     */
+    private function getLocalizedSiteText(string $key, string $defaultLabelKey, string $hardFallback): string
+    {
+        $value = $this->getLanguageConfigValue($key);
+        if ($value === '') {
+            $value = $this->getSiteConfigurationValue($key);
+        }
+        if ($value !== '') {
+            return $value;
+        }
+
+        $default = $this->translate($defaultLabelKey);
+        return $default !== '' ? $default : $hardFallback;
+    }
+
+    /**
+     * The current site language, or null when it cannot be resolved (e.g. in a
+     * context without a frontend request).
+     */
+    public function getCurrentSiteLanguage(): ?SiteLanguage
+    {
+        try {
+            $language = $this->getRequest()->getAttribute('language');
+            return $language instanceof SiteLanguage ? $language : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Read a custom site-language configuration value (maintained per language in
+     * the Site settings), trimmed. Empty string when unset/unavailable.
+     */
+    private function getLanguageConfigValue(string $key): string
+    {
+        $language = $this->getCurrentSiteLanguage();
+        if ($language === null) {
+            return '';
+        }
+        return trim((string)($language->toArray()[$key] ?? ''));
+    }
+
+    /**
+     * Translate a widget label key into the current site language, using the
+     * bundled default translations. Returns '' when the key cannot be resolved.
+     */
+    public function translate(string $key): string
+    {
+        try {
+            $factory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
+            $language = $this->getCurrentSiteLanguage();
+            $languageService = $language !== null
+                ? $factory->createFromSiteLanguage($language)
+                : $factory->create('default');
+
+            return trim((string)$languageService->sL(
+                'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_widget.xlf:' . $key
+            ));
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     /**
@@ -380,22 +532,104 @@ class ConfigurationService
     }
 
     /**
-     * Accent colour (button, header, links) as a CSS hex value so the widget can
-     * match the site design. Falls back to the default blue when unset/invalid.
+     * Web URL of the optional per-site avatar (logo/photo) shown in the widget.
+     * Accepts an absolute/root-relative URL, an EXT: path or a path relative to
+     * the public root (e.g. "fileadmin/logo.png"). Returns '' when unset or the
+     * file cannot be resolved.
      */
-    public function getAssistantAccentColor(): string
+    public function getAssistantAvatarUrl(): string
     {
-        $default = '#2563eb';
+        return $this->resolveResourceUrl($this->getSiteConfigurationValue('aiAssistantAvatar'));
+    }
+
+    /**
+     * Web URL of an optional per-site custom CSS file, loaded after the widget's
+     * default stylesheet so site-specific overrides win. Same path handling as
+     * the avatar (URL / EXT: / public-root-relative path).
+     */
+    public function getAssistantCustomCssUrl(): string
+    {
+        return $this->resolveResourceUrl($this->getSiteConfigurationValue('aiAssistantCustomCss'));
+    }
+
+    private function getSiteConfigurationValue(string $key): string
+    {
         $site = $this->getCurrentSite();
-        if (!$site instanceof Site) {
-            return $default;
+        return $site instanceof Site ? trim((string)($site->getConfiguration()[$key] ?? '')) : '';
+    }
+
+    /**
+     * Resolve a configured resource reference to a public web URL. Accepts an
+     * absolute/protocol-relative URL, a root-relative path, an EXT: path or a
+     * path relative to the public root. Returns '' when unset or unresolvable.
+     */
+    private function resolveResourceUrl(string $value): string
+    {
+        if ($value === '') {
+            return '';
         }
 
-        $color = trim((string)($site->getConfiguration()['aiAssistantAccentColor'] ?? ''));
-        // Accept #rgb / #rrggbb only; ignore anything else to avoid CSS injection.
-        return preg_match('/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $color) === 1
-            ? $color
-            : $default;
+        // Already a URL (absolute, protocol-relative) or a root-relative path.
+        if (preg_match('#^(https?:)?//#', $value) === 1 || str_starts_with($value, '/')) {
+            return $value;
+        }
+
+        try {
+            if (str_starts_with($value, 'EXT:')) {
+                return PathUtility::getPublicResourceWebPath($value);
+            }
+
+            // Path relative to the public root, e.g. "fileadmin/custom.css".
+            $absolute = GeneralUtility::getFileAbsFileName($value);
+            if ($absolute !== '' && is_file($absolute)) {
+                return PathUtility::getAbsoluteWebPath($absolute);
+            }
+        } catch (\Throwable $e) {
+            return '';
+        }
+
+        return '';
+    }
+
+    /**
+     * Per-site colour overrides for the widget, keyed by their CSS custom
+     * property suffix (e.g. "accent" -> --wn-ai-accent). Only explicitly
+     * configured, valid hex values are returned; anything else is omitted so the
+     * stylesheet defaults (including dark-mode) still apply.
+     *
+     * @return array<string, string>
+     */
+    public function getAssistantColors(): array
+    {
+        $site = $this->getCurrentSite();
+        $configuration = $site instanceof Site ? $site->getConfiguration() : [];
+
+        // CSS variable suffix => site configuration field.
+        $map = [
+            'accent' => 'aiAssistantAccentColor',
+            'bg' => 'aiAssistantBgColor',
+            'fg' => 'aiAssistantTextColor',
+            'user-bg' => 'aiAssistantUserBgColor',
+            'user-fg' => 'aiAssistantUserTextColor',
+            'user-link' => 'aiAssistantUserLinkColor',
+            'assistant-bg' => 'aiAssistantAssistantBgColor',
+            'assistant-fg' => 'aiAssistantAssistantTextColor',
+            'assistant-link' => 'aiAssistantAssistantLinkColor',
+            'sources-bg' => 'aiAssistantSourcesBgColor',
+            'sources-fg' => 'aiAssistantSourcesTextColor',
+            'sources-link' => 'aiAssistantSourcesLinkColor',
+        ];
+
+        $colors = [];
+        foreach ($map as $cssKey => $field) {
+            $value = trim((string)($configuration[$field] ?? ''));
+            // Accept #rgb / #rrggbb only; ignore anything else to avoid CSS injection.
+            if (preg_match('/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $value) === 1) {
+                $colors[$cssKey] = $value;
+            }
+        }
+
+        return $colors;
     }
 
     /**
@@ -404,7 +638,11 @@ class ConfigurationService
      */
     public function getAssistantSystemPrompt(): string
     {
-        $site = $this->getCurrentSite();
-        return $site instanceof Site ? trim((string)($site->getConfiguration()['aiAssistantSystemPrompt'] ?? '')) : '';
+        // Prefer a per-language system prompt, fall back to the site-level one.
+        $value = $this->getLanguageConfigValue('aiAssistantSystemPrompt');
+        if ($value !== '') {
+            return $value;
+        }
+        return $this->getSiteConfigurationValue('aiAssistantSystemPrompt');
     }
 }

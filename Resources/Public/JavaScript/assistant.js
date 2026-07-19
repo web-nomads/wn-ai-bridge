@@ -23,10 +23,16 @@
     }
     var labels = config.labels || {};
 
-    // Apply the configured accent colour (validated as a hex value) so the
-    // widget matches the site design.
-    if (config.accentColor && /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(config.accentColor)) {
-        mount.style.setProperty('--wn-ai-accent', config.accentColor);
+    // Apply the configured colours (each validated as a hex value) as CSS custom
+    // properties so the widget matches the site design. Unset colours keep the
+    // stylesheet defaults (incl. dark-mode).
+    if (config.colors) {
+        Object.keys(config.colors).forEach(function (key) {
+            var value = config.colors[key];
+            if (typeof value === 'string' && /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value)) {
+                mount.style.setProperty('--wn-ai-' + key, value);
+            }
+        });
     }
 
     // --- State -----------------------------------------------------------
@@ -34,6 +40,27 @@
     var isOpen = false;
     var isBusy = false;
     var previouslyFocused = null;
+
+    // Stable per-session conversation id so all turns of one chat are grouped
+    // into a single thread in the backend log. Starting a new discussion creates
+    // a fresh id via newConversationId().
+    var CONVERSATION_KEY = 'wnAiAssistantConversationId';
+    function newConversationId() {
+        var id = 'c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+        try {
+            window.sessionStorage.setItem(CONVERSATION_KEY, id);
+        } catch (e) { /* ignore */ }
+        return id;
+    }
+    var conversationId = (function () {
+        try {
+            var existing = window.sessionStorage.getItem(CONVERSATION_KEY);
+            if (existing) {
+                return existing;
+            }
+        } catch (e) { /* ignore */ }
+        return newConversationId();
+    })();
 
     // True only while an overlay that was opened automatically is showing, so we
     // know whether closing it should suppress further auto-opens this session.
@@ -54,6 +81,39 @@
             window.sessionStorage.setItem(AUTO_DISMISS_KEY, '1');
         } catch (e) {
             /* sessionStorage unavailable (private mode) — ignore */
+        }
+    }
+
+    // Internal links open in the same tab so navigating the site keeps the
+    // (persisted) conversation; only links to another host open in a new tab.
+    function isExternalUrl(url) {
+        try {
+            return new URL(url, window.location.href).host !== window.location.host;
+        } catch (e) {
+            return false;
+        }
+    }
+    function targetAttrs(url) {
+        return isExternalUrl(url) ? ' target="_blank" rel="noopener noreferrer"' : '';
+    }
+
+    // Conversation transcript, persisted in sessionStorage: it survives
+    // navigation within the site (same tab) and is cleared only when the
+    // browser/tab is closed — so the discussion stays until the visitor leaves.
+    var TRANSCRIPT_KEY = 'wnAiAssistantTranscript';
+    var turns = [];
+
+    function persist() {
+        try {
+            window.sessionStorage.setItem(TRANSCRIPT_KEY, JSON.stringify({ open: isOpen, turns: turns }));
+        } catch (e) { /* ignore */ }
+    }
+    function loadTranscript() {
+        try {
+            var data = JSON.parse(window.sessionStorage.getItem(TRANSCRIPT_KEY) || 'null');
+            return data && Array.isArray(data.turns) ? data : null;
+        } catch (e) {
+            return null;
         }
     }
 
@@ -85,12 +145,35 @@
         'aria-expanded': 'false',
         'aria-controls': 'wn-ai-panel'
     });
+    var avatarUrl = (typeof config.avatar === 'string' && config.avatar !== '') ? config.avatar : '';
+
+    function avatarImg(cls) {
+        return el('img', { 'class': cls, 'src': avatarUrl, 'alt': '', 'aria-hidden': 'true' });
+    }
+
+    // The floating button always shows the chat icon (never the avatar).
     toggleButton.innerHTML =
         '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">' +
-        '<path fill="currentColor" d="M12 3c-4.97 0-9 3.58-9 8 0 2.53 1.34 4.78 3.44 6.25-.12 1.02-.55 2.29-1.6 3.32-.2.2-.09.55.19.58 1.86.2 3.72-.44 5.03-1.42C10.42 20.9 11.2 21 12 21c4.97 0 9-3.58 9-8s-4.03-8-9-8z"/>' +
+        '<path fill="currentColor" d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>' +
+        '<circle cx="8" cy="10" r="1.3" fill="var(--wn-ai-accent)"/>' +
+        '<circle cx="12" cy="10" r="1.3" fill="var(--wn-ai-accent)"/>' +
+        '<circle cx="16" cy="10" r="1.3" fill="var(--wn-ai-accent)"/>' +
         '</svg>';
 
     var titleEl = el('h2', { 'class': 'wn-ai-title', 'id': 'wn-ai-title', 'text': config.title || '' });
+
+    var titleGroup = el('div', { 'class': 'wn-ai-header__group' });
+    if (avatarUrl) {
+        titleGroup.appendChild(avatarImg('wn-ai-header__avatar'));
+    }
+    titleGroup.appendChild(titleEl);
+
+    var newButton = el('button', {
+        'class': 'wn-ai-new',
+        'type': 'button',
+        'aria-label': labels.newChat || 'Neue Diskussion'
+    });
+    newButton.innerHTML = '<svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true" focusable="false"><path fill="currentColor" d="M17.65 6.35A7.96 7.96 0 0012 4a8 8 0 108 8h-2a6 6 0 11-6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>';
 
     var closeButton = el('button', {
         'class': 'wn-ai-close',
@@ -99,7 +182,8 @@
     });
     closeButton.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.3 5.71L12 12l6.3 6.29-1.42 1.42L10.59 13.4 4.29 19.7 2.88 18.3 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>';
 
-    var header = el('div', { 'class': 'wn-ai-header' }, [titleEl, closeButton]);
+    var headerActions = el('div', { 'class': 'wn-ai-header__actions' }, [newButton, closeButton]);
+    var header = el('div', { 'class': 'wn-ai-header' }, [titleGroup, headerActions]);
 
     var messages = el('div', {
         'class': 'wn-ai-messages',
@@ -142,33 +226,106 @@
         messages.scrollTop = messages.scrollHeight;
     }
 
-    function addMessage(role, text) {
-        var bubble = el('div', { 'class': 'wn-ai-msg wn-ai-msg--' + role });
-        bubble.appendChild(el('div', { 'class': 'wn-ai-bubble', 'text': text }));
-        messages.appendChild(bubble);
-        scrollToBottom();
-        return bubble;
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
     }
 
-    function addSources(sources) {
+    // Render the assistant answer as safe HTML. There are NO links in the answer
+    // text — the [n] markers only tell us which pages are relevant; they are then
+    // removed and the pages are listed separately below the answer. Records the
+    // cited source numbers in the passed-in `cited` object (1-based keys).
+    function renderAnswerHtml(text, sources, cited) {
+        var html = escapeHtml(text);
+
+        // Record which sources the answer referenced.
+        var re = /\[(\d+)\]/g;
+        var match;
+        while ((match = re.exec(html)) !== null) {
+            var index = parseInt(match[1], 10) - 1;
+            if (sources && sources[index] && sources[index].url) {
+                cited[index + 1] = true;
+            }
+        }
+
+        // Remove the markers (and any space right before them) from the text, then
+        // tidy up spaces left in front of punctuation and any double spaces.
+        html = html.replace(/[ \t]*\[\d+\]/g, '');
+        html = html.replace(/[ \t]+([.,;:!?])/g, '$1');
+        html = html.replace(/[ \t]{2,}/g, ' ');
+
+        // Keep simple **bold** emphasis.
+        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+        return html;
+    }
+
+    function addMessage(role, text, html) {
+        var msg = el('div', { 'class': 'wn-ai-msg wn-ai-msg--' + role });
+        if (role === 'assistant' && avatarUrl) {
+            msg.className += ' wn-ai-msg--avatar';
+            msg.appendChild(avatarImg('wn-ai-msg__avatar'));
+        }
+        var bubble = el('div', { 'class': 'wn-ai-bubble' });
+        if (typeof html === 'string') {
+            bubble.innerHTML = html;
+        } else {
+            bubble.textContent = text;
+        }
+        msg.appendChild(bubble);
+        messages.appendChild(msg);
+        scrollToBottom();
+        return msg;
+    }
+
+    function addSources(sources, mode, cited) {
         if (!sources || !sources.length) {
             return;
         }
-        var list = el('ul', { 'class': 'wn-ai-sources' });
-        sources.forEach(function (source) {
-            var link = el('a', {
+
+        // Only surface the suggestions when they are actually relevant to the
+        // question. In LLM mode that means the pages the answer cited — if it
+        // cited none, the hits were not on-topic, so the block is omitted. In
+        // search-only mode the suggestions ARE the answer, so all are shown.
+        var list = sources;
+        if (mode === 'llm') {
+            list = sources.filter(function (source, index) {
+                return cited && cited[index + 1];
+            });
+        }
+
+        // Keep only entries we can actually link to.
+        list = list.filter(function (source) {
+            return source && source.url;
+        });
+
+        // No entries → drop the whole block, heading included.
+        if (!list.length) {
+            return;
+        }
+
+        var container = el('div', { 'class': 'wn-ai-sources' });
+        list.forEach(function (source) {
+            var attrs = {
                 'class': 'wn-ai-source',
                 'href': source.url,
                 'text': source.title || source.url
-            });
-            if (source.snippet) {
-                link.appendChild(el('span', { 'class': 'wn-ai-source__snippet', 'text': source.snippet }));
+            };
+            // Same-tab for internal links (keeps the conversation), new tab only
+            // for external ones.
+            if (isExternalUrl(source.url)) {
+                attrs.target = '_blank';
+                attrs.rel = 'noopener noreferrer';
             }
-            list.appendChild(el('li', {}, [link]));
+            container.appendChild(el('a', attrs));
         });
+
         var wrapper = el('div', { 'class': 'wn-ai-msg wn-ai-msg--sources' }, [
             el('div', { 'class': 'wn-ai-sources__label', 'text': labels.sources || 'Sources' }),
-            list
+            container
         ]);
         messages.appendChild(wrapper);
         scrollToBottom();
@@ -176,6 +333,10 @@
 
     function addTyping() {
         var node = el('div', { 'class': 'wn-ai-msg wn-ai-msg--assistant wn-ai-typing' });
+        if (avatarUrl) {
+            node.className += ' wn-ai-msg--avatar';
+            node.appendChild(avatarImg('wn-ai-msg__avatar'));
+        }
         node.appendChild(el('div', { 'class': 'wn-ai-bubble', 'text': labels.thinking || '…' }));
         messages.appendChild(node);
         scrollToBottom();
@@ -187,7 +348,127 @@
         if (!welcomeShown && config.welcome) {
             addMessage('assistant', config.welcome);
             welcomeShown = true;
+            turns.push({ k: 'welcome', t: config.welcome });
+            persist();
         }
+    }
+
+    // Re-render one persisted transcript entry after a page navigation.
+    function replayTurn(turn) {
+        if (turn.k === 'welcome') {
+            addMessage('assistant', turn.t || config.welcome || '');
+            welcomeShown = true;
+        } else if (turn.k === 'user') {
+            addMessage('user', turn.t);
+        } else if (turn.k === 'assistant') {
+            var cited = {};
+            var answerHtml = renderAnswerHtml(turn.a, turn.s || [], cited);
+            addMessage('assistant', turn.a, answerHtml);
+            addSources(turn.s || [], turn.m, cited);
+        }
+    }
+
+    // Rebuild the API history (user/assistant turns) from the transcript.
+    function rebuildHistory() {
+        history = [];
+        turns.forEach(function (turn) {
+            if (turn.k === 'user') {
+                history.push({ role: 'user', content: turn.t });
+            } else if (turn.k === 'assistant') {
+                history.push({ role: 'assistant', content: turn.a });
+            }
+        });
+    }
+
+    // Start a fresh discussion: clear the transcript, history and stored state,
+    // begin a new backend thread and show the welcome message again.
+    function resetConversation() {
+        if (isBusy) {
+            return;
+        }
+        // Ask before discarding an actual discussion (not just the greeting).
+        var hasConversation = turns.some(function (turn) {
+            return turn.k === 'user' || turn.k === 'assistant';
+        });
+        if (!hasConversation) {
+            doReset();
+            return;
+        }
+        showConfirm(
+            labels.newChatConfirm || 'Neue Diskussion starten? Der aktuelle Gesprächsverlauf wird gelöscht.',
+            doReset
+        );
+    }
+
+    function doReset() {
+        messages.innerHTML = '';
+        turns = [];
+        history = [];
+        welcomeShown = false;
+        conversationId = newConversationId();
+        try {
+            window.sessionStorage.removeItem(TRANSCRIPT_KEY);
+        } catch (e) { /* ignore */ }
+        input.value = '';
+        input.style.height = 'auto';
+        ensureWelcome();
+        persist();
+        input.focus();
+    }
+
+    // In-widget confirmation overlay (a styled, semi-transparent replacement for
+    // window.confirm) shown on top of the chat panel.
+    function showConfirm(message, onConfirm) {
+        var box = el('div', {
+            'class': 'wn-ai-confirm',
+            'role': 'alertdialog',
+            'aria-modal': 'true'
+        });
+        var dialog = el('div', { 'class': 'wn-ai-confirm__box' });
+        dialog.appendChild(el('p', { 'class': 'wn-ai-confirm__text', 'text': message }));
+
+        var cancelBtn = el('button', {
+            'class': 'wn-ai-confirm__btn wn-ai-confirm__btn--cancel',
+            'type': 'button',
+            'text': labels.newChatNo || 'Abbrechen'
+        });
+        var okBtn = el('button', {
+            'class': 'wn-ai-confirm__btn wn-ai-confirm__btn--ok',
+            'type': 'button',
+            'text': labels.newChatYes || 'Starten'
+        });
+        var actions = el('div', { 'class': 'wn-ai-confirm__actions' }, [cancelBtn, okBtn]);
+        dialog.appendChild(actions);
+        box.appendChild(dialog);
+        panel.appendChild(box);
+
+        function close() {
+            if (box.parentNode) {
+                box.parentNode.removeChild(box);
+            }
+            newButton.focus();
+        }
+
+        cancelBtn.addEventListener('click', close);
+        okBtn.addEventListener('click', function () {
+            close();
+            onConfirm();
+        });
+        // Click on the dimmed backdrop cancels.
+        box.addEventListener('click', function (event) {
+            if (event.target === box) {
+                close();
+            }
+        });
+        // Keep Escape local: close the dialog instead of the whole panel.
+        box.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                event.stopPropagation();
+                close();
+            }
+        });
+
+        okBtn.focus();
     }
 
     // --- Networking ------------------------------------------------------
@@ -210,7 +491,7 @@
                 // and scripts hitting the endpoint directly do not send it.
                 'X-Wn-Ai-Bridge': 'widget'
             },
-            body: JSON.stringify({ question: question, history: history.slice(-8) }),
+            body: JSON.stringify({ question: question, history: history.slice(-8), conversationId: conversationId }),
             credentials: 'same-origin'
         }).then(function (response) {
             return response.json().then(function (data) {
@@ -230,11 +511,18 @@
                 return;
             }
 
-            addMessage('assistant', result.data.answer);
-            addSources(result.data.sources);
+            var cited = {};
+            var answerHtml = renderAnswerHtml(result.data.answer, result.data.sources, cited);
+            addMessage('assistant', result.data.answer, answerHtml);
+            addSources(result.data.sources, result.data.mode, cited);
 
             history.push({ role: 'user', content: question });
             history.push({ role: 'assistant', content: result.data.answer });
+
+            // Record the completed exchange so it is restored after navigation.
+            turns.push({ k: 'user', t: question });
+            turns.push({ k: 'assistant', a: result.data.answer, s: result.data.sources || [], m: result.data.mode });
+            persist();
         }).catch(function () {
             if (typing.parentNode) {
                 typing.parentNode.removeChild(typing);
@@ -262,6 +550,7 @@
         mount.classList.add('wn-ai--open');
         toggleButton.setAttribute('aria-expanded', 'true');
         ensureWelcome();
+        persist();
         window.setTimeout(function () { input.focus(); }, 50);
     }
 
@@ -279,6 +568,7 @@
         panel.setAttribute('hidden', 'hidden');
         mount.classList.remove('wn-ai--open');
         toggleButton.setAttribute('aria-expanded', 'false');
+        persist();
         if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
             previouslyFocused.focus();
         } else {
@@ -291,6 +581,7 @@
         isOpen ? close() : open();
     });
     closeButton.addEventListener('click', close);
+    newButton.addEventListener('click', resetConversation);
 
     form.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -315,8 +606,93 @@
         }
     });
 
-    // --- Auto-open -------------------------------------------------------
-    if (config.autoOpen && !isAutoDismissed()) {
+    // OnePager section links: a chat link points at "https://site/#section" as an
+    // absolute URL. When the visitor is already on that page, that full-URL link
+    // does not trigger the theme's section handling (themes often keep sections
+    // hidden and only reveal them when their own nav link is clicked), so nothing
+    // happens. To stay theme-independent we look for an existing in-page link with
+    // the exact same target (typically the site navigation) and click that, so the
+    // theme runs its own logic (reveal section, offset scroll, active state). If
+    // there is none we fall back to native hash navigation. Links to a different
+    // page keep their default behaviour (navigate + scroll on load).
+    messages.addEventListener('click', function (event) {
+        var anchor = event.target && event.target.closest ? event.target.closest('a') : null;
+        if (!anchor || !anchor.href) {
+            return;
+        }
+
+        var url;
+        try {
+            url = new URL(anchor.href, window.location.href);
+        } catch (e) {
+            return;
+        }
+
+        if (!url.hash
+            || url.origin !== window.location.origin
+            || url.pathname !== window.location.pathname) {
+            return;
+        }
+
+        var target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+        if (!target) {
+            return;
+        }
+
+        event.preventDefault();
+
+        // Prefer replaying an existing site link (e.g. the navigation) with the
+        // same destination, so theme-specific OnePager behaviour runs as designed.
+        var proxy = findMatchingSiteLink(url);
+        if (proxy) {
+            proxy.click();
+            return;
+        }
+
+        // Plain site: drive native hash navigation / scrolling ourselves.
+        if (window.location.hash === url.hash) {
+            target.scrollIntoView();
+        } else {
+            window.location.hash = url.hash;
+        }
+    });
+
+    // Find a link outside the widget whose resolved target equals the given URL
+    // (same page + fragment), e.g. the site's own OnePager navigation entry.
+    function findMatchingSiteLink(url) {
+        var links = document.querySelectorAll('a[href]');
+        for (var i = 0; i < links.length; i++) {
+            var link = links[i];
+            if (link.closest('#wn-ai-assistant')) {
+                continue; // skip the widget's own links
+            }
+            var candidate;
+            try {
+                candidate = new URL(link.href, window.location.href);
+            } catch (e) {
+                continue;
+            }
+            if (candidate.origin === url.origin
+                && candidate.pathname === url.pathname
+                && candidate.hash === url.hash) {
+                return link;
+            }
+        }
+        return null;
+    }
+
+    // --- Restore or auto-open --------------------------------------------
+    var restored = loadTranscript();
+    if (restored) {
+        // Returning within the same browser session: replay the discussion and
+        // restore whether the panel was open. No auto-open — respect the state.
+        turns = restored.turns;
+        turns.forEach(replayTurn);
+        rebuildHistory();
+        if (restored.open) {
+            open();
+        }
+    } else if (config.autoOpen && !isAutoDismissed()) {
         var delayMs = Math.max(0, parseInt(config.autoOpenDelay, 10) || 0) * 1000;
         window.setTimeout(function () {
             // Respect a visitor who opened/closed it in the meantime.

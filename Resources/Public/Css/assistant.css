@@ -1,7 +1,8 @@
 /*
  * wn_ai_bridge — site search assistant widget styles.
  * Self-contained and scoped under #wn-ai-assistant to avoid clashing with the
- * host theme. Honours prefers-color-scheme and prefers-reduced-motion.
+ * host theme. All colours are CSS custom properties that can be overridden
+ * per-site; honours prefers-color-scheme and prefers-reduced-motion.
  */
 #wn-ai-assistant {
     --wn-ai-accent: #2563eb;
@@ -9,14 +10,26 @@
     --wn-ai-bg: #ffffff;
     --wn-ai-fg: #1f2933;
     --wn-ai-muted: #6b7280;
-    --wn-ai-border: #e5e7eb;
+    --wn-ai-border: color-mix(in srgb, var(--wn-ai-fg) 18%, transparent);
+
     --wn-ai-user-bg: #2563eb;
     --wn-ai-user-fg: #ffffff;
+    --wn-ai-user-link: var(--wn-ai-user-fg);
+
     --wn-ai-assistant-bg: #f3f4f6;
+    --wn-ai-assistant-fg: var(--wn-ai-fg);
+    --wn-ai-assistant-link: var(--wn-ai-accent);
+
+    --wn-ai-sources-bg: var(--wn-ai-bg);
+    --wn-ai-sources-fg: var(--wn-ai-muted);
+    --wn-ai-sources-link: var(--wn-ai-accent);
+
     --wn-ai-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
     --wn-ai-radius: 16px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 15px;
+    /* Base text size for the whole widget. Every text element inherits this, so
+       the chat renders at a consistent 1rem throughout. */
+    font-size: 1rem;
     line-height: 1.5;
 }
 
@@ -80,39 +93,164 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Header — uses the panel background + text colour so the close button and
+   title honour the configured Text Color. */
 #wn-ai-assistant .wn-ai-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     padding: 14px 16px;
-    background: var(--wn-ai-accent);
-    color: var(--wn-ai-accent-contrast);
+    background: var(--wn-ai-bg);
+    color: var(--wn-ai-fg);
+    border-bottom: 1px solid var(--wn-ai-border);
 }
 
 #wn-ai-assistant .wn-ai-title {
     margin: 0;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 600;
+    color: var(--wn-ai-accent);
 }
 
-#wn-ai-assistant .wn-ai-close {
+#wn-ai-assistant .wn-ai-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+}
+
+#wn-ai-assistant .wn-ai-close,
+#wn-ai-assistant .wn-ai-new {
     border: none;
     background: transparent;
-    color: inherit;
+    color: var(--wn-ai-fg);
     cursor: pointer;
     padding: 4px;
     border-radius: 8px;
     display: flex;
 }
 
-#wn-ai-assistant .wn-ai-close:hover {
-    background: rgba(255, 255, 255, 0.18);
+#wn-ai-assistant .wn-ai-close:hover,
+#wn-ai-assistant .wn-ai-new:hover {
+    background: color-mix(in srgb, var(--wn-ai-fg) 12%, transparent);
 }
 
-#wn-ai-assistant .wn-ai-close:focus-visible {
-    outline: 2px solid #fff;
+#wn-ai-assistant .wn-ai-close:focus-visible,
+#wn-ai-assistant .wn-ai-new:focus-visible {
+    outline: 2px solid var(--wn-ai-accent);
     outline-offset: 2px;
+}
+
+/* Confirm overlay (custom, semi-transparent replacement for window.confirm) --- */
+#wn-ai-assistant .wn-ai-confirm {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: color-mix(in srgb, var(--wn-ai-bg) 55%, transparent);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    animation: wn-ai-in 0.15s ease;
+}
+
+#wn-ai-assistant .wn-ai-confirm__box {
+    width: 100%;
+    max-width: 300px;
+    background: var(--wn-ai-bg);
+    color: var(--wn-ai-fg);
+    border: 1px solid var(--wn-ai-border);
+    border-radius: 14px;
+    box-shadow: var(--wn-ai-shadow);
+    padding: 18px;
+    text-align: center;
+}
+
+#wn-ai-assistant .wn-ai-confirm__text {
+    margin: 0 0 16px;
+    font-size: 1rem;
+    line-height: 1.45;
+}
+
+#wn-ai-assistant .wn-ai-confirm__actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+#wn-ai-assistant .wn-ai-confirm__btn {
+    border: none;
+    border-radius: 10px;
+    padding: 9px 16px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#wn-ai-assistant .wn-ai-confirm__btn--cancel {
+    background: color-mix(in srgb, var(--wn-ai-fg) 12%, transparent);
+    color: var(--wn-ai-fg);
+}
+
+#wn-ai-assistant .wn-ai-confirm__btn--ok {
+    background: var(--wn-ai-accent);
+    color: var(--wn-ai-accent-contrast);
+}
+
+#wn-ai-assistant .wn-ai-confirm__btn:hover {
+    filter: brightness(1.05);
+}
+
+#wn-ai-assistant .wn-ai-confirm__btn:focus-visible {
+    outline: 2px solid var(--wn-ai-accent);
+    outline-offset: 2px;
+}
+
+/* Avatar (logo / photo) ----------------------------------------------- */
+#wn-ai-assistant .wn-ai-header__group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+#wn-ai-assistant .wn-ai-header__group .wn-ai-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#wn-ai-assistant .wn-ai-header__avatar {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--wn-ai-bg);
+    box-shadow: 0 0 0 2px var(--wn-ai-accent);
+}
+
+#wn-ai-assistant .wn-ai-msg--avatar {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+#wn-ai-assistant .wn-ai-msg--avatar .wn-ai-bubble {
+    max-width: calc(100% - 42px);
+}
+
+#wn-ai-assistant .wn-ai-msg__avatar {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--wn-ai-bg);
+    border: 1px solid var(--wn-ai-border);
 }
 
 /* Messages ------------------------------------------------------------ */
@@ -150,21 +288,42 @@
     max-width: 85%;
 }
 
+#wn-ai-assistant .wn-ai-msg--user .wn-ai-bubble a {
+    color: var(--wn-ai-user-link);
+}
+
 #wn-ai-assistant .wn-ai-msg--assistant .wn-ai-bubble {
     background: var(--wn-ai-assistant-bg);
-    color: var(--wn-ai-fg);
+    color: var(--wn-ai-assistant-fg);
     border-bottom-left-radius: 4px;
     max-width: 90%;
 }
 
-/* Sources ------------------------------------------------------------- */
+#wn-ai-assistant .wn-ai-msg--assistant .wn-ai-bubble a {
+    color: var(--wn-ai-assistant-link);
+}
+
+/* Inline page-title links inside the answer --------------------------- */
+#wn-ai-assistant .wn-ai-cite {
+    color: var(--wn-ai-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 600;
+}
+
+#wn-ai-assistant .wn-ai-cite:hover {
+    text-decoration: none;
+}
+
+/* Sources — kept compact so a handful of hits do not fill the panel:
+   a tight, bullet-free list of small title links (no snippets, no cards). */
 #wn-ai-assistant .wn-ai-sources__label {
-    font-size: 12px;
+    font-size: 0.72rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--wn-ai-muted);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 #wn-ai-assistant .wn-ai-sources {
@@ -173,36 +332,26 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 2px;
 }
 
 #wn-ai-assistant .wn-ai-source {
     display: block;
-    padding: 10px 12px;
-    border: 1px solid var(--wn-ai-border);
-    border-radius: 10px;
+    padding: 2px 0;
     text-decoration: none;
-    color: var(--wn-ai-accent);
-    font-weight: 600;
-    transition: border-color 0.15s ease, background 0.15s ease;
+    color: var(--wn-ai-sources-link);
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.35;
 }
 
 #wn-ai-assistant .wn-ai-source:hover {
-    border-color: var(--wn-ai-accent);
-    background: rgba(37, 99, 235, 0.06);
+    text-decoration: underline;
 }
 
 #wn-ai-assistant .wn-ai-source:focus-visible {
-    outline: 2px solid var(--wn-ai-accent);
+    outline: 2px solid var(--wn-ai-sources-link);
     outline-offset: 2px;
-}
-
-#wn-ai-assistant .wn-ai-source__snippet {
-    display: block;
-    margin-top: 4px;
-    font-weight: 400;
-    font-size: 13px;
-    color: var(--wn-ai-muted);
 }
 
 /* Typing indicator ---------------------------------------------------- */
@@ -285,13 +434,12 @@
     }
 }
 
-/* Dark mode ----------------------------------------------------------- */
+/* Dark mode (applies only to colours the site has not overridden) ------ */
 @media (prefers-color-scheme: dark) {
     #wn-ai-assistant {
         --wn-ai-bg: #1f2430;
         --wn-ai-fg: #e5e7eb;
         --wn-ai-muted: #9ca3af;
-        --wn-ai-border: #374151;
         --wn-ai-assistant-bg: #2d3340;
         --wn-ai-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     }

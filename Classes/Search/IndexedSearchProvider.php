@@ -65,7 +65,14 @@ final class IndexedSearchProvider implements SearchProviderInterface
         $queryBuilder->getRestrictions()->removeAll();
 
         $queryBuilder
-            ->select('p.data_page_id', 'p.item_title', 'p.item_description')
+            ->select(
+                'p.data_page_id',
+                'p.data_page_type',
+                'p.data_page_mp',
+                'p.static_page_arguments',
+                'p.item_title',
+                'p.item_description'
+            )
             ->addSelect('f.fulltextdata')
             ->from(self::TABLE_PHASH, 'p')
             ->leftJoin('p', self::TABLE_FULLTEXT, 'f', 'f.phash = p.phash')
@@ -98,12 +105,9 @@ final class IndexedSearchProvider implements SearchProviderInterface
         }
 
         $items = [];
-        $seenPages = [];
+        $seenUrls = [];
         foreach ($rows as $row) {
             $pageId = (int)$row['data_page_id'];
-            if (isset($seenPages[$pageId])) {
-                continue;
-            }
 
             $title = (string)$row['item_title'];
             $description = (string)$row['item_description'];
@@ -114,19 +118,67 @@ final class IndexedSearchProvider implements SearchProviderInterface
                 continue;
             }
 
-            $url = $this->urlGenerator->generateUrlForPageId($pageId, $languageId);
-            if ($url === '') {
+            // Reconstruct the record parameters indexed_search stored for this
+            // hit so the link targets the exact record (e.g. a news detail view)
+            // instead of the plain page hosting the plugin.
+            $arguments = $this->buildRouteArguments($row);
+            $url = $this->urlGenerator->generateUrlForPageId($pageId, $languageId, $arguments);
+            if ($url === '' || isset($seenUrls[$url])) {
                 continue;
             }
 
-            $seenPages[$pageId] = true;
-            $snippet = $description !== '' ? $description : $body;
+            // De-duplicate by the resolved URL, not by page id: several distinct
+            // records can share the same data_page_id but link to different URLs.
+            $seenUrls[$url] = true;
+            // Centre the snippet on the matched keyword across the meta
+            // description and the full text, so it shows the relevant passage
+            // instead of the page's (navigational) start.
+            $snippet = SearchQuery::snippet(trim($description . ' ' . $body), $terms);
             $items[] = SearchResultItem::create($title, $url, $snippet, $score, $this->getKey(), $pageId);
         }
 
         usort($items, static fn(SearchResultItem $a, SearchResultItem $b): int => $b->score <=> $a->score);
 
         return array_slice($items, 0, $limit);
+    }
+
+    /**
+     * Reconstruct the route arguments indexed_search persisted for a hit, so the
+     * generated link points at the exact record instead of the hosting page.
+     * Mirrors \TYPO3\CMS\IndexedSearch\Controller\SearchController::linkPage():
+     * static_page_arguments carries the record GET parameters, data_page_mp the
+     * mount point and data_page_type the page type.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private function buildRouteArguments(array $row): array
+    {
+        $arguments = [];
+
+        $raw = $row['static_page_arguments'] ?? null;
+        if (is_string($raw) && $raw !== '') {
+            try {
+                $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+                if (is_array($decoded)) {
+                    $arguments = $decoded;
+                }
+            } catch (\JsonException $e) {
+                // Malformed data — fall back to a plain page link.
+            }
+        }
+
+        $mountPoint = (string)($row['data_page_mp'] ?? '');
+        if ($mountPoint !== '') {
+            $arguments['MP'] = $mountPoint;
+        }
+
+        $pageType = (int)($row['data_page_type'] ?? 0);
+        if ($pageType > 0) {
+            $arguments['type'] = $pageType;
+        }
+
+        return $arguments;
     }
 
     /**

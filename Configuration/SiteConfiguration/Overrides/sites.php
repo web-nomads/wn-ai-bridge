@@ -123,6 +123,26 @@ $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantWelcome'] = [
     ],
 ];
 
+$GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantAvatar'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantAvatar',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantAvatar.description',
+    'config' => [
+        'type' => 'input',
+        'eval' => 'trim',
+        'placeholder' => 'fileadmin/logo.png',
+    ],
+];
+
+$GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantCustomCss'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantCustomCss',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantCustomCss.description',
+    'config' => [
+        'type' => 'input',
+        'eval' => 'trim',
+        'placeholder' => 'fileadmin/assistant.css',
+    ],
+];
+
 $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantPlaceholder'] = [
     'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantPlaceholder',
     'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantPlaceholder.description',
@@ -174,6 +194,32 @@ $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantAccentColor'] = [
     ],
 ];
 
+// Additional per-site widget colours. Each is an optional HEX value; unset ones
+// keep the widget stylesheet defaults (including dark-mode).
+$aiAssistantColorFields = [
+    'aiAssistantBgColor' => 'site.aiAssistantBgColor',
+    'aiAssistantTextColor' => 'site.aiAssistantTextColor',
+    'aiAssistantUserBgColor' => 'site.aiAssistantUserBgColor',
+    'aiAssistantUserTextColor' => 'site.aiAssistantUserTextColor',
+    'aiAssistantUserLinkColor' => 'site.aiAssistantUserLinkColor',
+    'aiAssistantAssistantBgColor' => 'site.aiAssistantAssistantBgColor',
+    'aiAssistantAssistantTextColor' => 'site.aiAssistantAssistantTextColor',
+    'aiAssistantAssistantLinkColor' => 'site.aiAssistantAssistantLinkColor',
+    'aiAssistantSourcesBgColor' => 'site.aiAssistantSourcesBgColor',
+    'aiAssistantSourcesTextColor' => 'site.aiAssistantSourcesTextColor',
+    'aiAssistantSourcesLinkColor' => 'site.aiAssistantSourcesLinkColor',
+];
+foreach ($aiAssistantColorFields as $aiAssistantColorField => $aiAssistantColorLabel) {
+    $GLOBALS['SiteConfiguration']['site']['columns'][$aiAssistantColorField] = [
+        'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:' . $aiAssistantColorLabel,
+        'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:' . $aiAssistantColorLabel . '.description',
+        'config' => [
+            'type' => 'color',
+            'size' => 10,
+        ],
+    ];
+}
+
 $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantSystemPrompt'] = [
     'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantSystemPrompt',
     'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantSystemPrompt.description',
@@ -187,6 +233,23 @@ $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantSystemPrompt'] = [
 $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantOnePager'] = [
     'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantOnePager',
     'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantOnePager.description',
+    'config' => [
+        'type' => 'check',
+        'renderType' => 'checkboxToggle',
+        'default' => 0,
+        'items' => [
+            [
+                'label' => '',
+                'labelChecked' => 'Enabled',
+                'labelUnchecked' => 'Disabled',
+            ],
+        ],
+    ],
+];
+
+$GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantLearning'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantLearning',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantLearning.description',
     'config' => [
         'type' => 'check',
         'renderType' => 'checkboxToggle',
@@ -231,10 +294,79 @@ $GLOBALS['SiteConfiguration']['site']['types']['0']['showitem'] .= ',
         aiAssistantTitle,
         aiAssistantWelcome,
         aiAssistantPlaceholder,
-        aiAssistantAccentColor,
+        aiAssistantAvatar,
         aiAssistantAutoOpen,
         aiAssistantAutoOpenDelay,
         aiAssistantSystemPrompt,
         aiAssistantOnePager,
-        aiAssistantSearchPid
+        aiAssistantLearning,
+        aiAssistantSearchPid,
+    --div--;LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.tab.assistantColors,
+        aiAssistantAccentColor,
+        aiAssistantBgColor,
+        aiAssistantTextColor,
+        aiAssistantUserBgColor,
+        aiAssistantUserTextColor,
+        aiAssistantUserLinkColor,
+        aiAssistantAssistantBgColor,
+        aiAssistantAssistantTextColor,
+        aiAssistantAssistantLinkColor,
+        aiAssistantSourcesBgColor,
+        aiAssistantSourcesTextColor,
+        aiAssistantSourcesLinkColor,
+        aiAssistantCustomCss
+';
+
+// Per-language overrides for the assistant's visitor-facing texts, so they can
+// be maintained per language variation directly on each site language. When a
+// language leaves a field empty, the site-level value (and finally the bundled
+// translation) is used.
+$GLOBALS['SiteConfiguration']['site_language']['columns']['aiAssistantTitle'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantTitle',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.language.assistantText',
+    'config' => [
+        'type' => 'input',
+        'eval' => 'trim',
+    ],
+];
+
+$GLOBALS['SiteConfiguration']['site_language']['columns']['aiAssistantWelcome'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantWelcome',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.language.assistantText',
+    'config' => [
+        'type' => 'text',
+        'rows' => 3,
+        'eval' => 'trim',
+    ],
+];
+
+$GLOBALS['SiteConfiguration']['site_language']['columns']['aiAssistantPlaceholder'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantPlaceholder',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.language.assistantText',
+    'config' => [
+        'type' => 'input',
+        'eval' => 'trim',
+    ],
+];
+
+$GLOBALS['SiteConfiguration']['site_language']['columns']['aiAssistantSystemPrompt'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantSystemPrompt',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.language.assistantText',
+    'config' => [
+        'type' => 'text',
+        'rows' => 6,
+        'eval' => 'trim',
+    ],
+];
+
+if (!isset($GLOBALS['SiteConfiguration']['site_language']['types']['1']['showitem'])) {
+    $GLOBALS['SiteConfiguration']['site_language']['types']['1']['showitem'] = '';
+}
+
+$GLOBALS['SiteConfiguration']['site_language']['types']['1']['showitem'] .= ',
+    --div--;LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.tab.assistant,
+        aiAssistantTitle,
+        aiAssistantWelcome,
+        aiAssistantPlaceholder,
+        aiAssistantSystemPrompt
 ';

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="fr" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_widget.xlf" date="2026-07-17T12:00:00Z">
+		<header><description>French translations for the AI search assistant chat widget.</description></header>
+		<body>
+			<trans-unit id="widget.toggle"><source>Open the search assistant</source><target>Ouvrir l'assistant de recherche</target></trans-unit>
+			<trans-unit id="widget.send"><source>Send</source><target>Envoyer</target></trans-unit>
+			<trans-unit id="widget.close"><source>Close</source><target>Fermer</target></trans-unit>
+			<trans-unit id="widget.newChat"><source>Start a new discussion</source><target>Démarrer une nouvelle discussion</target></trans-unit>
+			<trans-unit id="widget.newChatConfirm"><source>Start a new discussion? The current conversation will be discarded.</source><target>Démarrer une nouvelle discussion ? La conversation actuelle sera supprimée.</target></trans-unit>
+			<trans-unit id="widget.newChatYes"><source>Start</source><target>Démarrer</target></trans-unit>
+			<trans-unit id="widget.newChatNo"><source>Cancel</source><target>Annuler</target></trans-unit>
+			<trans-unit id="widget.sources"><source>Related links</source><target>Liens utiles sur le sujet</target></trans-unit>
+			<trans-unit id="widget.thinking"><source>Searching the website …</source><target>Je recherche sur le site …</target></trans-unit>
+			<trans-unit id="widget.error"><source>Something went wrong. Please try again.</source><target>Une erreur s'est produite. Veuillez réessayer.</target></trans-unit>
+			<trans-unit id="widget.rateLimited"><source>Too many requests. Please wait a moment.</source><target>Trop de requêtes. Veuillez patienter un instant.</target></trans-unit>
+			<trans-unit id="widget.title.default"><source>How can I help?</source><target>Comment puis-je vous aider ?</target></trans-unit>
+			<trans-unit id="widget.welcome.default"><source>Ask me a question — I'll search the website and show you where to find the right information.</source><target>Posez-moi une question — je recherche sur le site et vous montre où trouver les bonnes informations.</target></trans-unit>
+			<trans-unit id="widget.placeholder.default"><source>Your question …</source><target>Votre question …</target></trans-unit>
+			<trans-unit id="message.noResults"><source>I couldn't find anything about that on the website. Please try different search terms or rephrase your question.</source><target>Je n'ai rien trouvé à ce sujet sur le site. Essayez d'autres termes de recherche ou reformulez votre question.</target></trans-unit>
+			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>J'ai trouvé une page correspondante :</target></trans-unit>
+			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>J'ai trouvé %d pages correspondantes :</target></trans-unit>
+			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>Consultez les suggestions ci-dessous — vous y trouverez les informations recherchées.</target></trans-unit>
+		</body>
+	</file>
+</xliff>

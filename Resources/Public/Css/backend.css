@@ -1,0 +1,114 @@
+/*
+ * wn_ai_bridge — AI Assistant Log backend module.
+ * Styles the collapsible conversation threads so the summary row is a single,
+ * vertically centered line with a custom rotating chevron (the default
+ * disclosure marker breaks the flex layout).
+ */
+.wn-ai-thread {
+    overflow: hidden;
+}
+
+.wn-ai-thread > summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .5rem .85rem;
+}
+
+/* Hide the native disclosure marker (Safari/Chrome + Firefox). */
+.wn-ai-thread > summary::-webkit-details-marker {
+    display: none;
+}
+.wn-ai-thread > summary::marker {
+    content: "";
+}
+
+.wn-ai-thread > summary:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* CSS-drawn chevron (avoids depending on a specific icon identifier). */
+.wn-ai-thread__chevron {
+    flex: 0 0 auto;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px 0 5px 7px;
+    border-color: transparent transparent transparent currentColor;
+    color: var(--typo3-text-color-secondary, #6c757d);
+    transition: transform .15s ease;
+}
+
+.wn-ai-thread[open] > summary .wn-ai-thread__chevron {
+    transform: rotate(90deg);
+}
+
+.wn-ai-thread__date {
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
+}
+
+.wn-ai-thread__meta {
+    flex: 0 0 auto;
+    min-width: 0;
+}
+
+.wn-ai-thread__question {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wn-ai-thread__badges {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 991.98px) {
+    .wn-ai-thread > summary {
+        flex-wrap: wrap;
+    }
+    .wn-ai-thread__question {
+        flex-basis: 100%;
+        order: 5;
+    }
+}
+
+/*
+ * Badge legibility.
+ * The backend theme does not force a text colour on `.badge`, so the coloured
+ * `bg-*` variants inherited the dark body text and became hard to read. Pin an
+ * explicit, high-contrast text colour per variant (scoped to the module) so the
+ * badge labels stay legible in both the light and dark backend themes. The
+ * !important guards against the theme's own utility declarations.
+ */
+.wn-ai-log .badge {
+    /* Fallback for any un-classified badge: white on the assumed coloured bg. */
+    color: #ffffff;
+}
+
+/* Dark / saturated backgrounds → white text. In the TYPO3 backend theme
+   bg-info is a saturated teal (not Bootstrap's light cyan), so it needs white
+   text too. */
+.wn-ai-log .badge.bg-primary,
+.wn-ai-log .badge.bg-secondary,
+.wn-ai-log .badge.bg-success,
+.wn-ai-log .badge.bg-danger,
+.wn-ai-log .badge.bg-info,
+.wn-ai-log .badge.bg-dark {
+    color: #ffffff !important;
+}
+
+/* Light backgrounds → near-black text (bg-warning is light, and bg-light is
+   light by definition). */
+.wn-ai-log .badge.bg-warning,
+.wn-ai-log .badge.bg-light {
+    color: #1f2328 !important;
+}

@@ -67,6 +67,55 @@ final class SearchQuery
     }
 
     /**
+     * Build a readable excerpt from a longer text, centred on the first place a
+     * search term occurs, so the snippet shows the relevant passage instead of
+     * the (often navigational) start of the page. Falls back to the beginning
+     * when no term is found.
+     *
+     * @param list<string> $terms
+     */
+    public static function snippet(string $text, array $terms, int $maxLength = 320): string
+    {
+        $text = trim(preg_replace('/\s+/u', ' ', strip_tags($text)) ?? '');
+        if ($text === '' || mb_strlen($text) <= $maxLength) {
+            return $text;
+        }
+
+        $lower = mb_strtolower($text);
+        $pos = null;
+        foreach ($terms as $term) {
+            $found = mb_strpos($lower, mb_strtolower($term));
+            if ($found !== false && ($pos === null || $found < $pos)) {
+                $pos = $found;
+            }
+        }
+
+        if ($pos === null) {
+            return rtrim(mb_substr($text, 0, $maxLength - 1)) . '…';
+        }
+
+        // Centre a window around the first match, snapping the start to a word
+        // boundary so the excerpt does not begin mid-word.
+        $start = max(0, $pos - (int)floor(($maxLength - 40) / 2));
+        if ($start > 0) {
+            $space = mb_strpos($text, ' ', $start);
+            if ($space !== false && $space - $start < 25) {
+                $start = $space + 1;
+            }
+        }
+
+        $snippet = trim(mb_substr($text, $start, $maxLength));
+        if ($start > 0) {
+            $snippet = '…' . $snippet;
+        }
+        if ($start + $maxLength < mb_strlen($text)) {
+            $snippet = rtrim($snippet) . '…';
+        }
+
+        return $snippet;
+    }
+
+    /**
      * Build a MySQL fulltext boolean-mode expression: each term is required and
      * gets a trailing wildcard for prefix matching, e.g. "+studium* +beginn*".
      *

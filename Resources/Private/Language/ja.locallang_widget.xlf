@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="ja" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_widget.xlf" date="2026-07-17T12:00:00Z">
+		<header><description>Japanese translations for the AI search assistant chat widget.</description></header>
+		<body>
+			<trans-unit id="widget.toggle"><source>Open the search assistant</source><target>検索アシスタントを開く</target></trans-unit>
+			<trans-unit id="widget.send"><source>Send</source><target>送信</target></trans-unit>
+			<trans-unit id="widget.close"><source>Close</source><target>閉じる</target></trans-unit>
+			<trans-unit id="widget.newChat"><source>Start a new discussion</source><target>新しい会話を始める</target></trans-unit>
+			<trans-unit id="widget.newChatConfirm"><source>Start a new discussion? The current conversation will be discarded.</source><target>新しい会話を始めますか？現在の会話は削除されます。</target></trans-unit>
+			<trans-unit id="widget.newChatYes"><source>Start</source><target>開始</target></trans-unit>
+			<trans-unit id="widget.newChatNo"><source>Cancel</source><target>キャンセル</target></trans-unit>
+			<trans-unit id="widget.sources"><source>Related links</source><target>関連リンク</target></trans-unit>
+			<trans-unit id="widget.thinking"><source>Searching the website …</source><target>ウェブサイトを検索しています …</target></trans-unit>
+			<trans-unit id="widget.error"><source>Something went wrong. Please try again.</source><target>エラーが発生しました。もう一度お試しください。</target></trans-unit>
+			<trans-unit id="widget.rateLimited"><source>Too many requests. Please wait a moment.</source><target>リクエストが多すぎます。少々お待ちください。</target></trans-unit>
+			<trans-unit id="widget.title.default"><source>How can I help?</source><target>どのようなご用件でしょうか？</target></trans-unit>
+			<trans-unit id="widget.welcome.default"><source>Ask me a question — I'll search the website and show you where to find the right information.</source><target>ご質問をどうぞ。ウェブサイトを検索して、必要な情報の場所をご案内します。</target></trans-unit>
+			<trans-unit id="widget.placeholder.default"><source>Your question …</source><target>ご質問を入力 …</target></trans-unit>
+			<trans-unit id="message.noResults"><source>I couldn't find anything about that on the website. Please try different search terms or rephrase your question.</source><target>そのことについてはウェブサイト内で見つかりませんでした。別のキーワードをお試しいただくか、質問を言い換えてください。</target></trans-unit>
+			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>該当するページが1件見つかりました：</target></trans-unit>
+			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>該当するページが %d 件見つかりました：</target></trans-unit>
+			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>下記の候補をご覧ください。お探しの情報が見つかります。</target></trans-unit>
+		</body>
+	</file>
+</xliff>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="zh" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_widget.xlf" date="2026-07-17T12:00:00Z">
+		<header><description>Chinese (Simplified) translations for the AI search assistant chat widget.</description></header>
+		<body>
+			<trans-unit id="widget.toggle"><source>Open the search assistant</source><target>打开搜索助手</target></trans-unit>
+			<trans-unit id="widget.send"><source>Send</source><target>发送</target></trans-unit>
+			<trans-unit id="widget.close"><source>Close</source><target>关闭</target></trans-unit>
+			<trans-unit id="widget.newChat"><source>Start a new discussion</source><target>开始新的对话</target></trans-unit>
+			<trans-unit id="widget.newChatConfirm"><source>Start a new discussion? The current conversation will be discarded.</source><target>要开始新的对话吗？当前对话将被删除。</target></trans-unit>
+			<trans-unit id="widget.newChatYes"><source>Start</source><target>开始</target></trans-unit>
+			<trans-unit id="widget.newChatNo"><source>Cancel</source><target>取消</target></trans-unit>
+			<trans-unit id="widget.sources"><source>Related links</source><target>相关链接</target></trans-unit>
+			<trans-unit id="widget.thinking"><source>Searching the website …</source><target>正在搜索网站 …</target></trans-unit>
+			<trans-unit id="widget.error"><source>Something went wrong. Please try again.</source><target>出现错误，请重试。</target></trans-unit>
+			<trans-unit id="widget.rateLimited"><source>Too many requests. Please wait a moment.</source><target>请求过多，请稍候片刻。</target></trans-unit>
+			<trans-unit id="widget.title.default"><source>How can I help?</source><target>有什么可以帮您？</target></trans-unit>
+			<trans-unit id="widget.welcome.default"><source>Ask me a question — I'll search the website and show you where to find the right information.</source><target>向我提问吧——我会搜索网站并告诉您在哪里找到合适的信息。</target></trans-unit>
+			<trans-unit id="widget.placeholder.default"><source>Your question …</source><target>您的问题 …</target></trans-unit>
+			<trans-unit id="message.noResults"><source>I couldn't find anything about that on the website. Please try different search terms or rephrase your question.</source><target>我在网站上没有找到相关内容。请尝试其他搜索词或换一种方式提问。</target></trans-unit>
+			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>我找到了一个相关页面：</target></trans-unit>
+			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>我找到了 %d 个相关页面：</target></trans-unit>
+			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>请查看下方的建议——您可以在那里找到所需的信息。</target></trans-unit>
+		</body>
+	</file>
+</xliff>

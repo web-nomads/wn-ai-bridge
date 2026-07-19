@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="hi" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_widget.xlf" date="2026-07-17T12:00:00Z">
+		<header><description>Hindi translations for the AI search assistant chat widget.</description></header>
+		<body>
+			<trans-unit id="widget.toggle"><source>Open the search assistant</source><target>खोज सहायक खोलें</target></trans-unit>
+			<trans-unit id="widget.send"><source>Send</source><target>भेजें</target></trans-unit>
+			<trans-unit id="widget.close"><source>Close</source><target>बंद करें</target></trans-unit>
+			<trans-unit id="widget.newChat"><source>Start a new discussion</source><target>नई बातचीत शुरू करें</target></trans-unit>
+			<trans-unit id="widget.newChatConfirm"><source>Start a new discussion? The current conversation will be discarded.</source><target>नई बातचीत शुरू करें? मौजूदा बातचीत हटा दी जाएगी।</target></trans-unit>
+			<trans-unit id="widget.newChatYes"><source>Start</source><target>शुरू करें</target></trans-unit>
+			<trans-unit id="widget.newChatNo"><source>Cancel</source><target>रद्द करें</target></trans-unit>
+			<trans-unit id="widget.sources"><source>Related links</source><target>विषय से संबंधित लिंक</target></trans-unit>
+			<trans-unit id="widget.thinking"><source>Searching the website …</source><target>वेबसाइट खोजी जा रही है …</target></trans-unit>
+			<trans-unit id="widget.error"><source>Something went wrong. Please try again.</source><target>कुछ गलत हो गया। कृपया पुनः प्रयास करें।</target></trans-unit>
+			<trans-unit id="widget.rateLimited"><source>Too many requests. Please wait a moment.</source><target>बहुत अधिक अनुरोध। कृपया थोड़ी देर प्रतीक्षा करें।</target></trans-unit>
+			<trans-unit id="widget.title.default"><source>How can I help?</source><target>मैं आपकी कैसे मदद कर सकता/सकती हूँ?</target></trans-unit>
+			<trans-unit id="widget.welcome.default"><source>Ask me a question — I'll search the website and show you where to find the right information.</source><target>मुझसे कोई प्रश्न पूछें — मैं वेबसाइट खोजकर बताऊँगा/बताऊँगी कि सही जानकारी कहाँ मिलेगी।</target></trans-unit>
+			<trans-unit id="widget.placeholder.default"><source>Your question …</source><target>आपका प्रश्न …</target></trans-unit>
+			<trans-unit id="message.noResults"><source>I couldn't find anything about that on the website. Please try different search terms or rephrase your question.</source><target>मुझे इसके बारे में वेबसाइट पर कुछ नहीं मिला। कृपया अलग खोज शब्द आज़माएँ या अपना प्रश्न दोबारा लिखें।</target></trans-unit>
+			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>मुझे एक प्रासंगिक पेज मिला:</target></trans-unit>
+			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>मुझे %d प्रासंगिक पेज मिले:</target></trans-unit>
+			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>नीचे दिए गए सुझाव देखें — वहाँ आपको वांछित जानकारी मिलेगी।</target></trans-unit>
+		</body>
+	</file>
+</xliff>

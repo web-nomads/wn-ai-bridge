@@ -129,13 +129,31 @@ class UrlGeneratorService
      * Returns an empty string when the page cannot be routed (e.g. deleted or
      * outside any site) so callers can skip the hit.
      */
-    public function generateUrlForPageId(int $pageId, int $languageId = 0): string
+    /**
+     * @param array<string, mixed> $arguments Optional route arguments (e.g. the
+     *        record parameters indexed_search stored for a hit), so the link can
+     *        point at the exact record/detail view instead of the plain page
+     *        that hosts the plugin. When given, OnePager anchor rewriting is
+     *        skipped and, if the record link cannot be built, generation falls
+     *        back to the plain page URL.
+     */
+    public function generateUrlForPageId(int $pageId, int $languageId = 0, array $arguments = []): string
     {
         if ($pageId <= 0) {
             return '';
         }
 
         try {
+            // Direct record link (indexed_search detail view etc.): keep the
+            // record parameters and never collapse them into a OnePager anchor.
+            if ($arguments !== []) {
+                $url = $this->generatePlainUrlForPageId($pageId, $languageId, $arguments);
+                if ($url !== '') {
+                    return $url;
+                }
+                // Record link could not be built — fall through to a page link.
+            }
+
             if ($this->configurationService->isAssistantOnePagerEnabled()) {
                 $pid = $this->fetchPid($pageId);
                 if ($pid !== null) {
@@ -155,8 +173,13 @@ class UrlGeneratorService
 
     /**
      * Plain absolute page URL without any OnePager anchor handling.
+     *
+     * @param array<string, mixed> $arguments Additional route arguments merged
+     *        into the generated URI (record parameters, MP, page type). The
+     *        PageRouter applies the site's route enhancers and appends a cHash
+     *        where required, producing a working direct link.
      */
-    private function generatePlainUrlForPageId(int $pageId, int $languageId): string
+    private function generatePlainUrlForPageId(int $pageId, int $languageId, array $arguments = []): string
     {
         try {
             $site = $this->siteFinder->getSiteByPageId($pageId);
@@ -170,10 +193,13 @@ class UrlGeneratorService
             $siteLanguage = $site->getDefaultLanguage();
         }
 
+        $routeArguments = $arguments;
+        $routeArguments['_language'] = $siteLanguage;
+
         try {
             $uri = (string)$site->getRouter()->generateUri(
                 $pageId,
-                ['_language' => $siteLanguage],
+                $routeArguments,
                 '',
                 \TYPO3\CMS\Core\Routing\RouterInterface::ABSOLUTE_URL
             );
