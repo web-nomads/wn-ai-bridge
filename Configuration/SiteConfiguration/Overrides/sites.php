@@ -363,7 +363,54 @@ if (!isset($GLOBALS['SiteConfiguration']['site_language']['types']['1']['showite
     $GLOBALS['SiteConfiguration']['site_language']['types']['1']['showitem'] = '';
 }
 
+// Per-language overrides for the llms.txt texts, so they can be maintained per
+// language variation directly on each site language. When a language leaves a
+// field empty, the site-level value is used.
+$GLOBALS['SiteConfiguration']['site_language']['columns']['llmsTxtTitle'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.llmsTxtTitle',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.language.llmsText',
+    'config' => [
+        'type' => 'input',
+        'eval' => 'trim',
+    ],
+];
+
+$GLOBALS['SiteConfiguration']['site_language']['columns']['llmsTxtDescription'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.llmsTxtDescription',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.language.llmsText',
+    'config' => [
+        'type' => 'text',
+        'rows' => 3,
+        'eval' => 'trim',
+    ],
+];
+
+$GLOBALS['SiteConfiguration']['site_language']['columns']['llmsTxtAdditionalInfo'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.llmsTxtAdditionalInfo',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.language.llmsText',
+    'config' => [
+        'type' => 'text',
+        'rows' => 10,
+        'renderType' => $version >= '13' ? 'codeEditor' : 'text',
+        'eval' => 'trim',
+    ],
+];
+
+$GLOBALS['SiteConfiguration']['site_language']['columns']['llmsTxtKeywords'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.llmsTxtKeywords',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.language.llmsText',
+    'config' => [
+        'type' => 'input',
+        'eval' => 'trim',
+    ],
+];
+
 $GLOBALS['SiteConfiguration']['site_language']['types']['1']['showitem'] .= ',
+    --div--;LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.tab.llmstxt,
+        llmsTxtTitle,
+        llmsTxtDescription,
+        llmsTxtAdditionalInfo,
+        llmsTxtKeywords,
     --div--;LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.tab.assistant,
         aiAssistantTitle,
         aiAssistantWelcome,

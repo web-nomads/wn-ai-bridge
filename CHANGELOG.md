@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-07-20
+
+### Added
+- The per-site llms.txt texts (title, description, additional info, keywords) can now also be maintained per language variation in the Site settings (on each site language), analogous to the AI search assistant texts. When the page is viewed in a foreign language, the localized values are rendered in the llms.txt. Resolution order: language value → site (default language) value
+
 ## [1.13.0] - 2026-07-19
 
 ### Changed

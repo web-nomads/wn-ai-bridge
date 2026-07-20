@@ -128,23 +128,20 @@ class ConfigurationService
 
     public function getTitleOverride(): ?string
     {
-        $site = $this->getCurrentSite();
-        $title = $site->getConfiguration()['llmsTxtTitle'] ?? '';
-        return !empty($title) ? trim($title) : null;
+        $title = $this->getLocalizedLlmsValue('llmsTxtTitle');
+        return $title !== '' ? $title : null;
     }
 
     public function getDescriptionOverride(): ?string
     {
-        $site = $this->getCurrentSite();
-        $description = $site->getConfiguration()['llmsTxtDescription'] ?? '';
-        return !empty($description) ? trim($description) : null;
+        $description = $this->getLocalizedLlmsValue('llmsTxtDescription');
+        return $description !== '' ? $description : null;
     }
 
     public function getAdditionalInfo(): ?string
     {
-        $site = $this->getCurrentSite();
-        $info = $site->getConfiguration()['llmsTxtAdditionalInfo'] ?? '';
-        return !empty($info) ? trim($info) : null;
+        $info = $this->getLocalizedLlmsValue('llmsTxtAdditionalInfo');
+        return $info !== '' ? $info : null;
     }
 
     public function getContactEmail(): ?string
@@ -156,14 +153,26 @@ class ConfigurationService
 
     public function getKeywords(): array
     {
-        $site = $this->getCurrentSite();
-
-        $keywords = $site->getConfiguration()['llmsTxtKeywords'] ?? '';
-        if (empty($keywords)) {
+        $keywords = $this->getLocalizedLlmsValue('llmsTxtKeywords');
+        if ($keywords === '') {
             return [];
         }
 
         return array_map('trim', explode(',', $keywords));
+    }
+
+    /**
+     * Resolve a per-site llms.txt text that can be maintained per language:
+     * prefer the value set on the current site language, then fall back to the
+     * site-level value. Returns '' when neither is set.
+     */
+    private function getLocalizedLlmsValue(string $key): string
+    {
+        $value = $this->getLanguageConfigValue($key);
+        if ($value !== '') {
+            return $value;
+        }
+        return $this->getSiteConfigurationValue($key);
     }
 
     public function getMaxDepth(): int
