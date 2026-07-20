@@ -4,6 +4,14 @@
  * vertically centered line with a custom rotating chevron (the default
  * disclosure marker breaks the flex layout).
  */
+/* While an AJAX filter request is in flight the results are dimmed and made
+   inert so double submits can't race. */
+.wn-ai-loading {
+    opacity: 0.5;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
 .wn-ai-thread {
     overflow: hidden;
 }

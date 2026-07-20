@@ -8,9 +8,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use WebNomads\WnAiBridge\Domain\Model\BotAccessFilter;
 use WebNomads\WnAiBridge\Domain\Repository\BotAccessRepository;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
@@ -28,6 +31,7 @@ final class BotAccessModuleController
         private readonly BotAccessRepository $repository,
         private readonly ConfigurationService $configurationService,
         private readonly BackendUriBuilder $uriBuilder,
+        private readonly ViewFactoryInterface $viewFactory,
     ) {}
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
@@ -56,12 +60,7 @@ final class BotAccessModuleController
             $tableError = true;
         }
 
-        GeneralUtility::makeInstance(PageRenderer::class)
-            ->addCssFile('EXT:wn_ai_bridge/Resources/Public/Css/backend.css');
-
-        $moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $moduleTemplate->setTitle('Bot Access Log');
-        $moduleTemplate->assignMultiple([
+        $variables = [
             'loggingEnabled' => $this->configurationService->isBotAccessLoggingEnabled(),
             'tableError' => $tableError,
             'entries' => $entries,
@@ -71,9 +70,41 @@ final class BotAccessModuleController
             'filter' => $filter->toFormValues(),
             'pagination' => $this->buildPagination($filter, $total),
             'moduleUrl' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME),
-        ]);
+        ];
+
+        // AJAX filter request: return just the filter-dependent results fragment
+        // so the module (and its doc-header) is never re-rendered.
+        if (($params['ajax'] ?? '') === '1') {
+            return $this->renderResultsFragment($request, $variables);
+        }
+
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->addCssFile('EXT:wn_ai_bridge/Resources/Public/Css/backend.css');
+        $pageRenderer->loadJavaScriptModule('@webnomads/wn-ai-bridge/backend-filter.js');
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($request);
+        $moduleTemplate->setTitle('Bot Access Log');
+        $moduleTemplate->assignMultiple($variables);
 
         return $moduleTemplate->renderResponse('BotAccess/Index');
+    }
+
+    /**
+     * Render only the filter-dependent results fragment (statistics, result
+     * table and pagination) as a bare HTML response for AJAX requests.
+     *
+     * @param array<string, mixed> $variables
+     */
+    private function renderResultsFragment(ServerRequestInterface $request, array $variables): ResponseInterface
+    {
+        $view = $this->viewFactory->create(new ViewFactoryData(
+            templateRootPaths: ['EXT:wn_ai_bridge/Resources/Private/Templates/'],
+            partialRootPaths: ['EXT:wn_ai_bridge/Resources/Private/Partials/'],
+            request: $request,
+        ));
+        $view->assignMultiple($variables);
+
+        return new HtmlResponse($view->render('BotAccess/Results'));
     }
 
     /**

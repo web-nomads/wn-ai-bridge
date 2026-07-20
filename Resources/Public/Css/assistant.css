@@ -416,16 +416,16 @@
     outline-offset: 2px;
 }
 
-/* Mobile -------------------------------------------------------------- */
+/* Mobile — stay anchored bottom-right instead of covering the whole page;
+   leave ~30px breathing room on the left and top so the site stays visible. */
 @media (max-width: 480px) {
     #wn-ai-assistant .wn-ai-panel {
         right: 0;
         bottom: 0;
-        width: 100vw;
-        max-width: 100vw;
-        height: 100dvh;
-        max-height: 100dvh;
-        border-radius: 0;
+        width: calc(100vw - 30px);
+        max-width: calc(100vw - 30px);
+        height: calc(100dvh - 30px);
+        max-height: calc(100dvh - 30px);
     }
 
     #wn-ai-assistant .wn-ai-toggle {

@@ -8,9 +8,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use WebNomads\WnAiBridge\Domain\Model\AssistantLogEntry;
 use WebNomads\WnAiBridge\Domain\Model\LogFilter;
 use WebNomads\WnAiBridge\Domain\Repository\AssistantLogRepository;
@@ -33,6 +36,7 @@ final class LogModuleController
         private readonly BackendUriBuilder $uriBuilder,
         private readonly VisitorInfoService $visitorInfoService,
         private readonly CostCalculator $costCalculator,
+        private readonly ViewFactoryInterface $viewFactory,
     ) {}
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
@@ -68,12 +72,7 @@ final class LogModuleController
             $tableError = true;
         }
 
-        GeneralUtility::makeInstance(PageRenderer::class)
-            ->addCssFile('EXT:wn_ai_bridge/Resources/Public/Css/backend.css');
-
-        $moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $moduleTemplate->setTitle('AI Assistant Log');
-        $moduleTemplate->assignMultiple([
+        $variables = [
             'loggingEnabled' => $this->configurationService->isAssistantLoggingEnabled(),
             'tableError' => $tableError,
             'threads' => $threads,
@@ -84,9 +83,41 @@ final class LogModuleController
             'filter' => $filter->toFormValues(),
             'pagination' => $this->buildPagination($filter, $totalThreads),
             'moduleUrl' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME),
-        ]);
+        ];
+
+        // AJAX filter request: return just the filter-dependent results fragment
+        // so the module (and its doc-header) is never re-rendered.
+        if (($params['ajax'] ?? '') === '1') {
+            return $this->renderResultsFragment($request, $variables);
+        }
+
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->addCssFile('EXT:wn_ai_bridge/Resources/Public/Css/backend.css');
+        $pageRenderer->loadJavaScriptModule('@webnomads/wn-ai-bridge/backend-filter.js');
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($request);
+        $moduleTemplate->setTitle('AI Assistant Log');
+        $moduleTemplate->assignMultiple($variables);
 
         return $moduleTemplate->renderResponse('Log/Index');
+    }
+
+    /**
+     * Render only the filter-dependent results fragment (statistics, thread
+     * list and pagination) as a bare HTML response for AJAX requests.
+     *
+     * @param array<string, mixed> $variables
+     */
+    private function renderResultsFragment(ServerRequestInterface $request, array $variables): ResponseInterface
+    {
+        $view = $this->viewFactory->create(new ViewFactoryData(
+            templateRootPaths: ['EXT:wn_ai_bridge/Resources/Private/Templates/'],
+            partialRootPaths: ['EXT:wn_ai_bridge/Resources/Private/Partials/'],
+            request: $request,
+        ));
+        $view->assignMultiple($variables);
+
+        return new HtmlResponse($view->render('Log/Results'));
     }
 
     /**

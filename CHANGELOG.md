@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-07-19
+
+### Changed
+- The filters in the "AI Assistant Log" and "Bot Access" backend modules now apply via AJAX: the result list, statistics and pagination update in place without a full page reload. This also fixes the duplicated module header that appeared when submitting the log filter (a POST re-rendered the module doc-header). Filtering is now live (selects/checkboxes apply immediately, free-text fields debounced), the browser URL stays in sync so a reload keeps the active filter, and the forms still submit normally when JavaScript is unavailable
+
+## [1.12.1] - 2026-07-19
+
+### Changed
+- On smartphones the chat panel no longer covers the entire page; it stays anchored bottom-right and leaves roughly 30px of the site visible on the left and top
+
 ## [1.12.0] - 2026-07-19
 
 ### Added
