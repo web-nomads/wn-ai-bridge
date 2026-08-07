@@ -26,15 +26,17 @@ the companion extension ``wn_ai_bridgeserver`` and entered under
 the field :guilabel:`Subscription-Key`.
 
 The key is encrypted and signed and carries the domains it is valid for, an
-expiry date and the features it unlocks. It is validated locally on every
-request — no call to any server is made.
+expiry date and the features it unlocks. Every request validates it locally,
+without a network call. Once a day the status is additionally checked with the
+issuing server, so a renewal arrives and a revocation takes effect without
+waiting for the expiry date — see :ref:`data-sent-to-the-licence-server`.
 
 What the subscription gates:
 
 * the chat widget on the website and its ``/wn-ai-bridge/ask`` endpoint
   (feature ``chatbot``)
-* the backend module :guilabel:`AI Assistant Log` (feature ``log``)
-* the backend module :guilabel:`Corrections` and the local learning source
+* the backend module :guilabel:`Enquiries` (feature ``log``)
+* the backend module :guilabel:`Answers` and the local learning source
   (feature ``corrections``)
 
 Without a valid key those modules disappear from the module menu and the widget
@@ -208,7 +210,7 @@ Security Considerations
   intended for local troubleshooting only.
 
 Performance Considerations
-=========================
+==========================
 
 * The extension uses TYPO3's caching mechanisms where possible
 * llms.txt generation processes the entire site navigation, so performance depends on site size

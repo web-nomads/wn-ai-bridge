@@ -150,7 +150,7 @@ question and answer. Each entry stores the date, client IP, user agent, mode
 ``tx_wnaibridge_assistant_log`` table (run the database schema update after
 enabling).
 
-The **AI Assistant Log** backend module (module group "AI Bridge") shows the
+The **Enquiries** backend module (module group "AI Bridge") shows the
 entries in a filterable list — by date range, IP address, provider, mode and
 free text over question/answer — together with a statistics overview:
 interactions, the LLM-vs-search split, total input/output/total tokens, the

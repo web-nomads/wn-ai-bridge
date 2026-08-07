@@ -1,8 +1,8 @@
 .. include:: /Includes.rst.txt
 
-================
+===================
 AI Bridge for TYPO3
-================
+===================
 
 :Extension key:
     wn_ai_bridge
@@ -40,6 +40,7 @@ AI Bridge for TYPO3
     :glob:
 
    Introduction/Index
+   Installation/Index
    Administrator/Index
    Editor/Index
    Configuration/Index

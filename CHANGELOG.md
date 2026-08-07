@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.23.0] - 2026-08-07
+
+### Added
+- A complete **Installation** chapter in the documentation, from the Composer
+  command to a working assistant: requirements, route enhancers, llms.txt per
+  site, subscription key with a table of what each rejection reason means,
+  the assistant's two switches, connecting Claude (getting a key, choosing a
+  model, the settings that matter and why the temperature stays low), protecting
+  the endpoint before going live, logging and cost tracking, a verification
+  checklist and a troubleshooting table
+
+### Fixed
+- The documentation still named the backend modules "AI Assistant Log" and
+  "Corrections"; they are **Enquiries** and **Answers** since 1.20
+- The Administrator chapter claimed the subscription key is validated locally
+  "with no call to any server" — the daily status check has existed for several
+  versions and is described two sections further down. Corrected, with a
+  cross-reference
+- Three section underlines were shorter than their titles, which makes the
+  renderer emit warnings and can silently drop a heading
+
+### Note
+- The Installation chapter states `claude-haiku-4-5` as the recommended model.
+  The work here is summarising a handful of already-retrieved pages; a larger
+  model mostly buys latency the visitor waits through
+
 ## [1.22.2] - 2026-08-07
 
 ### Changed
