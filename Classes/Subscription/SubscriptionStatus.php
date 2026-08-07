@@ -81,32 +81,32 @@ final class SubscriptionStatus
     {
         return match ($this->reason) {
             self::REASON_OK => sprintf(
-                'Subscription aktiv für %s – gültig bis %s.',
-                $this->token?->getDomainList() ?: 'diese Domain',
-                $this->getValidUntil()?->format('d.m.Y') ?? 'unbegrenzt',
+                'Subscription active for %s – valid until %s.',
+                $this->token?->getDomainList() ?: 'this domain',
+                $this->getValidUntil()?->format('Y-m-d') ?? 'unlimited',
             ),
-            self::REASON_MISSING => 'Es ist kein Subscription-Key hinterlegt. '
-                . 'Tragen Sie den Key in der Erweiterungskonfiguration von "wn_ai_bridge" ein.',
-            self::REASON_MALFORMED => 'Der hinterlegte Subscription-Key hat ein ungültiges Format. '
-                . 'Bitte kopieren Sie den Key vollständig und ohne Zeilenumbrüche aus der E-Mail.',
-            self::REASON_SIGNATURE => 'Die Signatur des Subscription-Keys ist ungültig. '
-                . 'Der Key wurde verändert oder stammt nicht von WebNomads.',
-            self::REASON_PAYLOAD => 'Der Inhalt des Subscription-Keys konnte nicht gelesen werden. '
-                . 'Bitte fordern Sie einen neuen Key an.',
+            self::REASON_MISSING => 'No subscription key is configured. '
+                . 'Enter the key in the extension configuration of "wn_ai_bridge".',
+            self::REASON_MALFORMED => 'The configured subscription key has an invalid format. '
+                . 'Copy the key from the e-mail completely and without line breaks.',
+            self::REASON_SIGNATURE => 'The signature of the subscription key is invalid. '
+                . 'The key was altered, or it was not issued by this vendor.',
+            self::REASON_PAYLOAD => 'The contents of the subscription key could not be read. '
+                . 'Please request a new key.',
             self::REASON_EXPIRED => sprintf(
-                'Die Subscription ist am %s abgelaufen. Bitte verlängern Sie sie.',
-                $this->getValidUntil()?->format('d.m.Y') ?? '',
+                'The subscription expired on %s. Please renew it.',
+                $this->getValidUntil()?->format('Y-m-d') ?? '',
             ),
-            self::REASON_REVOKED => 'Die Subscription wurde von WebNomads widerrufen. '
-                . 'Bitte nehmen Sie mit uns Kontakt auf.',
+            self::REASON_REVOKED => 'The subscription was revoked by the issuer. '
+                . 'Please get in touch.',
             self::REASON_DOMAIN => sprintf(
-                'Der Subscription-Key gilt nicht für die Domain "%s", sondern für: %s.',
+                'The subscription key is not valid for the domain "%s", but for: %s.',
                 $this->host,
-                $this->token?->getDomainList() ?: '(keine Domain hinterlegt)',
+                $this->token?->getDomainList() ?: '(no domain stored)',
             ),
-            self::REASON_UNSUPPORTED => 'Der Subscription-Key kann nicht geprüft werden, '
-                . 'weil die PHP-Erweiterung "sodium" nicht verfügbar ist.',
-            default => 'Die Subscription ist ungültig.',
+            self::REASON_UNSUPPORTED => 'The subscription key cannot be verified '
+                . 'because the PHP extension "sodium" is not available.',
+            default => 'The subscription is not valid.',
         };
     }
 }

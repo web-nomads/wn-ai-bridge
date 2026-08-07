@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.24.0] - 2026-08-07
+
+### Changed
+- **English is now the source language throughout.** The extension is published
+  internationally, but its settings screen, its status messages and the prompt
+  sent to the model were German, with no way for anyone else to change that.
+- The 24 extension configuration labels moved out of `ext_conf_template.txt`
+  into `locallang.xlf` and are referenced with `LLL:` — the same way the TYPO3
+  core does it. A new `de.locallang.xlf` carries the German wording, so a German
+  backend looks exactly as before while the source is English
+- Status messages (`SubscriptionStatus`), the output of
+  `ai-bridge:check-subscription`, and the fallback labels of the chat widget are
+  English. The widget fallbacks were dead defaults anyway — every key already
+  exists in the XLF files, German included
+- Dates in status messages and the CLI use `Y-m-d` instead of `d.m.Y`
+
+### Note
+- **The system prompt of the assistant is now English**, including the labels of
+  the retrieved passages handed to the model. This is a behavioural change, not
+  a translation of comments: the prompt still instructs the model to answer in
+  the language of the question, so German questions should still get German
+  answers — but it is worth a look at the first few answers after updating
+- Two labels also stopped naming modules that were renamed four versions ago
+- The bilingual DE/EN stop word list in `SearchQuery` stays as it is. Those are
+  functional search data, not text
+
 ## [1.23.0] - 2026-08-07
 
 ### Added
@@ -164,7 +190,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Daily online check: the subscription is verified with the issuing server once every 24 hours, so a revoked subscription stops working without waiting for its expiry date. The server's answer is Ed25519-signed and echoes a client-generated nonce, so an older "still active" answer cannot be replayed after a revocation
 - New CLI command `ai-bridge:check-subscription` reports the subscription state and refreshes it; schedule it daily on installations nobody logs into
-- New settings "Täglicher Online-Check" (on by default) and "Ausstellungsserver" (optional override of the address baked into the key)
+- New settings "Daily status check" (on by default) and "Issuing server" (optional override of the address baked into the key)
 
 ### Changed
 - The check never runs inside a visitor request: it is performed in the backend and on the command line, and the frontend only reads the cached verdict, so a slow or unreachable licence server can never delay a page
@@ -178,7 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Subscription key: the new "Subscription-Key" setting in the extension configuration holds an encrypted and Ed25519-signed licence key that carries the allowed domains, an expiry date and the enabled features. It is issued by the new companion extension `wn_ai_bridgeserver`. Without a valid key the chat bot stays hidden on the website and the backend modules "AI Assistant Log" and "Corrections" disappear from the module menu — llms.txt, the Markdown export and the bot access log are unaffected and keep working
 - The validity check runs against the current host, so a key only works on the domains it was issued for; wildcard patterns (`*.example.com`) are supported. Without a resolvable host (CLI, scheduler) the domain check is skipped so maintenance tasks keep running
 - The "Corrections" module is now a full editor for the assistant's local learning source: entries can be edited, deactivated and deleted, and editors can create their own question/answer pairs from scratch
-- Optional "Öffentlicher Prüfschlüssel" setting to verify keys against a rolled-over key pair without updating the extension
+- Optional "Verification key" setting to verify keys against a rolled-over key pair without updating the extension
 
 ### Changed
 - Approved answers are now matched against a new question by meaning rather than by wording: term overlap (prefix-tolerant, so "Versand" also matches "Versandkosten") combined with overall string similarity. A close match is played back verbatim as the answer (new log mode "learning"); weaker matches are still handed to the LLM as binding hints
@@ -257,7 +283,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.9.1] - 2026-07-17
 
 ### Changed
-- The assistant answer no longer contains inline links. The `[n]` citation markers are stripped from the answer text and only used to list the relevant pages below the answer under the heading "Weiterführende Links zum Thema" (renamed from "Möglicherweise auch interessant"). The system prompt now instructs the model to write self-contained sentences without link phrases and to put the numbers only at the end of a sentence/answer
+- The assistant answer no longer contains inline links. The `[n]` citation markers are stripped from the answer text and only used to list the relevant pages below the answer under the heading "Related links" (renamed from "You might also be interested in"). The system prompt now instructs the model to write self-contained sentences without link phrases and to put the numbers only at the end of a sentence/answer
 
 ## [1.9.0] - 2026-07-17
 
@@ -337,13 +363,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.4.2] - 2026-07-17
 
 ### Changed
-- Renamed the suggestions heading from "Passende Seiten" to "Möglicherweise auch interessant"
+- Renamed the suggestions heading from "Matching pages" to "You might also be interested in"
 - The suggestions block (heading included) is now reliably omitted whenever there are no linkable entries to show
 
 ## [1.4.1] - 2026-07-17
 
 ### Changed
-- Inline page citations now render the page title as the linked text (e.g. a linked "alao – The love place für dein Abo") instead of linking the raw "[1]" marker. A title the model wrote in bold right before the marker is de-duplicated, and the system prompt now instructs the model to place only the number where the linked title should appear
+- Inline page citations now render the page title as the linked text (e.g. the page title rendered as the link text) instead of linking the raw "[1]" marker. A title the model wrote in bold right before the marker is de-duplicated, and the system prompt now instructs the model to place only the number where the linked title should appear
 
 ## [1.4.0] - 2026-07-17
 

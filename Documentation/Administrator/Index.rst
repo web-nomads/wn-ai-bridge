@@ -23,7 +23,7 @@ Subscription key
 The AI search assistant is a subscription feature. Its licence key is issued by
 the companion extension ``wn_ai_bridgeserver`` and entered under
 :guilabel:`Admin Tools > Settings > Extension Configuration > wn_ai_bridge` in
-the field :guilabel:`Subscription-Key`.
+the field :guilabel:`Subscription key`.
 
 The key is encrypted and signed and carries the domains it is valid for, an
 expiry date and the features it unlocks. Every request validates it locally,
@@ -49,7 +49,7 @@ host cannot be resolved — on the command line, in the scheduler — the domain
 check is skipped so maintenance tasks keep running.
 
 If the key pair of the issuing server was rolled over, enter the new public key
-in the optional field :guilabel:`Öffentlicher Prüfschlüssel`; leaving it empty
+in the optional field :guilabel:`Verification key`; leaving it empty
 uses the one bundled with the extension.
 
 Daily online check
@@ -88,9 +88,9 @@ On installations nobody logs into, schedule the check daily:
 
    vendor/bin/typo3 ai-bridge:check-subscription --host=www.example.com
 
-The check can be switched off with :guilabel:`Täglicher Online-Check`, and the
+The check can be switched off with :guilabel:`Daily status check`, and the
 server address baked into the key can be overridden with
-:guilabel:`Ausstellungsserver` for staging setups.
+:guilabel:`Issuing server` for staging setups.
 
 What is reported
 ----------------

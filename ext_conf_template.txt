@@ -1,71 +1,71 @@
-# cat=subscription; type=string; label=Subscription-Key: Der von WebNomads zugestellte Lizenzschlüssel. Er ist verschlüsselt und signiert und enthält die zulässigen Domains sowie das Ablaufdatum. Ohne gültigen Key sind der Chatbot und die Backend-Module "AI Assistant Log" und "Corrections" deaktiviert
+# cat=subscription; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.subscriptionKey
 subscriptionKey =
 
-# cat=subscription; type=string; label=Öffentlicher Prüfschlüssel (optional): Nur ausfüllen, wenn WebNomads ein neues Schlüsselpaar ausgerollt hat. Leer lassen, um den in der Erweiterung hinterlegten Standardschlüssel zu verwenden
+# cat=subscription; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.subscriptionPublicKey
 subscriptionPublicKey =
 
-# cat=subscription; type=boolean; label=Täglicher Online-Check: Fragt einmal pro Tag beim Ausstellungsserver nach, ob die Subscription noch aktiv ist, damit ein Widerruf sofort wirkt. Die Abfrage erfolgt nur im Backend und per CLI, niemals in einer Besucher-Anfrage. Ist der Server nicht erreichbar, bleibt der Key anhand seines Ablaufdatums gültig
+# cat=subscription; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.subscriptionOnlineCheck
 subscriptionOnlineCheck = 1
 
-# cat=subscription; type=string; label=Ausstellungsserver (optional): Basis-URL für den Online-Check, z. B. https://www.webnomads.ch. Leer lassen, um die im Key hinterlegte Adresse zu verwenden
+# cat=subscription; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.subscriptionServerUrl
 subscriptionServerUrl =
 
-# cat=basic; type=boolean; label=Parsing-Fallback: HTML
+# cat=basic; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.parsingFallbackHtml
 parsingFallbackHtml = 0
 
-# cat=basic; type=boolean; label=Debug
+# cat=basic; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.debug
 debug = 0
 
-# cat=basic; type=boolean; label=Cache Markdown
+# cat=basic; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.cacheMarkdown
 cacheMarkdown = 0
 
-# cat=basic; type=boolean; label=Bot-Zugriffe protokollieren?: Erfasst Zugriffe von Bots/Crawlern auf llms.txt, die Markdown-Versionen (.md) und normale Seiten. Auswertung im Backend-Modul "Bot Access Log" (Datenschutz beachten!)
+# cat=basic; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.botAccessLogging
 botAccessLogging = 0
 
-# cat=rateLimiter; type=boolean; label=Rate-Limiter aktivieren: Schaltet die Drosselung der AI-Bridge-Requests (llms.txt / .md) global ein oder aus
+# cat=rateLimiter; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.rateLimiterEnabled
 rateLimiterEnabled = 0
 
-# cat=rateLimiter; type=int+; label=Requests pro Minute pro IP: Maximale Anzahl an AI-Bridge-Requests pro Minute je Client-IP (0 = unbegrenzt)
+# cat=rateLimiter; type=int+; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.rateLimiterRequestsPerMinute
 rateLimiterRequestsPerMinute = 60
 
-# cat=rateLimiter; type=int+; label=Requests pro Minute pro API-Key/Bot-ID: Maximale Anzahl an AI-Bridge-Requests pro Minute je API-Key bzw. Bot-ID (0 = unbegrenzt)
+# cat=rateLimiter; type=int+; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.rateLimiterPerKeyRequestsPerMinute
 rateLimiterPerKeyRequestsPerMinute = 120
 
-# cat=assistant; type=boolean; label=KI-Suchassistent aktivieren: Globaler Hauptschalter für den Chat-Bot, der Besuchern beim Finden von Informationen auf der Seite hilft
+# cat=assistant; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantEnabled
 assistantEnabled = 0
 
-# cat=assistant; type=options[Anthropic Claude=anthropic]; label=LLM-Provider: Anbieter für die Antwortgenerierung (ohne API-Key antwortet der Bot rein suchbasiert)
+# cat=assistant; type=options[Anthropic Claude=anthropic]; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantProvider
 assistantProvider = anthropic
 
-# cat=assistant; type=string; label=LLM API-Key: API-Key des Providers. Leer lassen für den reinen Suchmodus (Treffer + Links ohne KI-Antwort)
+# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantApiKey
 assistantApiKey =
 
-# cat=assistant; type=string; label=LLM-Modell: Modell-ID für die Antwortgenerierung (z. B. claude-haiku-4-5 für schnell/günstig oder claude-opus-4-8 für höchste Qualität)
+# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantModel
 assistantModel = claude-haiku-4-5
 
-# cat=assistant; type=options[Automatisch=auto,ke_search=kesearch,Indexed Search=indexed,Nur Seiteninhalt=pages]; label=Suchquellen: Welche Suchindizes berücksichtigt werden (Automatisch nutzt alle verfügbaren)
+# cat=assistant; type=options[Automatic=auto,ke_search=kesearch,Indexed Search=indexed,Page content only=pages]; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantSearchSources
 assistantSearchSources = auto
 
-# cat=assistant; type=int+; label=Maximale Suchtreffer: Anzahl der Treffer, die als Kontext/Vorschläge herangezogen werden
+# cat=assistant; type=int+; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantMaxResults
 assistantMaxResults = 5
 
-# cat=assistant; type=int+; label=Antwort-Token-Limit: Maximale Länge der KI-Antwort in Tokens
+# cat=assistant; type=int+; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantMaxTokens
 assistantMaxTokens = 1024
 
-# cat=assistant; type=string; label=Temperatur: Kreativität/Zufälligkeit der KI-Antwort als Dezimalzahl zwischen 0.0 (sehr präzise/deterministisch) und 1.0 (kreativer). Beispiel: 0.2
+# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantTemperature
 assistantTemperature = 0.2
 
-# cat=assistant; type=text; label=Agent-Anweisungen: Zusätzliche, globale Anweisungen an die KI (Persona, Tonalität, Regeln), die bei jeder Antwort berücksichtigt werden. Gelten für alle Sites; pro Site lassen sich diese in den Site-Einstellungen ergänzen
+# cat=assistant; type=text; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantInstructions
 assistantInstructions =
 
-# cat=assistant; type=boolean; label=Bot-Schutz: Blockiert Anfragen an den Assistenten, die nicht von einem menschlichen Besucher über das Widget stammen (Crawler, Skripte, bekannte Bots)
+# cat=assistant; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantBotProtection
 assistantBotProtection = 1
 
-# cat=assistant; type=boolean; label=Eingaben und Antworten loggen?: Speichert jede Frage und Antwort mit Datum, IP, Provider und Token-Verbrauch. Auswertung im Backend-Modul "AI Assistant Log" (Datenschutz beachten!)
+# cat=assistant; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantLogging
 assistantLogging = 0
 
-# cat=assistant; type=boolean; label=Geo-/Länder-Lookup im Log-Modul: Ermittelt beim Anzeigen im Backend das Land zu einer IP über einen externen Dienst (ip-api.com). Ergebnisse werden gecacht. Aus Datenschutzgründen standardmäßig aus
+# cat=assistant; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantLogGeoLookup
 assistantLogGeoLookup = 0
 
-# cat=assistant; type=string; label=USD-zu-CHF-Kurs: Umrechnungskurs für die geschätzten LLM-Kosten im Log-Modul (Modellpreise sind in USD). Beispiel: 0.90
+# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantUsdToChfRate
 assistantUsdToChfRate = 0.90

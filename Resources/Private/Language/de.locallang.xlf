@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.0">
+	<file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2026-08-07T00:00:00Z" product-name="wn_ai_bridge">
+		<header/>
+		<body>
+			<trans-unit id="config.subscriptionKey">
+				<source>Subscription key: The licence key issued to you. It is encrypted and signed and carries the domains it is valid for and an expiry date. Without a valid key the chat widget and the backend modules &quot;Enquiries&quot; and &quot;Answers&quot; stay switched off</source>
+				<target>Subscription-Key: Der zugestellte Lizenzschlüssel. Er ist verschlüsselt und signiert und enthält die zulässigen Domains sowie das Ablaufdatum. Ohne gültigen Key sind der Chatbot und die Backend-Module &quot;Anfragen&quot; und &quot;Antworten&quot; deaktiviert</target>
+			</trans-unit>
+			<trans-unit id="config.subscriptionPublicKey">
+				<source>Verification key (optional): Only fill this in when the issuer has rolled over its key pair. Leave empty to use the key bundled with the extension</source>
+				<target>Öffentlicher Prüfschlüssel (optional): Nur ausfüllen, wenn der Aussteller ein neues Schlüsselpaar ausgerollt hat. Leer lassen, um den in der Erweiterung hinterlegten Standardschlüssel zu verwenden</target>
+			</trans-unit>
+			<trans-unit id="config.subscriptionOnlineCheck">
+				<source>Daily status check: Asks the issuing server once a day whether the subscription is still active, so a revocation takes effect immediately. The check runs in the backend and on the command line, never inside a visitor request. When the server cannot be reached, the key stays valid until its expiry date</source>
+				<target>Täglicher Online-Check: Fragt einmal pro Tag beim Ausstellungsserver nach, ob die Subscription noch aktiv ist, damit ein Widerruf sofort wirkt. Die Abfrage erfolgt nur im Backend und per CLI, niemals in einer Besucher-Anfrage. Ist der Server nicht erreichbar, bleibt der Key anhand seines Ablaufdatums gültig</target>
+			</trans-unit>
+			<trans-unit id="config.subscriptionServerUrl">
+				<source>Issuing server (optional): Base URL for the status check. Leave empty to use the address carried inside the key</source>
+				<target>Ausstellungsserver (optional): Basis-URL für den Online-Check. Leer lassen, um die im Key hinterlegte Adresse zu verwenden</target>
+			</trans-unit>
+			<trans-unit id="config.parsingFallbackHtml">
+				<source>HTML parsing fallback: Convert the rendered HTML of a page when no structured content could be read</source>
+				<target>Parsing-Fallback HTML: Wandelt das gerenderte HTML einer Seite um, wenn kein strukturierter Inhalt gelesen werden konnte</target>
+			</trans-unit>
+			<trans-unit id="config.debug">
+				<source>Debug: Returns internal error details on the .md endpoint and writes rendered HTML to var/log. For local troubleshooting only — keep this off in production</source>
+				<target>Debug: Gibt am .md-Endpunkt interne Fehlerdetails aus und schreibt gerendertes HTML nach var/log. Nur für die lokale Fehlersuche — im Produktivbetrieb ausgeschaltet lassen</target>
+			</trans-unit>
+			<trans-unit id="config.cacheMarkdown">
+				<source>Cache Markdown: Keeps the generated Markdown of a page in the TYPO3 cache</source>
+				<target>Markdown zwischenspeichern: Hält das erzeugte Markdown einer Seite im TYPO3-Cache</target>
+			</trans-unit>
+			<trans-unit id="config.botAccessLogging">
+				<source>Log bot access: Records requests by bots and crawlers to llms.txt, the Markdown versions (.md) and regular pages. Shown in the backend module &quot;Bot Access Log&quot; (mind data protection)</source>
+				<target>Bot-Zugriffe protokollieren: Erfasst Zugriffe von Bots und Crawlern auf llms.txt, die Markdown-Versionen (.md) und normale Seiten. Auswertung im Backend-Modul &quot;Bot-Zugriffe&quot; (Datenschutz beachten)</target>
+			</trans-unit>
+			<trans-unit id="config.rateLimiterEnabled">
+				<source>Enable rate limiter: Throttles AI Bridge requests (llms.txt / .md) globally</source>
+				<target>Rate-Limiter aktivieren: Schaltet die Drosselung der AI-Bridge-Requests (llms.txt / .md) global ein oder aus</target>
+			</trans-unit>
+			<trans-unit id="config.rateLimiterRequestsPerMinute">
+				<source>Requests per minute per IP: Maximum number of AI Bridge requests per minute and client IP (0 = unlimited)</source>
+				<target>Requests pro Minute pro IP: Maximale Anzahl an AI-Bridge-Requests pro Minute je Client-IP (0 = unbegrenzt)</target>
+			</trans-unit>
+			<trans-unit id="config.rateLimiterPerKeyRequestsPerMinute">
+				<source>Requests per minute per API key / bot id: Maximum number of AI Bridge requests per minute and API key or bot id (0 = unlimited)</source>
+				<target>Requests pro Minute pro API-Key/Bot-ID: Maximale Anzahl an AI-Bridge-Requests pro Minute je API-Key bzw. Bot-ID (0 = unbegrenzt)</target>
+			</trans-unit>
+			<trans-unit id="config.assistantEnabled">
+				<source>Enable AI search assistant: Master switch for the chat widget that helps visitors find information on the site</source>
+				<target>KI-Suchassistent aktivieren: Globaler Hauptschalter für den Chat-Bot, der Besuchern beim Finden von Informationen auf der Seite hilft</target>
+			</trans-unit>
+			<trans-unit id="config.assistantProvider">
+				<source>LLM provider: Provider used to compose answers. Without an API key the assistant answers from search results alone</source>
+				<target>LLM-Provider: Anbieter für die Antwortgenerierung. Ohne API-Key antwortet der Bot rein suchbasiert</target>
+			</trans-unit>
+			<trans-unit id="config.assistantApiKey">
+				<source>LLM API key: API key of the provider. Leave empty for search-only mode (hits and links without a composed answer)</source>
+				<target>LLM API-Key: API-Key des Providers. Leer lassen für den reinen Suchmodus (Treffer und Links ohne KI-Antwort)</target>
+			</trans-unit>
+			<trans-unit id="config.assistantModel">
+				<source>LLM model: Model id used to compose answers, e.g. claude-haiku-4-5 for fast and inexpensive answers or claude-sonnet-5 for harder questions</source>
+				<target>LLM-Modell: Modell-ID für die Antwortgenerierung, z. B. claude-haiku-4-5 für schnelle und günstige Antworten oder claude-sonnet-5 für schwierigere Fragen</target>
+			</trans-unit>
+			<trans-unit id="config.assistantSearchSources">
+				<source>Search sources: Which search indexes are used (Automatic uses everything available)</source>
+				<target>Suchquellen: Welche Suchindizes berücksichtigt werden (Automatisch nutzt alle verfügbaren)</target>
+			</trans-unit>
+			<trans-unit id="config.assistantMaxResults">
+				<source>Maximum search hits: How many hits are used as context and offered as suggestions</source>
+				<target>Maximale Suchtreffer: Anzahl der Treffer, die als Kontext und Vorschläge herangezogen werden</target>
+			</trans-unit>
+			<trans-unit id="config.assistantMaxTokens">
+				<source>Answer token limit: Upper bound for the length of one answer. This is the main lever on the cost per answer</source>
+				<target>Antwort-Token-Limit: Obergrenze für die Länge einer Antwort. Das ist der wichtigste Hebel für die Kosten pro Antwort</target>
+			</trans-unit>
+			<trans-unit id="config.assistantTemperature">
+				<source>Temperature: How much the answer may vary, as a decimal between 0.0 (precise, deterministic) and 1.0 (creative). Keep this low — the assistant should reproduce what is on the site, not invent variations. Example: 0.2</source>
+				<target>Temperatur: Wie stark die Antwort variieren darf, als Dezimalzahl zwischen 0.0 (präzise, deterministisch) und 1.0 (kreativer). Niedrig halten — der Assistent soll wiedergeben, was auf der Website steht, und nicht variieren. Beispiel: 0.2</target>
+			</trans-unit>
+			<trans-unit id="config.assistantInstructions">
+				<source>Agent instructions: Global instructions for the model (persona, tone, rules) applied to every answer. Valid for all sites; each site can add to them in its site configuration</source>
+				<target>Agent-Anweisungen: Globale Anweisungen an das Modell (Persona, Tonalität, Regeln), die bei jeder Antwort berücksichtigt werden. Gelten für alle Sites; pro Site lassen sich diese in den Site-Einstellungen ergänzen</target>
+			</trans-unit>
+			<trans-unit id="config.assistantBotProtection">
+				<source>Bot protection: Blocks requests to the assistant that do not come from a human visitor using the widget (crawlers, scripts, known bots). A deterrent, not authentication</source>
+				<target>Bot-Schutz: Blockiert Anfragen an den Assistenten, die nicht von einem menschlichen Besucher über das Widget stammen (Crawler, Skripte, bekannte Bots). Eine Hürde, keine Authentifizierung</target>
+			</trans-unit>
+			<trans-unit id="config.assistantLogging">
+				<source>Log questions and answers: Stores every question and answer with date, IP address, provider and token usage. Shown in the backend module &quot;Enquiries&quot; (mind data protection)</source>
+				<target>Eingaben und Antworten protokollieren: Speichert jede Frage und Antwort mit Datum, IP, Provider und Token-Verbrauch. Auswertung im Backend-Modul &quot;Anfragen&quot; (Datenschutz beachten)</target>
+			</trans-unit>
+			<trans-unit id="config.assistantLogGeoLookup">
+				<source>Country lookup in the log module: Resolves the country of an IP address through an external service (ip-api.com) while the log is displayed. Results are cached. Off by default for data protection reasons</source>
+				<target>Geo-/Länder-Lookup im Log-Modul: Ermittelt beim Anzeigen im Backend das Land zu einer IP über einen externen Dienst (ip-api.com). Ergebnisse werden zwischengespeichert. Aus Datenschutzgründen standardmässig aus</target>
+			</trans-unit>
+			<trans-unit id="config.assistantUsdToChfRate">
+				<source>USD to CHF rate: Conversion rate for the estimated LLM cost shown in the log module (model prices are quoted in USD). Example: 0.90</source>
+				<target>USD-zu-CHF-Kurs: Umrechnungskurs für die geschätzten LLM-Kosten im Log-Modul (Modellpreise sind in USD). Beispiel: 0.90</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

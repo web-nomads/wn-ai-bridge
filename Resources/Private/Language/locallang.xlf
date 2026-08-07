@@ -281,6 +281,79 @@
 			<trans-unit id="site.aiAssistantSearchPid.description">
 				<source>Optional page id to restrict the search to a subtree. 0 = search the whole site.</source>
 			</trans-unit>
+			<trans-unit id="config.subscriptionKey">
+				<source>Subscription key: The licence key issued to you. It is encrypted and signed and carries the domains it is valid for and an expiry date. Without a valid key the chat widget and the backend modules &quot;Enquiries&quot; and &quot;Answers&quot; stay switched off</source>
+			</trans-unit>
+			<trans-unit id="config.subscriptionPublicKey">
+				<source>Verification key (optional): Only fill this in when the issuer has rolled over its key pair. Leave empty to use the key bundled with the extension</source>
+			</trans-unit>
+			<trans-unit id="config.subscriptionOnlineCheck">
+				<source>Daily status check: Asks the issuing server once a day whether the subscription is still active, so a revocation takes effect immediately. The check runs in the backend and on the command line, never inside a visitor request. When the server cannot be reached, the key stays valid until its expiry date</source>
+			</trans-unit>
+			<trans-unit id="config.subscriptionServerUrl">
+				<source>Issuing server (optional): Base URL for the status check. Leave empty to use the address carried inside the key</source>
+			</trans-unit>
+			<trans-unit id="config.parsingFallbackHtml">
+				<source>HTML parsing fallback: Convert the rendered HTML of a page when no structured content could be read</source>
+			</trans-unit>
+			<trans-unit id="config.debug">
+				<source>Debug: Returns internal error details on the .md endpoint and writes rendered HTML to var/log. For local troubleshooting only — keep this off in production</source>
+			</trans-unit>
+			<trans-unit id="config.cacheMarkdown">
+				<source>Cache Markdown: Keeps the generated Markdown of a page in the TYPO3 cache</source>
+			</trans-unit>
+			<trans-unit id="config.botAccessLogging">
+				<source>Log bot access: Records requests by bots and crawlers to llms.txt, the Markdown versions (.md) and regular pages. Shown in the backend module &quot;Bot Access Log&quot; (mind data protection)</source>
+			</trans-unit>
+			<trans-unit id="config.rateLimiterEnabled">
+				<source>Enable rate limiter: Throttles AI Bridge requests (llms.txt / .md) globally</source>
+			</trans-unit>
+			<trans-unit id="config.rateLimiterRequestsPerMinute">
+				<source>Requests per minute per IP: Maximum number of AI Bridge requests per minute and client IP (0 = unlimited)</source>
+			</trans-unit>
+			<trans-unit id="config.rateLimiterPerKeyRequestsPerMinute">
+				<source>Requests per minute per API key / bot id: Maximum number of AI Bridge requests per minute and API key or bot id (0 = unlimited)</source>
+			</trans-unit>
+			<trans-unit id="config.assistantEnabled">
+				<source>Enable AI search assistant: Master switch for the chat widget that helps visitors find information on the site</source>
+			</trans-unit>
+			<trans-unit id="config.assistantProvider">
+				<source>LLM provider: Provider used to compose answers. Without an API key the assistant answers from search results alone</source>
+			</trans-unit>
+			<trans-unit id="config.assistantApiKey">
+				<source>LLM API key: API key of the provider. Leave empty for search-only mode (hits and links without a composed answer)</source>
+			</trans-unit>
+			<trans-unit id="config.assistantModel">
+				<source>LLM model: Model id used to compose answers, e.g. claude-haiku-4-5 for fast and inexpensive answers or claude-sonnet-5 for harder questions</source>
+			</trans-unit>
+			<trans-unit id="config.assistantSearchSources">
+				<source>Search sources: Which search indexes are used (Automatic uses everything available)</source>
+			</trans-unit>
+			<trans-unit id="config.assistantMaxResults">
+				<source>Maximum search hits: How many hits are used as context and offered as suggestions</source>
+			</trans-unit>
+			<trans-unit id="config.assistantMaxTokens">
+				<source>Answer token limit: Upper bound for the length of one answer. This is the main lever on the cost per answer</source>
+			</trans-unit>
+			<trans-unit id="config.assistantTemperature">
+				<source>Temperature: How much the answer may vary, as a decimal between 0.0 (precise, deterministic) and 1.0 (creative). Keep this low — the assistant should reproduce what is on the site, not invent variations. Example: 0.2</source>
+			</trans-unit>
+			<trans-unit id="config.assistantInstructions">
+				<source>Agent instructions: Global instructions for the model (persona, tone, rules) applied to every answer. Valid for all sites; each site can add to them in its site configuration</source>
+			</trans-unit>
+			<trans-unit id="config.assistantBotProtection">
+				<source>Bot protection: Blocks requests to the assistant that do not come from a human visitor using the widget (crawlers, scripts, known bots). A deterrent, not authentication</source>
+			</trans-unit>
+			<trans-unit id="config.assistantLogging">
+				<source>Log questions and answers: Stores every question and answer with date, IP address, provider and token usage. Shown in the backend module &quot;Enquiries&quot; (mind data protection)</source>
+			</trans-unit>
+			<trans-unit id="config.assistantLogGeoLookup">
+				<source>Country lookup in the log module: Resolves the country of an IP address through an external service (ip-api.com) while the log is displayed. Results are cached. Off by default for data protection reasons</source>
+			</trans-unit>
+			<trans-unit id="config.assistantUsdToChfRate">
+				<source>USD to CHF rate: Conversion rate for the estimated LLM cost shown in the log module (model prices are quoted in USD). Example: 0.90</source>
+			</trans-unit>
+
 		</body>
 	</file>
 </xliff>
