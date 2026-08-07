@@ -147,7 +147,12 @@ class LlmsTxtController
             return $markdown;
 
         } catch (\Exception $e) {
-            return "# Error\n\nFailed to render page: " . $e->getMessage() . "\n";
+            // The .md endpoint is public, so never expose internal exception
+            // details unless the site is explicitly running in debug mode.
+            if ($this->configurationService->isDebugEnabled()) {
+                return "# Error\n\nFailed to render page: " . $e->getMessage() . "\n";
+            }
+            return "# Error\n\nThe page could not be rendered.\n";
         }
     }
 
@@ -268,8 +273,10 @@ class LlmsTxtController
 
         // Handle OnePager: If URL contains an anchor, we isolate that section
         if (str_contains($url, '#')) {
-            $anchor = explode('#', $url)[1];
-            
+            // Restrict the anchor to characters valid in an HTML id/slug before
+            // it is interpolated into the XPath expression below.
+            $anchor = preg_replace('/[^A-Za-z0-9._-]/', '', explode('#', $url)[1]);
+
             $dom = new \DOMDocument();
             // Suppress errors due to malformed HTML
             libxml_use_internal_errors(true);

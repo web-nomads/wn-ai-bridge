@@ -1,4 +1,4 @@
-# LLMS TXT Generator for TYPO3
+# AI Bridge for TYPO3
 
 [![TYPO3 13](https://img.shields.io/badge/TYPO3-13-orange.svg)](https://get.typo3.org/version/13)
 [![PHP 8.2+](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://www.php.net/)
@@ -46,7 +46,7 @@ llms.txt is an emerging standard for websites to communicate with Large Language
 ### Composer (Recommended)
 
 ```bash
-composer require web-vision/ai-llms-txt
+composer require web-nomads/wn-ai-bridge
 ```
 
 ## Quick Start
@@ -74,7 +74,7 @@ To enable user-friendly URLs, include the route enhancers in your site configura
 # config/sites/main/config.yaml
 imports:
   -
-    resource: 'EXT:ai_llms_txt/Configuration/Routes/RouterEnhancer.yaml'
+    resource: 'EXT:wn_ai_bridge/Configuration/Routes/RouterEnhancer.yaml'
 ```
 
 This enables:

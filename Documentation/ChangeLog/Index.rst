@@ -61,7 +61,7 @@ Release Date: 2025-10-29
 Initial Release
 ---------------
 
-This is the initial release of the LLMS TXT Generator extension for TYPO3 v13.
+This is the initial release of the AI Bridge extension for TYPO3 v13.
 
 New Features
 ~~~~~~~~~~~~
@@ -129,7 +129,7 @@ No deprecations in this initial release.
 Credits
 ~~~~~~~
 
-* Development: web-vision GmbH
+* Development: Marcel Marty
 * Based on the llmstxt.org specification for AI-readable content guidelines
 * Uses league/html-to-markdown for HTML-to-Markdown conversion
 
@@ -140,7 +140,7 @@ Install via Composer:
 
 .. code-block:: bash
 
-   composer require web-vision/ai-llms-txt
+   composer require web-nomads/wn-ai-bridge
 
 After installation, the extension is ready to use with default settings. Visit ?type=1699 or ?type=1701
 or ``/.well-known/llms.txt`` if you have configured RouterEnhancers, to access the generated links.

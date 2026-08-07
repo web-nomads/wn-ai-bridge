@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.14.1] - 2026-07-27
+
+### Security
+- The public `.md` endpoint no longer exposes internal exception messages on a rendering error; a generic message is returned instead, while the full detail is still shown when `debug` is enabled
+- The page anchor extracted from a OnePager URL is now restricted to id/slug characters before it is used in an XPath query, preventing malformed-slug query errors
+- Verbose LLM provider error bodies are truncated before they are written to the log when the assistant falls back to search-only
+
+### Changed
+- Internal refactoring of the llms.txt generation, HTML cleanup and Markdown export command for clearer structure; output and behaviour are unchanged (verified by the unit test suite)
+
+### Removed
+- Removed unused backend templates and layout of the former file-based llms.txt module (never rendered by the current modules)
+
+### Fixed
+- Corrected the Composer package name and route enhancer import path in the administrator documentation
+
 ## [1.14.0] - 2026-07-20
 
 ### Added
@@ -270,7 +286,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.9] - 2025-10-29
 
 ### Added
-- Initial release of LLMS TXT Generator extension
+- Initial release of the AI Bridge extension
 - Complete llms.txt generation according to llmstxt.org specification
 - Automatic site navigation structure inclusion with configurable depth
 - Page-to-Markdown conversion for any TYPO3 page via .md suffix

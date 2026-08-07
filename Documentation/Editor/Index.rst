@@ -7,7 +7,7 @@ Editor
 Working with LLMS TXT Content
 ==============================
 
-As an editor, you don't need to directly interact with the LLMS TXT Generator extension in most cases. The extension automatically generates content based on your existing TYPO3 pages and content.
+As an editor, you don't need to directly interact with the AI Bridge extension in most cases. The extension automatically generates content based on your existing TYPO3 pages and content.
 
 Understanding Generated Content
 ===============================
@@ -43,7 +43,7 @@ The Markdown version includes:
 Best Practices for Content
 ===========================
 
-To ensure your content works well with AI systems and the LLMS TXT Generator:
+To ensure your content works well with AI systems and the AI Bridge extension:
 
 Page Properties
 ---------------
@@ -89,7 +89,7 @@ As an editor, you can preview the generated content to understand how AI systems
 Content that Works Well
 =======================
 
-The following types of content work particularly well with the LLMS TXT Generator:
+The following types of content work particularly well with the AI Bridge extension:
 
 * **Articles and blog posts** - Convert cleanly to Markdown with proper heading structure
 * **Documentation pages** - Structured content with headers and lists

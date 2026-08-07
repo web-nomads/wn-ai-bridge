@@ -7,7 +7,7 @@ Introduction
 What does this extension do?
 ============================
 
-The LLMS TXT Generator extension provides TYPO3 with the capability to generate machine-readable files according to the `llmstxt.org specification <https://llmstxt.org/>`__.
+The AI Bridge extension provides TYPO3 with the capability to generate machine-readable files according to the `llmstxt.org specification <https://llmstxt.org/>`__.
 
 The extension creates two types of content:
 

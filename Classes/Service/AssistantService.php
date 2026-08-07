@@ -70,8 +70,10 @@ final class AssistantService implements LoggerAwareInterface
                 );
             } catch (LlmException $e) {
                 // Never surface an LLM outage to the visitor — fall back silently.
+                // Truncate the message so a verbose provider error body cannot
+                // bloat or leak internal details into the log.
                 $this->logger?->warning('AI assistant LLM call failed, falling back to search results.', [
-                    'exception' => $e->getMessage(),
+                    'exception' => mb_substr($e->getMessage(), 0, 300),
                 ]);
             }
         }

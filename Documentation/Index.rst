@@ -1,7 +1,7 @@
 .. include:: /Includes.rst.txt
 
 ================
-LLMS TXT Generator for TYPO3
+AI Bridge for TYPO3
 ================
 
 :Extension key:
@@ -20,7 +20,7 @@ LLMS TXT Generator for TYPO3
     2025
 
 :Author:
-    web-vision GmbH
+    Marcel Marty
 
 :Rendered:
     |today|

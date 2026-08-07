@@ -7,7 +7,7 @@ Developer
 Architecture Overview
 ======================
 
-The LLMS TXT Generator extension follows modern TYPO3 development practices and supports TYPO3 v12, v13, and v14 LTS.
+The AI Bridge extension follows modern TYPO3 development practices and supports TYPO3 v13 and v14 LTS.
 
 Core Components
 ===============
@@ -47,8 +47,8 @@ API Reference
 Controller Methods
 ------------------
 
-WebVision\\LlmsTxt\\Controller\\LlmsTxtController
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+WebNomads\\WnAiBridge\\Controller\\LlmsTxtController
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. php:method:: generateAction(string $content = '', array $conf = []): string
 
@@ -71,8 +71,8 @@ WebVision\\LlmsTxt\\Controller\\LlmsTxtController
 Service Classes
 ---------------
 
-WebVision\\LlmsTxt\\Service\\LlmsTxtGeneratorService
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+WebNomads\\WnAiBridge\\Service\\LlmsTxtGeneratorService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. php:method:: generateLlmsTxt(int $currentPageId): string
 
@@ -81,8 +81,8 @@ WebVision\\LlmsTxt\\Service\\LlmsTxtGeneratorService
    :param int $currentPageId: Current page ID for context
    :returns: Complete llms.txt formatted content
 
-WebVision\\LlmsTxt\\Service\\ConfigurationService
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+WebNomads\\WnAiBridge\\Service\\ConfigurationService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. php:method:: setRequest(ServerRequestInterface $request): void
 

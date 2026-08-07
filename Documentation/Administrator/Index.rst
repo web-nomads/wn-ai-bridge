@@ -14,7 +14,7 @@ Composer Installation
 
 .. code-block:: bash
 
-   composer require web-nomads/t3-ai-bridge
+   composer require web-nomads/wn-ai-bridge
 
 
 Configuration
@@ -36,7 +36,7 @@ The extension automatically uses your site's configuration from ``config/sites/[
 
    imports:
      -
-       resource: 'EXT:t3_ai_bridge/Configuration/Routes/RouterEnhancer.yaml'
+       resource: 'EXT:wn_ai_bridge/Configuration/Routes/RouterEnhancer.yaml'
 
 This import adds the following route enhancers:
 
@@ -92,6 +92,31 @@ Troubleshooting
 
 **Content not rendering**
   Ensure content elements are not hidden and are in standard column positions (colPos).
+
+Security Considerations
+=======================
+
+**Protect the AI search assistant against abuse and cost overruns**
+  When you enable the AI search assistant *with* an LLM API key
+  (``assistantApiKey``), every request to the public ``/wn-ai-bridge/ask``
+  endpoint can trigger a paid LLM call. Out of the box the endpoint is guarded
+  only by the heuristic bot protection (``assistantBotProtection``), which is a
+  deterrent, not authentication. Before going live you should therefore:
+
+  * Enable the rate limiter (``rateLimiterEnabled = 1``) and keep a low
+    ``rateLimiterRequestsPerMinute`` so a single client cannot flood the
+    endpoint with expensive calls. The rate limiter is off by default so that
+    it never interferes with legitimate crawlers on the ``.md`` / ``llms.txt``
+    endpoints — enable it deliberately once the assistant is exposed.
+  * Configure a hard spending limit / budget alert in your LLM provider account
+    as a second, independent safety net.
+  * Keep ``assistantMaxTokens`` at a sensible value to bound the cost of a
+    single answer.
+
+**Debug output is disabled by default**
+  Keep ``debug = 0`` in production. With debug enabled, the ``.md`` endpoint may
+  return internal error details and write rendered HTML to ``var/log``; both are
+  intended for local troubleshooting only.
 
 Performance Considerations
 =========================

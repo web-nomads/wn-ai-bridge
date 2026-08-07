@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-	<file source-language="en" datatype="plaintext" original="EXT:t3_ai_bridge/Resources/Private/Language/locallang.xlf" date="2025-07-21T12:00:00Z">
+	<file source-language="en" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf" date="2025-07-21T12:00:00Z">
 		<header>
-			<description>Language labels for LLMS TXT extension</description>
+			<description>Language labels for AI Bridge extension</description>
 		</header>
 		<body>
 			<trans-unit id="module.title">
-				<source>LLMS TXT Generator</source>
+				<source>AI Bridge</source>
 			</trans-unit>
 			<trans-unit id="module.description">
 				<source>Generate and manage .well-known/llm.txt files</source>
