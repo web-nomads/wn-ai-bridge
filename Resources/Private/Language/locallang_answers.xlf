@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_answers.xlf" date="2026-08-07T12:00:00Z">
+		<header>
+			<description>Language labels for the AI assistant answers backend module</description>
+		</header>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Answers</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>AI Assistant Answers</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>The answers the assistant gives for questions it recognises. Write your own, take one over from a logged answer, and review the corrections visitors made. An active answer is played back whenever a question matches it in meaning.</source>
+			</trans-unit>
+
+			<trans-unit id="module.title">
+				<source>Answers</source>
+			</trans-unit>
+			<trans-unit id="module.intro">
+				<source>Every answer here replaces what the assistant would have said on its own. Matching is by meaning, so a visitor does not have to use the wording you wrote. New entries can be written here or taken over from a logged answer in the "Enquiries" module; corrections visitors made in the chat arrive below for review.</source>
+			</trans-unit>
+			<trans-unit id="module.siteSwitchHint">
+				<source>Answers are only used on sites where "Learn from visitor corrections" is switched on in the site configuration.</source>
+			</trans-unit>
+			<trans-unit id="module.tableMissing">
+				<source>The answers table does not exist yet. Please run the database schema update (Admin Tools › Maintenance › Analyze Database Structure).</source>
+			</trans-unit>
+			<trans-unit id="subscription.required">
+				<source>This module requires an active subscription.</source>
+			</trans-unit>
+
+			<trans-unit id="pending.title">
+				<source>Visitor corrections awaiting review</source>
+			</trans-unit>
+			<trans-unit id="pending.empty">
+				<source>No visitor corrections are waiting for review.</source>
+			</trans-unit>
+			<trans-unit id="approved.title">
+				<source>Active answers</source>
+			</trans-unit>
+			<trans-unit id="approved.intro">
+				<source>These answers are in use. The assistant plays one back verbatim as soon as a visitor's question matches it closely enough.</source>
+			</trans-unit>
+			<trans-unit id="approved.empty">
+				<source>No active answers yet.</source>
+			</trans-unit>
+
+			<trans-unit id="edit.title">
+				<source>Edit answer</source>
+			</trans-unit>
+			<trans-unit id="new.title">
+				<source>New answer</source>
+			</trans-unit>
+			<trans-unit id="edit.intro">
+				<source>The question is what the entry is matched against, the answer is what the assistant says. Matching is by meaning, so a visitor does not have to use the exact wording.</source>
+			</trans-unit>
+			<trans-unit id="error.answerRequired">
+				<source>Please enter an answer — it is what the assistant will say.</source>
+			</trans-unit>
+
+			<trans-unit id="notice.saved">
+				<source>The answer has been saved.</source>
+			</trans-unit>
+			<trans-unit id="notice.approved">
+				<source>The correction has been approved and is now in use.</source>
+			</trans-unit>
+			<trans-unit id="notice.deleted">
+				<source>The entry has been deleted.</source>
+			</trans-unit>
+
+			<trans-unit id="field.date">
+				<source>Date</source>
+			</trans-unit>
+			<trans-unit id="field.topic">
+				<source>Question</source>
+			</trans-unit>
+			<trans-unit id="field.question">
+				<source>Question / topic</source>
+			</trans-unit>
+			<trans-unit id="field.question.description">
+				<source>The question this entry answers. Visitors may phrase it differently — matching is done by meaning.</source>
+			</trans-unit>
+			<trans-unit id="field.wrongAnswer">
+				<source>Given answer</source>
+			</trans-unit>
+			<trans-unit id="field.correction">
+				<source>Answer</source>
+			</trans-unit>
+			<trans-unit id="field.answer">
+				<source>Answer</source>
+			</trans-unit>
+			<trans-unit id="field.answer.description">
+				<source>Played back to the visitor exactly as written, so phrase it as a complete, self-contained reply.</source>
+			</trans-unit>
+			<trans-unit id="field.keywords">
+				<source>Keywords</source>
+			</trans-unit>
+			<trans-unit id="field.keywords.description">
+				<source>Optional. Leave empty to derive them from the question and answer. Additional keywords widen the range of questions that match.</source>
+			</trans-unit>
+			<trans-unit id="field.site">
+				<source>Site</source>
+			</trans-unit>
+			<trans-unit id="field.site.description">
+				<source>Site identifier the entry applies to. Must match the site, otherwise the answer is never used.</source>
+			</trans-unit>
+			<trans-unit id="field.language">
+				<source>Language ID</source>
+			</trans-unit>
+			<trans-unit id="field.language.description">
+				<source>Language of the site the entry applies to (0 = default language).</source>
+			</trans-unit>
+			<trans-unit id="field.status">
+				<source>Status</source>
+			</trans-unit>
+			<trans-unit id="field.status.description">
+				<source>Only active answers are used by the assistant.</source>
+			</trans-unit>
+			<trans-unit id="field.source">
+				<source>Origin</source>
+			</trans-unit>
+			<trans-unit id="status.approved">
+				<source>Active</source>
+			</trans-unit>
+			<trans-unit id="status.pending">
+				<source>Pending review</source>
+			</trans-unit>
+			<trans-unit id="source.manual">
+				<source>Editorial</source>
+			</trans-unit>
+			<trans-unit id="source.visitor">
+				<source>Visitor</source>
+			</trans-unit>
+
+			<trans-unit id="action.approve">
+				<source>Approve</source>
+			</trans-unit>
+			<trans-unit id="action.reject">
+				<source>Reject</source>
+			</trans-unit>
+			<trans-unit id="action.revoke">
+				<source>Deactivate</source>
+			</trans-unit>
+			<trans-unit id="action.edit">
+				<source>Edit</source>
+			</trans-unit>
+			<trans-unit id="action.new">
+				<source>New answer</source>
+			</trans-unit>
+			<trans-unit id="action.save">
+				<source>Save</source>
+			</trans-unit>
+			<trans-unit id="action.cancel">
+				<source>Cancel</source>
+			</trans-unit>
+			<trans-unit id="action.delete">
+				<source>Delete</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

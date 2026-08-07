@@ -7,6 +7,161 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.22.2] - 2026-08-07
+
+### Changed
+- README rewritten as the manual the repository page needs. It still described
+  the backend modules as "Corrections" and "AI Assistant Log", renamed two
+  versions ago to **Answers** and **Enquiries**; **Bot Access Log** was missing
+  entirely. Also corrected: the TYPO3 requirement said 13.0 where the constraint
+  is 13.4, the badge claimed v13 only, and the link to the subscription server
+  was a relative path that resolves to nothing outside a local checkout
+- Added what the licence check sends, which endpoints work without a key, the
+  `composer` commands, and a link to the rendered documentation
+
+## [1.22.1] - 2026-08-07
+
+### Added
+- `Build/Scripts/release.sh` (also `composer release`) builds the TER archive.
+  It exists because the obvious `zip -r ../ext.zip *` also packs whatever the
+  local installation left behind — a first attempt here produced a 456 KB
+  archive holding two compiled DI containers and three debug page renderings of
+  the developer's own site. The script excludes those and then *checks* the
+  result: `ext_emconf.php` at the archive root, the version in `ext_emconf.php`
+  matching `composer.json`, no development or generated files, required files
+  present. Both guards were verified by breaking them on purpose — a version
+  drift and a removed exclusion each fail the build and name what is wrong
+
+## [1.22.0] - 2026-08-07
+
+### Added
+- Attribution to **web-vision**, the author of
+  [web-vision/ai-llms-txt](https://github.com/web-vision/ai-llms-txt), from which
+  this extension is derived — in `composer.json` under `authors` and as a
+  "Credits" section in the README. Required by GPL-2.0 and previously missing
+- Documentation of what the licence check sends to the issuing server: the daily
+  status check (subscription id, hostname, nonce — no visitor data), the reports
+  of suspected manipulation, and how to switch it all off by leaving
+  `subscriptionKey` empty
+- `phpstan.neon` (level 6) with a baseline, and `.php-cs-fixer.dist.php` using
+  the official TYPO3 rule set
+- `.gitattributes` so `Tests/`, `var/`, `composer.lock` and the tooling
+  configuration stay out of the distribution archive
+
+### Fixed
+- `LICENSE` held only the first paragraphs of the GPL-2.0 preamble followed by a
+  link. GPL-2.0 §1 requires the full text to be shipped, which it now is
+- Every `composer` script pointed at `Build/Scripts/runTests.sh`, which does not
+  exist in this repository — `composer test`, `composer stan` and `composer
+  ci:test` all failed for anyone who installed the extension. The scripts now
+  call the tools directly, and the ones that promised a functional test suite or
+  documentation rendering are gone, because neither exists here
+- Coding standards applied to 13 files
+- The TYPO3 constraint in `ext_emconf.php` capped at 14.3.99 while
+  `composer.json` allowed `^14.1`; both now describe the same range
+
+### Note
+- The PHPStan baseline holds 32 pre-existing findings — 31 missing array value
+  types and one redundant ternary. They are parked, not fixed, so that anything
+  new stands out
+
+## [1.21.0] - 2026-08-07
+
+### Changed
+- The backend module "AI Assistant Log" is now called "Enquiries" ("Anfragen"), matching what it actually lists. Its route identifier changed from `wn_ai_bridge_log` to `wn_ai_bridge_enquiries`; the old identifier is kept as an alias, so existing backend group permissions and bookmarked links keep working
+- "Enquiries" now shows the subscription status above the module title, the same way "Answers" and "Bot access" do
+
+## [1.20.1] - 2026-08-07
+
+### Changed
+- The subscription state now sits at the very top of the "Answers" module body, above the module title and separated from it, instead of below the title where it was easy to miss
+- The "Bot Access Log" module shows it too. That module is not part of the subscription and keeps working without one, so the state is informational there — but a lapsed licence is worth knowing wherever one happens to be looking
+- Both render the same partial, so the two cannot drift apart. An invalid subscription is shown as a warning with its reason rather than being hidden, which is what makes it useful in the module that is not gated
+
+## [1.20.0] - 2026-08-07
+
+### Added
+- The backend modules "AI Assistant Log", "Answers" and "Bot Access Log" are now translated into German, French, Italian, Portuguese and Spanish. English remains the source language, so any label without a translation still falls back to it
+
+### Fixed
+- The status option "Pending review" in the Answers form carried the long heading of the corrections list, left over from renaming the module
+- The subscription feature list named the "Corrections" module, which no longer exists under that name
+
+### Removed
+- `locallang_mod.xlf`, the last remnant of the file-based llms.txt module that was removed earlier — nothing referenced it
+
+## [1.19.0] - 2026-08-07
+
+### Added
+- Licence findings that cannot be an honest state are reported to the issuing server: a key whose signature does not verify, a key used on a domain it was not issued for, verification against a key pair that is not the bundled one, and altered bundled keys. The issuing server notifies the extension's author
+- The bundled verification and cipher keys carry a fingerprint, so an edit to them is noticed
+
+### Changed
+- What is sent is deliberately minimal: the subscription id from the key, the host, the finding and the two version numbers that make it actionable. Nothing about the site, its content or its visitors. The same finding is sent at most once a day, never from a visitor request, and a failure to send is silent
+- A missing, expired, malformed or revoked key is **not** reported. Those are the everyday states of an installation whose customer has not renewed yet, and reporting them would accuse honest people and bury the real findings
+
+### Security
+- This detection is not tamper-proof and does not pretend to be: anyone willing to edit the extension can remove it. The detection that matters runs on the issuing server, on the status check every installation performs itself — see the `wn_ai_bridgeserver` changelog
+
+## [1.18.0] - 2026-08-07
+
+### Changed
+- The "Corrections" backend module is now called **"Answers"**. It never was only about corrections: it holds the answers the assistant gives for questions it recognises, whoever wrote them. The module identifier changed to `wn_ai_bridge_answers` and keeps the old one as an alias, so existing backend group permissions and bookmarks keep working
+
+### Added
+- Every answer in the "AI Assistant Log" module now carries a "Define a different answer" button. It opens the Answers module with the logged question filled in and the given answer shown as what is being replaced, so a bad answer can be corrected where it was noticed. Only the log id travels in the link — question and answer are read back from the log, so nothing is cut off by URL length limits
+
+### Fixed
+- A pre-existing null-coalesce on a source URL that can never be null, reported by static analysis
+
+## [1.17.0] - 2026-08-07
+
+### Fixed
+- **A renewed subscription switched itself off.** Expiry was decided solely by the date inside the key, and that key does not change when the issuing server renews the term — so the chat widget and both backend modules went dark on the original date although the customer had paid, unless someone manually pasted the new key from the renewal e-mail. The signed end date from the daily status check is now authoritative when it is available, so a renewal reaches the installation on its own. It cuts both ways: a subscription that lapsed on the server is reported with a date in the past and switches off even if its key would still be good
+
+### Changed
+- The status check now runs before the expiry decision instead of after it, and the domain is checked first so a key belonging to someone else never causes a request to the issuing server
+- While a key is within 30 days of its end date, the status check may also run from a frontend request. Outside that window the frontend still never makes an outgoing request. Together with the 24-hour cache this is at most one call per day, and it is what keeps a renewal working on a site with no scheduler and no backend use
+- `ai-bridge:check-subscription` reports the date in the key and the authoritative one separately, so it is visible whether the server confirmed a renewal
+
+### Security
+- An unreachable or unverifiable server can still only take access away, never extend a subscription: without a verified answer the date inside the key stands
+
+### Fixed
+- The bundled public verification key belonged to a placeholder key pair, so every key issued by the real server was rejected as "signature invalid" — which switched off the chat widget and removed both backend modules. It now holds the public key of the WebNomads issuing server
+
+### Added
+- A unit test pins the bundled verification and cipher keys to a well-formed 64-character hex value, so a truncated or mistyped constant fails in the test suite instead of rejecting every key in the field
+
+## [1.16.0] - 2026-08-07
+
+### Added
+- Daily online check: the subscription is verified with the issuing server once every 24 hours, so a revoked subscription stops working without waiting for its expiry date. The server's answer is Ed25519-signed and echoes a client-generated nonce, so an older "still active" answer cannot be replayed after a revocation
+- New CLI command `ai-bridge:check-subscription` reports the subscription state and refreshes it; schedule it daily on installations nobody logs into
+- New settings "Täglicher Online-Check" (on by default) and "Ausstellungsserver" (optional override of the address baked into the key)
+
+### Changed
+- The check never runs inside a visitor request: it is performed in the backend and on the command line, and the frontend only reads the cached verdict, so a slow or unreachable licence server can never delay a page
+
+### Security
+- Only an explicitly signed "revoked" disables anything. An unreachable server, a malformed answer, a bad signature or a stale timestamp all count as "unknown" and leave the offline check in the key authoritative — the online check can take access away, never grant it
+
+## [1.15.0] - 2026-08-07
+
+### Added
+- Subscription key: the new "Subscription-Key" setting in the extension configuration holds an encrypted and Ed25519-signed licence key that carries the allowed domains, an expiry date and the enabled features. It is issued by the new companion extension `wn_ai_bridgeserver`. Without a valid key the chat bot stays hidden on the website and the backend modules "AI Assistant Log" and "Corrections" disappear from the module menu — llms.txt, the Markdown export and the bot access log are unaffected and keep working
+- The validity check runs against the current host, so a key only works on the domains it was issued for; wildcard patterns (`*.example.com`) are supported. Without a resolvable host (CLI, scheduler) the domain check is skipped so maintenance tasks keep running
+- The "Corrections" module is now a full editor for the assistant's local learning source: entries can be edited, deactivated and deleted, and editors can create their own question/answer pairs from scratch
+- Optional "Öffentlicher Prüfschlüssel" setting to verify keys against a rolled-over key pair without updating the extension
+
+### Changed
+- Approved answers are now matched against a new question by meaning rather than by wording: term overlap (prefix-tolerant, so "Versand" also matches "Versandkosten") combined with overall string similarity. A close match is played back verbatim as the answer (new log mode "learning"); weaker matches are still handed to the LLM as binding hints
+- The learning lookup runs before the "nothing found" fallback, so a stored answer is given even when the site search returns no hits
+- Corrections are only captured and used while the subscription covers them
+
+### Security
+- Subscription keys are verified with a bundled Ed25519 public key; the private signing key never leaves the issuing server, so a key cannot be forged by editing or re-encrypting it
+
 ## [1.14.1] - 2026-07-27
 
 ### Security

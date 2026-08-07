@@ -17,6 +17,95 @@ Composer Installation
    composer require web-nomads/wn-ai-bridge
 
 
+Subscription key
+================
+
+The AI search assistant is a subscription feature. Its licence key is issued by
+the companion extension ``wn_ai_bridgeserver`` and entered under
+:guilabel:`Admin Tools > Settings > Extension Configuration > wn_ai_bridge` in
+the field :guilabel:`Subscription-Key`.
+
+The key is encrypted and signed and carries the domains it is valid for, an
+expiry date and the features it unlocks. It is validated locally on every
+request — no call to any server is made.
+
+What the subscription gates:
+
+* the chat widget on the website and its ``/wn-ai-bridge/ask`` endpoint
+  (feature ``chatbot``)
+* the backend module :guilabel:`AI Assistant Log` (feature ``log``)
+* the backend module :guilabel:`Corrections` and the local learning source
+  (feature ``corrections``)
+
+Without a valid key those modules disappear from the module menu and the widget
+is not rendered. **llms.txt, the Markdown export, the bot access log and the rate
+limiter are not part of the subscription** and keep working either way.
+
+A key only validates on the domains it was issued for. ``*.example.com`` covers
+every subdomain; the bare domain has to be listed separately. When the current
+host cannot be resolved — on the command line, in the scheduler — the domain
+check is skipped so maintenance tasks keep running.
+
+If the key pair of the issuing server was rolled over, enter the new public key
+in the optional field :guilabel:`Öffentlicher Prüfschlüssel`; leaving it empty
+uses the one bundled with the extension.
+
+Daily online check
+------------------
+
+In addition to the offline validation, the extension asks the issuing server once
+every 24 hours whether the subscription is still active, so a revoked
+subscription stops working without waiting for its expiry date. The server's
+answer is signed and carries a nonce this installation generated, so an older
+"still active" answer cannot be replayed.
+
+The check never runs inside a visitor request: it is performed in the backend and
+on the command line, and the frontend only reads the cached verdict. A slow or
+unreachable licence server therefore cannot delay a page.
+
+Only an explicitly signed "revoked" disables anything. An unreachable server, a
+malformed answer or a bad signature all count as "unknown" and change nothing.
+
+The check also carries the current end date, and that is how a renewal reaches
+this installation: the key in the configuration keeps the date it was issued
+with, so after a renewal it would be out of date. When a verified answer is
+available its date is authoritative; without one, the date inside the key stands.
+An unreachable server can therefore never extend a subscription — but a
+subscription that lapsed on the issuing server is switched off even if its key
+would still be good for a while.
+
+Because of this, the check may also run from a frontend request while the key is
+within 30 days of its end date — otherwise a renewal would never arrive on a site
+with no scheduler that nobody logs into. Outside that window the frontend still
+never makes an outgoing request, and the 24-hour cache keeps it to at most one
+call per day either way.
+
+On installations nobody logs into, schedule the check daily:
+
+.. code-block:: bash
+
+   vendor/bin/typo3 ai-bridge:check-subscription --host=www.example.com
+
+The check can be switched off with :guilabel:`Täglicher Online-Check`, and the
+server address baked into the key can be overridden with
+:guilabel:`Ausstellungsserver` for staging setups.
+
+What is reported
+----------------
+
+Alongside the status check, this extension reports licence findings that cannot
+be an honest state: a key whose signature does not verify, a key used on a domain
+it was not issued for, verification against a key pair other than the bundled
+one, and altered bundled keys.
+
+Only the following leaves the installation: the subscription id from the key, the
+host, the finding, the extension version and the TYPO3 version. Nothing about the
+site, its content or its visitors. The same finding is sent at most once a day
+and never from a visitor request.
+
+A missing, expired, malformed or revoked key is **not** reported — those are the
+everyday states of an installation whose subscription has lapsed.
+
 Configuration
 =============
 
@@ -125,3 +214,46 @@ Performance Considerations
 * llms.txt generation processes the entire site navigation, so performance depends on site size
 * Markdown conversion processes all content elements on a page
 * For large sites, consider implementing additional caching strategies if needed
+
+.. _data-sent-to-the-licence-server:
+
+Data Sent to the Licence Server
+===============================
+
+The subscription features (chat widget, "Enquiries" and "Answers" modules) are
+unlocked by the ``subscriptionKey`` in the extension configuration. Verifying
+that key means this installation talks to the issuing server, so it is spelled
+out here what leaves the site, when, and how to stop it.
+
+**The daily status check**
+  Once a day — and, in the last 30 days before a key expires, also from a
+  frontend request — the extension asks the issuing server whether the
+  subscription is still active. It sends:
+
+  * the subscription id taken from the key,
+  * the hostname of this installation,
+  * a random nonce, used to detect a replayed answer.
+
+  The server answers with the status and the end date, signed. This is what
+  carries a renewal to the installation: the key in the configuration keeps its
+  original date, the signed answer carries the new one.
+
+  No visitor data is involved — no IP addresses, no questions asked of the
+  assistant, no content of the site.
+
+**Reports of suspected manipulation**
+  A finding that cannot be an honest state — a forged signature, a key used on a
+  domain it does not cover, a modified extension — is reported to the issuing
+  server, which notifies the author. Such a report contains the subscription id,
+  the hostname and the kind of finding. A missing or simply expired key is not a
+  finding and is never reported.
+
+**Switching it off**
+  Leave ``subscriptionKey`` empty. Without a key nothing is sent, and the
+  subscription features stay switched off; the llms.txt and Markdown endpoints
+  work regardless.
+
+**When the server cannot be reached**
+  The check fails silently and the date inside the key decides. An unreachable
+  server can never extend a subscription — only a signed answer can — and it
+  never takes one away either.

@@ -1,0 +1,26 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:comment>
+    The subscription state, shown at the very top of a module body so it is read
+    before anything else. Rendered by every AI Bridge module, including the ones
+    that keep working without a subscription — knowing the licence lapsed is
+    useful there too, which is why an invalid state is a warning rather than
+    being hidden.
+
+    Expects: subscription (SubscriptionStatus)
+</f:comment>
+<f:if condition="{subscription}">
+    <div class="mb-4">
+        <f:if condition="{subscription.valid}">
+            <f:then>
+                <div class="callout callout-success"><div class="callout-body">{subscription.message}</div></div>
+            </f:then>
+            <f:else>
+                <div class="callout callout-warning"><div class="callout-body">{subscription.message}</div></div>
+            </f:else>
+        </f:if>
+    </div>
+</f:if>
+
+</html>

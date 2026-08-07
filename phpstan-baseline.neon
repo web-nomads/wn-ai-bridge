@@ -1,0 +1,161 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Builder\\\\NavigationBuilder\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Builder/NavigationBuilder.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Builder\\\\NavigationBuilder\\:\\:buildRecursive\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Builder/NavigationBuilder.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Builder\\\\NavigationBuilder\\:\\:formatAsMarkdown\\(\\) has parameter \\$navigationStructure with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Builder/NavigationBuilder.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Builder\\\\NavigationBuilder\\:\\:formatAsMarkdown\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Builder/NavigationBuilder.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Builder\\\\NavigationBuilder\\:\\:getLanguageTitle\\(\\) has parameter \\$page with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Builder/NavigationBuilder.php
+
+		-
+			message: "#^Offset 'nav_title' does not exist on array\\{uid\\: int, pid\\: int, title\\: string, description\\: string, abstract\\: string, doktype\\: int, sys_language_uid\\: int, l10n_parent\\: int\\}\\.$#"
+			count: 1
+			path: Classes/Builder/NavigationBuilder.php
+
+		-
+			message: "#^Ternary operator condition is always true\\.$#"
+			count: 1
+			path: Classes/Builder/NavigationBuilder.php
+
+		-
+			message: "#^Property WebNomads\\\\WnAiBridge\\\\Command\\\\DownloadMarkdownCommand\\:\\:\\$markdownConverter is never read, only written\\.$#"
+			count: 1
+			path: Classes/Command/DownloadMarkdownCommand.php
+
+		-
+			message: "#^Property WebNomads\\\\WnAiBridge\\\\Command\\\\DownloadMarkdownCommand\\:\\:\\$urlGenerator is never read, only written\\.$#"
+			count: 1
+			path: Classes/Command/DownloadMarkdownCommand.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Controller\\\\AssistantWidgetController\\:\\:render\\(\\) has parameter \\$conf with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Controller/AssistantWidgetController.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Controller\\\\AssistantWidgetController\\:\\:renderBaseCss\\(\\) has parameter \\$conf with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Controller/AssistantWidgetController.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Controller\\\\LlmsTxtController\\:\\:generateAction\\(\\) has parameter \\$conf with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Controller/LlmsTxtController.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Controller\\\\LlmsTxtController\\:\\:renderPageAsMarkdown\\(\\) has parameter \\$conf with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Controller/LlmsTxtController.php
+
+		-
+			message: "#^Offset 'content' on array\\{role\\: string, content\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: Classes/Llm/AnthropicClient.php
+
+		-
+			message: "#^Offset 'role' on array\\{role\\: string, content\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: Classes/Llm/AnthropicClient.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Repository\\\\PageRepository\\:\\:fetchRawById\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Repository/PageRepository.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Repository\\\\PageRepository\\:\\:findNavigationByParentsBatch\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Repository/PageRepository.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Repository\\\\PageRepository\\:\\:findNavigationByParentsBatchWithFallback\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Repository/PageRepository.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Repository\\\\PageRepository\\:\\:mapRowToPageArray\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Repository/PageRepository.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Search\\\\PageContentSearchProvider\\:\\:applyPageRestriction\\(\\) has parameter \\$queryBuilder with no type specified\\.$#"
+			count: 1
+			path: Classes/Search/PageContentSearchProvider.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Search\\\\PageContentSearchProvider\\:\\:buildLikeConstraint\\(\\) has parameter \\$queryBuilder with no type specified\\.$#"
+			count: 1
+			path: Classes/Search/PageContentSearchProvider.php
+
+		-
+			message: "#^Offset 'abstract' on \\*NEVER\\* on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: Classes/Search/PageContentSearchProvider.php
+
+		-
+			message: "#^Offset 'description' on array\\{uid\\: int, title\\: string, seo_title\\: string, description\\: string, abstract\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: Classes/Search/PageContentSearchProvider.php
+
+		-
+			message: "#^Offset 'seo_title' on array\\{uid\\: int, title\\: string, seo_title\\: string, description\\: string, abstract\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: Classes/Search/PageContentSearchProvider.php
+
+		-
+			message: "#^Offset 'title' on \\*NEVER\\* on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: Classes/Search/PageContentSearchProvider.php
+
+		-
+			message: "#^Offset 'content' on array\\{role\\: string, content\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: Classes/Service/AssistantService.php
+
+		-
+			message: "#^Offset 'role' on array\\{role\\: string, content\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: Classes/Service/AssistantService.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Service\\\\ConfigurationService\\:\\:getKeywords\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Service/ConfigurationService.php
+
+		-
+			message: "#^Offset 'content' on array\\{role\\: 'assistant', content\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: Classes/Service/LearningService.php
+
+		-
+			message: "#^Offset 'content' on array\\{role\\: 'user', content\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: Classes/Service/LearningService.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Service\\\\UrlGeneratorService\\:\\:generateHtmlUrl\\(\\) has parameter \\$page with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Service/UrlGeneratorService.php
+
+		-
+			message: "#^Method WebNomads\\\\WnAiBridge\\\\Service\\\\UrlGeneratorService\\:\\:generatePageUrl\\(\\) has parameter \\$page with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Classes/Service/UrlGeneratorService.php

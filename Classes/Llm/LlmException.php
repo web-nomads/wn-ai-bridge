@@ -9,6 +9,4 @@ namespace WebNomads\WnAiBridge\Llm;
  * error, API error). The assistant catches this and falls back to search-only
  * results, so a failing LLM never breaks the visitor experience.
  */
-final class LlmException extends \RuntimeException
-{
-}
+final class LlmException extends \RuntimeException {}

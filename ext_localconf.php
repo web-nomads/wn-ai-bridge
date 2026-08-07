@@ -34,7 +34,7 @@ if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_markdown'] = [
         'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
         'backend' => \TYPO3\CMS\Core\Cache\Backend\FileBackend::class,
-        'groups' => ['pages']
+        'groups' => ['pages'],
     ];
 }
 
@@ -43,6 +43,18 @@ if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][
 // shared across requests and survive a page cache flush.
 if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_visitorinfo'])) {
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_visitorinfo'] = [
+        'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
+        'backend' => \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend::class,
+        'groups' => ['system'],
+    ];
+}
+
+// Register cache for the daily subscription status check. Uses the database
+// backend so the verdict the backend (or the CLI command) fetched is shared with
+// every frontend worker, and is deliberately not part of the 'pages' group so a
+// page cache flush does not trigger a new request to the issuing server.
+if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_subscription'])) {
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['wn_ai_bridge_subscription'] = [
         'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
         'backend' => \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend::class,
         'groups' => ['system'],

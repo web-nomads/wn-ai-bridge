@@ -1,137 +1,189 @@
 # AI Bridge for TYPO3
 
-[![TYPO3 13](https://img.shields.io/badge/TYPO3-13-orange.svg)](https://get.typo3.org/version/13)
+[![TYPO3 13 & 14](https://img.shields.io/badge/TYPO3-13%20%7C%2014-orange.svg)](https://get.typo3.org/)
 [![PHP 8.2+](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://www.php.net/)
 [![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](https://www.gnu.org/licenses/gpl-2.0)
 
-TYPO3 extension for generating `llms.txt` links according to the [llmstxt.org specification](https://llmstxt.org/) to control Large Language Model crawling policies.
+Makes a TYPO3 site readable for AI systems, and gives its visitors a search
+assistant that answers from the site's own content.
 
-## Features
+Two halves that work independently:
 
-- **Automatic llms.txt generation** - Creates policy files according to the official specification
-- **Site navigation structure** - Includes your site's navigation hierarchy in the llms.txt file
-- **Configurable metadata** - Add topics, contact information, and custom descriptions
-- **Markdown export** - Convert any TYPO3 page to Markdown format via `.md` suffix
-- **AI search assistant** - A floating chat widget that helps visitors find information on the site and answers with suggestions and links. Works search-only out of the box (via `ke_search`, `indexed_search` or a built-in page/content fallback) and can produce grounded, cited answers with an LLM (Anthropic Claude) when an API key is configured
-- **TYPO3 v13 & v14 compatibility** - Built for TYPO3 v13.4 and v14.3 using modern PHP practices
+- **Machine-readable content** — an `llms.txt` policy file following the
+  [llmstxt.org specification](https://llmstxt.org/), and a Markdown
+  representation of every page. Free, no key needed.
+- **AI search assistant** — a chat widget that answers visitor questions from
+  your search index, with links to the pages it used. Requires a subscription
+  key.
 
-## AI Search Assistant
+## Requirements
 
-The extension ships an on-site chat bot ("AI search assistant") that helps
-visitors find information. Enable it via the extension configuration
-(`assistantEnabled`) and, per site, on the **AI Search Assistant** tab of the
-site configuration.
-
-- **Search-only mode** (no API key): returns ranked matching pages as
-  suggestions with links — fast, free, privacy friendly.
-- **Hybrid mode** (with an LLM API key in `assistantApiKey`): additionally lets
-  Claude compose a short, cited answer from the retrieved pages (RAG). Any LLM
-  failure falls back to search-only automatically.
-
-The assistant aggregates `ke_search` and `indexed_search` when installed and
-always keeps a dependency-free `pages`/`tt_content` fallback so it works even
-without a search index. See `Documentation/AiAssistant/Index.rst` for details.
-
-## What is llms.txt?
-
-llms.txt is an emerging standard for websites to communicate with Large Language Models and AI systems. Similar to robots.txt for web crawlers, llms.txt files provide:
-
-- **Crawling policies** - Guidelines for AI systems on how to interact with your content
-- **Site structure** - Navigation and content organization information
-- **Metadata** - Topics, contact information, and site descriptions
-- **Content access** - Direct links to machine-readable content formats
+| | |
+|---|---|
+| TYPO3 | 13.4 LTS or 14.x |
+| PHP | 8.2, 8.3 or 8.4 |
+| PHP extensions | `sodium` (subscription key verification) |
+| Optional | `ke_search` or `indexed_search` as the assistant's index |
 
 ## Installation
-
-### Composer (Recommended)
 
 ```bash
 composer require web-nomads/wn-ai-bridge
 ```
 
-## Quick Start
+Then activate the extension and flush caches.
 
-After installation, the extension works immediately with default settings:
+### Nice URLs
 
-- **llms.txt generation**: Visit `https://yoursite.com/?type=1699`
-- **Markdown pages**: Visit `https://yoursite.com/?type=1701`
-
-with Route Enhancer:
-
-- **llms.txt file**: Visit `https://yoursite.com/.well-known/llms.txt`
-- **Markdown pages**: Add `.md` to any page URL (e.g., `https://yoursite.com/about.md`)
-
-## Configuration
-
-All settings can be configured in your site configuration.
-
-
-## Route Configuration
-
-To enable user-friendly URLs, include the route enhancers in your site configuration:
+Without route enhancers the endpoints are reachable by page type only. To get
+readable URLs, import the shipped route configuration:
 
 ```yaml
-# config/sites/main/config.yaml
+# config/sites/<identifier>/config.yaml
 imports:
   -
     resource: 'EXT:wn_ai_bridge/Configuration/Routes/RouterEnhancer.yaml'
 ```
 
-This enables:
-- `.md` suffix for Markdown content
-- `llms.txt` for direct access to the specification file
+| | Without enhancer | With enhancer |
+|---|---|---|
+| llms.txt | `/?type=1699` | `/.well-known/llms.txt` and `/llms.txt` |
+| Markdown | `/?type=1701` | append `.md` to any page URL |
 
-## Usage Examples
+So `https://example.com/about` also exists as `https://example.com/about.md`.
 
-### Accessing Generated Content
+## What llms.txt is for
 
-**llms.txt files:**
-- `https://yoursite.com/?type=1699`
-- `https://yoursite.com/.well-known/llms.txt` - with route enhancer
-- `https://yoursite.com/llms.txt` - Alternative access (with route enhancer)
+`llms.txt` is to language models roughly what `robots.txt` is to crawlers: a
+file at a well-known location that states how the site would like to be used,
+lists its structure, and points at machine-readable versions of the content.
+This extension generates it from your actual page tree, so it stays correct
+without anyone maintaining it by hand.
 
-**Markdown content:**
-- `https://yoursite.com/?type=1701`
-- `https://yoursite.com/about.md` - Markdown version of your About page
-- `https://yoursite.com/services/consulting.md` - Markdown version of any page
+Configure the metadata (topics, contact, description) per site on the
+**AI Bridge** tab of the site configuration.
 
+## AI search assistant
 
-## Requirements
+A floating chat widget. Switch it on in the extension configuration
+(`assistantEnabled`) and per site in the site configuration.
 
-- **TYPO3**: 13.0 or higher
-- **PHP**: 8.2 or higher
-- **Dependencies**: league/html-to-markdown (automatically installed)
+**Search-only** (no API key)
+: Returns ranked matching pages as suggestions with links. Fast, free, and
+  nothing leaves your server.
+
+**Hybrid** (with an LLM API key in `assistantApiKey`)
+: Additionally lets the model compose a short answer from the retrieved pages
+  and cite them. Any failure — quota, timeout, malformed response — falls back
+  to search-only rather than showing an error.
+
+The assistant reads `ke_search` and `indexed_search` when they are installed,
+and always keeps a dependency-free `pages`/`tt_content` fallback so it returns
+something even without a search index.
+
+### Backend modules
+
+| Module | What it is for |
+|---|---|
+| **Enquiries** | Every question asked, the answer given, the provider, token usage and cost. Filterable |
+| **Answers** | Question/answer pairs the assistant uses as its own knowledge |
+| **Bot Access Log** | Which AI crawlers requested `llms.txt` and the Markdown endpoints |
+
+**Answers** is the local learning source. An entry is played back verbatim when
+a new question matches it in meaning — term overlap plus string similarity, not
+exact wording. Weaker matches are handed to the model as binding hints. Entries
+come from three places: written by an editor, taken over from a logged answer in
+**Enquiries**, or captured from a correction a visitor made in the chat, which
+arrives as "pending" and is only used once approved.
+
+## Subscription
+
+The assistant and its two modules are subscription features. Enter the key in
+the **Subscription key** field of the extension configuration. The key is
+encrypted and signed; it carries the domains it is valid for, an expiry date and
+the enabled features.
+
+| | Needs a key |
+|---|---|
+| Chat widget, **Enquiries**, **Answers** | yes |
+| llms.txt, Markdown endpoints, **Bot Access Log** | no |
+
+Without a valid key the widget stays hidden and the two modules disappear.
+Everything else keeps working.
+
+### What the licence check sends
+
+Once a day the extension asks the issuing server whether the subscription is
+still active, sending the subscription id, this installation's hostname and a
+random nonce. No visitor data is involved — no IP addresses, no questions, no
+page content. The signed answer is what carries a renewal to the installation,
+so a renewed subscription takes effect without anyone pasting a new key, and a
+revoked one stops working without waiting for its expiry date.
+
+An unreachable server changes nothing: the date inside the key decides, and only
+an explicitly signed "revoked" switches the features off.
+
+Leave `subscriptionKey` empty and nothing is ever sent.
+
+See [Documentation/Administrator](Documentation/Administrator/Index.rst) for the
+full description, including what is reported when an installation looks
+manipulated.
+
+## Configuration
+
+Extension configuration (Admin Tools → Settings → Extension Configuration)
+covers the assistant, the LLM provider, rate limiting and the subscription key.
+Per-site settings live on the **AI Bridge** and **AI Search Assistant** tabs of
+the site configuration.
+
+Two things worth setting before going live with the assistant:
+
+- Enable the rate limiter (`rateLimiterEnabled`). The assistant endpoint is
+  reachable without authentication and every request can cost money.
+- Set a spending limit in your LLM provider account as an independent second
+  net.
 
 ## Documentation
 
-Comprehensive documentation is available covering:
+The full manual is rendered at
+[docs.typo3.org](https://docs.typo3.org/p/web-nomads/wn-ai-bridge/main/en-us/),
+and its source lives in [`Documentation/`](Documentation/).
 
-- [Installation and Configuration](Documentation/Administrator/Index.rst)
-- [Editor Guidelines](Documentation/Editor/Index.rst)
-- [Developer API Reference](Documentation/Developer/Index.rst)
-- [TypoScript Configuration](Documentation/Configuration/Index.rst)
+## Development
+
+```bash
+composer install
+
+composer test        # unit tests
+composer stan        # PHPStan level 6
+composer cs:check    # coding standards, --dry-run
+composer cs:fix      # apply them
+composer ci          # all of the above
+
+composer release     # build the TER archive
+```
+
+`composer release` writes `wn_ai_bridge_<version>.zip` next to the extension
+folder and refuses to build if the version in `ext_emconf.php` and
+`composer.json` disagree, if `ext_emconf.php` would not land at the archive
+root, or if anything generated would be packed.
 
 ## Contributing
 
-Contributions are welcome! Please:
+Issues and pull requests are welcome at
+[github.com/web-nomads/wn-ai-bridge](https://github.com/web-nomads/wn-ai-bridge/issues).
 
-1. Follow TYPO3 coding standards
-2. Include tests for new features
-3. Update documentation for configuration changes
-4. Use dependency injection patterns
-5. Maintain strict typing
+For a pull request: follow the TYPO3 coding standards (`composer cs:fix`), add
+tests for behaviour you change, and keep `composer ci` green.
+
+## Credits
+
+This extension started as a fork of
+[web-vision/ai-llms-txt](https://github.com/web-vision/ai-llms-txt) by
+web-vision, which provides the llms.txt generation according to the
+[llmstxt.org](https://llmstxt.org/) specification. The AI search assistant, the
+Markdown endpoints and the subscription handling were added here.
 
 ## License
 
-This extension is licensed under GPL v2+ - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-- **Documentation**: Full documentation in the `Documentation/` folder
-- **Issues**: Report issues via the project issue tracker
-- **Community**: Join TYPO3 community discussions for general TYPO3 support
-
-## Related
-
-- [llmstxt.org](https://llmstxt.org/) - Official specification
-- [TYPO3 Documentation](https://docs.typo3.org/) - TYPO3 CMS documentation
+GPL-2.0-or-later, the same licence as the original — see [LICENSE](LICENSE).

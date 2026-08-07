@@ -3,11 +3,11 @@
 
 <f:comment>
     Filter-dependent part of the assistant log module. Rendered inline by
-    Log/Index.html and standalone (as the AJAX response) by Log/Results.html,
+    Enquiries/Index.html and standalone (as the AJAX response) by Enquiries/Results.html,
     so it must stay self-contained (it declares its own {ll}).
 </f:comment>
 
-<f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf:</f:variable>
+<f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf:</f:variable>
 
 <f:comment>Statistics overview</f:comment>
 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-3 mb-4">
@@ -64,7 +64,7 @@
                         <f:format.date date="{thread.first.createdAt}" format="d.m.Y H:i"/>
                     </span>
                     <span class="wn-ai-thread__meta text-body-secondary small text-nowrap">
-                        <span title="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf:table.ip')}">{thread.visitor.ip}</span>
+                        <span title="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf:table.ip')}">{thread.visitor.ip}</span>
                         <f:if condition="{thread.visitor.hostname}"> &middot; <span title="Hostname">{thread.visitor.hostname}</span></f:if>
                         <f:if condition="{thread.visitor.countryCode}"> &middot; <span class="badge bg-light text-dark">{thread.visitor.countryCode}</span> {thread.visitor.country}</f:if>
                         <f:if condition="{thread.visitor.private}"> &middot; <span class="badge bg-light text-dark"><f:translate key="{ll}visitor.local"/></span></f:if>
@@ -74,7 +74,7 @@
                         <span class="badge bg-secondary">{thread.turnCount} <f:translate key="{ll}thread.turns"/></span>
                         <f:if condition="{thread.totalTokens} > 0">
                             <span class="badge bg-primary">{thread.totalTokens} <f:translate key="{ll}table.tokens"/></span>
-                            <span class="badge bg-success" title="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf:stats.cost')}">{thread.costChf}</span>
+                            <span class="badge bg-success" title="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf:stats.cost')}">{thread.costChf}</span>
                         </f:if>
                     </span>
                 </summary>
@@ -102,6 +102,16 @@
                             <div>
                                 <div class="text-body-secondary text-uppercase small mb-1"><f:translate key="{ll}thread.answer"/></div>
                                 <div><f:format.raw>{turn.answerHtml}</f:format.raw></div>
+                                <f:comment>
+                                    Hands the question and the given answer over to the
+                                    "Answers" module, where a replacement is written that
+                                    is played back whenever a question matches it.
+                                </f:comment>
+                                <f:if condition="{answersModuleUrl}">
+                                    <a class="btn btn-sm btn-default mt-2" href="{turn.overrideUrl}">
+                                        <f:translate key="{ll}thread.overrideAnswer"/>
+                                    </a>
+                                </f:if>
                             </div>
                             <f:if condition="{turn.entry.sources}">
                                 <div class="mt-2">

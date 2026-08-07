@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="fr" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_botaccess.xlf" date="2026-08-07T12:00:00Z">
+		<header>
+			<description>Language labels for the bot access log backend module</description>
+		</header>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Bot Access Log</source>
+				<target>Accès des robots</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>Bot Access Log</source>
+				<target>Journal des accès des robots</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>See when bots and crawlers access your llms.txt, the Markdown (.md) versions and normal pages. Filterable per type, bot and IP.</source>
+				<target>Montre quand les robots et robots d'indexation accèdent à votre llms.txt, aux versions Markdown (.md) et aux pages normales. Filtrable par type, robot et IP.</target>
+			</trans-unit>
+			<trans-unit id="module.title">
+				<source>Bot Access Log</source>
+				<target>Journal des accès des robots</target>
+			</trans-unit>
+			<trans-unit id="module.disabled">
+				<source>Bot access logging is currently disabled. Enable "Log bot accesses" in the extension configuration to record new accesses. Existing entries are still shown below.</source>
+				<target>L'enregistrement des accès des robots est actuellement désactivé. Activez « Enregistrer les accès des robots » dans la configuration de l'extension pour enregistrer les nouveaux accès. Les entrées existantes restent affichées ci-dessous.</target>
+			</trans-unit>
+			<trans-unit id="module.tableMissing">
+				<source>The bot access table does not exist yet. Please run the database schema update (Admin Tools › Maintenance › Analyze Database Structure).</source>
+				<target>La table des accès des robots n'existe pas encore. Veuillez lancer la mise à jour du schéma de base de données (Outils d'administration › Maintenance › Analyser la structure de la base de données).</target>
+			</trans-unit>
+			<trans-unit id="stats.total">
+				<source>Accesses</source>
+				<target>Accès</target>
+			</trans-unit>
+			<trans-unit id="stats.ai">
+				<source>AI crawlers</source>
+				<target>Robots d'IA</target>
+			</trans-unit>
+			<trans-unit id="stats.markdown">
+				<source>Markdown</source>
+				<target>Markdown</target>
+			</trans-unit>
+			<trans-unit id="stats.page">
+				<source>Pages</source>
+				<target>Pages</target>
+			</trans-unit>
+			<trans-unit id="filter.dateFrom">
+				<source>From</source>
+				<target>Du</target>
+			</trans-unit>
+			<trans-unit id="filter.dateTo">
+				<source>To</source>
+				<target>Au</target>
+			</trans-unit>
+			<trans-unit id="filter.type">
+				<source>Type</source>
+				<target>Type</target>
+			</trans-unit>
+			<trans-unit id="filter.all">
+				<source>All</source>
+				<target>Tous</target>
+			</trans-unit>
+			<trans-unit id="filter.bot">
+				<source>Bot</source>
+				<target>Robot</target>
+			</trans-unit>
+			<trans-unit id="filter.ip">
+				<source>IP</source>
+				<target>IP</target>
+			</trans-unit>
+			<trans-unit id="filter.search">
+				<source>Search</source>
+				<target>Recherche</target>
+			</trans-unit>
+			<trans-unit id="filter.searchPlaceholder">
+				<source>Path or user agent</source>
+				<target>Chemin ou agent utilisateur</target>
+			</trans-unit>
+			<trans-unit id="filter.aiOnly">
+				<source>AI crawlers only</source>
+				<target>Robots d'IA uniquement</target>
+			</trans-unit>
+			<trans-unit id="filter.apply">
+				<source>Filter</source>
+				<target>Filtrer</target>
+			</trans-unit>
+			<trans-unit id="filter.reset">
+				<source>Reset</source>
+				<target>Réinitialiser</target>
+			</trans-unit>
+			<trans-unit id="col.date">
+				<source>Date</source>
+				<target>Date</target>
+			</trans-unit>
+			<trans-unit id="col.type">
+				<source>Type</source>
+				<target>Type</target>
+			</trans-unit>
+			<trans-unit id="col.bot">
+				<source>Bot</source>
+				<target>Robot</target>
+			</trans-unit>
+			<trans-unit id="col.status">
+				<source>Status</source>
+				<target>Statut</target>
+			</trans-unit>
+			<trans-unit id="col.path">
+				<source>Path</source>
+				<target>Chemin</target>
+			</trans-unit>
+			<trans-unit id="col.ip">
+				<source>IP</source>
+				<target>IP</target>
+			</trans-unit>
+			<trans-unit id="col.userAgent">
+				<source>User agent</source>
+				<target>Agent utilisateur</target>
+			</trans-unit>
+			<trans-unit id="col.referer">
+				<source>Referer</source>
+				<target>Référent</target>
+			</trans-unit>
+			<trans-unit id="table.empty">
+				<source>No bot accesses recorded for the current filter.</source>
+				<target>Aucun accès de robot enregistré pour le filtre actuel.</target>
+			</trans-unit>
+			<trans-unit id="action.clear">
+				<source>Clear log</source>
+				<target>Vider le journal</target>
+			</trans-unit>
+			<trans-unit id="action.clearConfirm">
+				<source>Delete all bot access entries?</source>
+				<target>Supprimer toutes les entrées du journal des accès des robots ?</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

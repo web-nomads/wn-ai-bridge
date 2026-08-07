@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace WebNomads\WnAiBridge\Service;
 
-use WebNomads\WnAiBridge\Service\HtmlCleanerService;
-
 /**
  * Service for converting HTML to Markdown
  * Handles HTML to Markdown conversion with proper cleaning
@@ -49,7 +47,7 @@ class MarkdownConverterService
             // Fallback: Basic manual conversion if library is missing
             $html = $this->htmlCleanerService->cleanTypo3Html($html);
             $markdown = $html;
-            
+
             // Convert Headers with proper spacing and trimming
             $markdown = preg_replace_callback('/<h1[^>]*>(.*?)<\/h1>/is', fn($m) => "\n# " . preg_replace('/\s+/', ' ', trim(strip_tags($m[1]))) . "\n\n", $markdown);
             $markdown = preg_replace_callback('/<h2[^>]*>(.*?)<\/h2>/is', fn($m) => "\n## " . preg_replace('/\s+/', ' ', trim(strip_tags($m[1]))) . "\n\n", $markdown);
@@ -57,25 +55,25 @@ class MarkdownConverterService
             $markdown = preg_replace_callback('/<h4[^>]*>(.*?)<\/h4>/is', fn($m) => "\n#### " . preg_replace('/\s+/', ' ', trim(strip_tags($m[1]))) . "\n\n", $markdown);
             $markdown = preg_replace_callback('/<h5[^>]*>(.*?)<\/h5>/is', fn($m) => "\n##### " . preg_replace('/\s+/', ' ', trim(strip_tags($m[1]))) . "\n\n", $markdown);
             $markdown = preg_replace_callback('/<h6[^>]*>(.*?)<\/h6>/is', fn($m) => "\n###### " . preg_replace('/\s+/', ' ', trim(strip_tags($m[1]))) . "\n\n", $markdown);
-            
+
             // Convert Links and ensure they are absolute and have .md extension
-            $markdown = preg_replace_callback('/<a[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', function($m) use ($siteUrl) {
+            $markdown = preg_replace_callback('/<a[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', function ($m) use ($siteUrl) {
                 $url = $this->processMarkdownUrl($m[1], $siteUrl);
                 return '[' . strip_tags($m[2]) . '](' . $url . ')';
             }, $markdown);
-            
+
             // Convert Paragraphs
             $markdown = preg_replace_callback('/<p[^>]*>(.*?)<\/p>/is', fn($m) => trim(strip_tags($m[1])) . "\n\n", $markdown);
-            
+
             // Strip remaining tags
             $markdown = strip_tags($markdown);
-            
+
             // Normalize multiple newlines
             $markdown = preg_replace('/\n{3,}/', "\n\n", $markdown);
-            
+
             // Decode entities
             $markdown = html_entity_decode($markdown, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            
+
             return trim($markdown);
         }
 
@@ -93,15 +91,15 @@ class MarkdownConverterService
 
         try {
             $markdown = $converter->convert($html);
-            
+
             // Manually make links absolute and append .md in library output
-            $markdown = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/', function($m) use ($siteUrl) {
+            $markdown = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/', function ($m) use ($siteUrl) {
                 $url = $this->processMarkdownUrl($m[2], $siteUrl);
                 return '[' . $m[1] . '](' . $url . ')';
             }, $markdown);
 
             $markdown = html_entity_decode($markdown, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            
+
             // Post-process: Remove leading spaces from each line and normalize newlines
             $lines = explode("\n", $markdown);
             $processedLines = [];
@@ -114,10 +112,10 @@ class MarkdownConverterService
             // Join with double newlines for a clear separation between blocks
             // as requested by the user ("je einen Leerschlag zwischen jeden Block")
             $markdown = implode("\n\n", $processedLines);
-            
+
             // Final pass: ensure headers are clean (sometimes library adds trailing space)
             $markdown = preg_replace('/^(#+ .*?) +$/m', '$1', $markdown);
-            
+
             return trim($markdown);
         } catch (\Exception $e) {
             return '';

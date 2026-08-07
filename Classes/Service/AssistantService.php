@@ -18,6 +18,10 @@ use WebNomads\WnAiBridge\Search\SearchService;
  * question and, when an LLM is configured, has the model compose a grounded,
  * cited answer from the retrieved passages (retrieval-augmented generation).
  *
+ * The owner-curated learning source is consulted first: a closely matching
+ * approved answer is returned as-is ("learning" mode), weaker matches become
+ * binding hints in the prompt.
+ *
  * Without an API key it degrades to a search-only response (ranked suggestions
  * with links) and any LLM failure transparently falls back to the same, so the
  * widget always returns something useful.
@@ -50,6 +54,15 @@ final class AssistantService implements LoggerAwareInterface
             $languageId,
             $this->configurationService->getAssistantSearchRootPageId(),
         );
+
+        // An approved answer from the local learning source that closely matches
+        // the question wins outright: it is what the site owner explicitly wants
+        // said, so it is played back verbatim instead of being re-generated. The
+        // search hits still travel along as further reading.
+        $learning = $this->safeLearningAnswer($question, $languageId);
+        if ($learning !== null) {
+            return new AssistantResponse($learning, $results, 'learning');
+        }
 
         if ($results === []) {
             return new AssistantResponse($this->noResultsMessage(), [], 'search');
@@ -197,10 +210,10 @@ PROMPT;
         return $learnings
             . "KONTEXT (Suchergebnisse dieser Website):\n\n"
             . $context
-            . "FRAGE: " . $question . "\n\n"
-            . "Beantworte die Frage anhand des Kontexts. Verlinke NICHT im Text und schreibe keine "
-            . "Verweis-Formulierungen; kennzeichne relevante Quellen nur mit [Nummer] am Satz- oder "
-            . "Antwortende.";
+            . 'FRAGE: ' . $question . "\n\n"
+            . 'Beantworte die Frage anhand des Kontexts. Verlinke NICHT im Text und schreibe keine '
+            . 'Verweis-Formulierungen; kennzeichne relevante Quellen nur mit [Nummer] am Satz- oder '
+            . 'Antwortende.';
     }
 
     /**
@@ -260,6 +273,27 @@ PROMPT;
         } catch (\Throwable $e) {
             return '';
         }
+    }
+
+    /**
+     * The approved answer that matches the question closely enough to be played
+     * back verbatim, or null. Never let a learning lookup break answering.
+     */
+    private function safeLearningAnswer(string $question, int $languageId): ?string
+    {
+        try {
+            $entry = $this->learningService->findAnswer(
+                $question,
+                $languageId,
+                $this->safeSiteIdentifier(),
+            );
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        $answer = trim($entry?->correction ?? '');
+
+        return $answer !== '' ? $answer : null;
     }
 
     /**

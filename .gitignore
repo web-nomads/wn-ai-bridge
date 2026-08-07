@@ -1,0 +1,11 @@
+# Composer install target of this extension (see composer.json: vendor-dir)
+/.Build/
+
+# Runtime output of a local TYPO3 instance: logs, caches, debug page renderings
+/var/
+
+# Tool caches
+/.php-cs-fixer.cache
+
+# Release archives built by Build/Scripts/release.sh
+/*.zip

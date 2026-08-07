@@ -61,6 +61,9 @@ final class BotAccessModuleController
         }
 
         $variables = [
+            // Shown for information only: this module is not part of the
+            // subscription and keeps working without one.
+            'subscription' => $this->configurationService->getSubscriptionStatus(),
             'loggingEnabled' => $this->configurationService->isBotAccessLoggingEnabled(),
             'tableError' => $tableError,
             'entries' => $entries,

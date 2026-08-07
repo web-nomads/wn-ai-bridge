@@ -6,9 +6,11 @@
 
 <f:section name="Content">
 
-    <f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf:</f:variable>
+    <f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf:</f:variable>
 
     <div class="wn-ai-log">
+
+    <f:render partial="SubscriptionInfo" arguments="{subscription: subscription}"/>
 
     <h1><f:translate key="{ll}module.title"/></h1>
 
@@ -60,6 +62,7 @@
                         <option value=""><f:translate key="{ll}filter.all"/></option>
                         <option value="llm"<f:if condition="{filter.mode} == 'llm'"> selected</f:if>>llm</option>
                         <option value="search"<f:if condition="{filter.mode} == 'search'"> selected</f:if>>search</option>
+                        <option value="learning"<f:if condition="{filter.mode} == 'learning'"> selected</f:if>>learning</option>
                     </select>
                 </div>
                 <div class="col-sm-2">
@@ -76,7 +79,7 @@
 
     <f:comment>Filter-dependent results, replaced in place on every AJAX request.</f:comment>
     <div data-wn-ai-filter-results>
-        <f:render partial="Log/Results" arguments="{_all}"/>
+        <f:render partial="Enquiries/Results" arguments="{_all}"/>
     </div>
 
     </div>

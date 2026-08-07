@@ -1,0 +1,102 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module"/>
+
+<f:section name="Content">
+
+    <f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_answers.xlf:</f:variable>
+
+    <div class="wn-ai-log">
+
+    <h1>
+        <f:if condition="{form.uid} > 0">
+            <f:then><f:translate key="{ll}edit.title"/></f:then>
+            <f:else><f:translate key="{ll}new.title"/></f:else>
+        </f:if>
+    </h1>
+    <p class="text-body-secondary"><f:translate key="{ll}edit.intro"/></p>
+
+    <f:if condition="{error} == 'answerRequired'">
+        <div class="callout callout-danger"><div class="callout-body"><f:translate key="{ll}error.answerRequired"/></div></div>
+    </f:if>
+
+    <f:variable name="replacedAnswer">{entry.wrongAnswer}{previousAnswer}</f:variable>
+    <f:if condition="{replacedAnswer}">
+        <div class="callout callout-info">
+            <div class="callout-body">
+                <div class="text-body-secondary text-uppercase small"><f:translate key="{ll}field.wrongAnswer"/></div>
+                {replacedAnswer}
+            </div>
+        </div>
+    </f:if>
+
+    <form method="post" action="{moduleUrl}">
+        <input type="hidden" name="action" value="save">
+        <input type="hidden" name="learningUid" value="{form.uid}">
+        <input type="hidden" name="logUid" value="{logUid}">
+
+        <div class="mb-3">
+            <label class="form-label" for="wn-ai-topic"><f:translate key="{ll}field.question"/></label>
+            <textarea class="form-control" id="wn-ai-topic" name="topic" rows="2">{form.topic}</textarea>
+            <div class="form-text"><f:translate key="{ll}field.question.description"/></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="wn-ai-answer"><f:translate key="{ll}field.answer"/></label>
+            <textarea class="form-control" id="wn-ai-answer" name="correction" rows="5" required>{form.correction}</textarea>
+            <div class="form-text"><f:translate key="{ll}field.answer.description"/></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="wn-ai-keywords"><f:translate key="{ll}field.keywords"/></label>
+            <input type="text" class="form-control" id="wn-ai-keywords" name="keywords" value="{form.keywords}" maxlength="255">
+            <div class="form-text"><f:translate key="{ll}field.keywords.description"/></div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label" for="wn-ai-site"><f:translate key="{ll}field.site"/></label>
+                <input type="text" class="form-control" id="wn-ai-site" name="siteIdentifier" value="{form.siteIdentifier}" list="wn-ai-sites" maxlength="128">
+                <datalist id="wn-ai-sites">
+                    <f:for each="{siteIdentifiers}" as="identifier">
+                        <option value="{identifier}"></option>
+                    </f:for>
+                </datalist>
+                <div class="form-text"><f:translate key="{ll}field.site.description"/></div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label class="form-label" for="wn-ai-language"><f:translate key="{ll}field.language"/></label>
+                <input type="number" class="form-control" id="wn-ai-language" name="languageUid" value="{form.languageUid}" min="0" step="1">
+                <div class="form-text"><f:translate key="{ll}field.language.description"/></div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label class="form-label" for="wn-ai-status"><f:translate key="{ll}field.status"/></label>
+                <select class="form-select" id="wn-ai-status" name="status">
+                    <option value="approved"<f:if condition="{form.status} == 'approved'"> selected</f:if>><f:translate key="{ll}status.approved"/></option>
+                    <option value="pending"<f:if condition="{form.status} == 'pending'"> selected</f:if>><f:translate key="{ll}status.pending"/></option>
+                </select>
+                <div class="form-text"><f:translate key="{ll}field.status.description"/></div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><f:translate key="{ll}action.save"/></button>
+            <a href="{moduleUrl}" class="btn btn-default"><f:translate key="{ll}action.cancel"/></a>
+        </div>
+    </form>
+
+    <f:if condition="{form.uid} > 0">
+        <form method="post" action="{moduleUrl}" class="mt-4">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="learningUid" value="{form.uid}">
+            <button type="submit" class="btn btn-sm btn-outline-danger"><f:translate key="{ll}action.delete"/></button>
+        </form>
+    </f:if>
+
+    </div>
+
+</f:section>
+</html>

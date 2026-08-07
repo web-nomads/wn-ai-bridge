@@ -7,7 +7,6 @@ namespace WebNomads\WnAiBridge\Controller;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
 use TYPO3\CMS\Core\Cache\CacheManager;
-use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -131,11 +130,11 @@ class LlmsTxtController
                 $duration = round((microtime(true) - $startTime) * 1000, 2);
                 $renderMode = $isFallback ? 'HTML-Fallback' : 'Default';
                 $now = date('Y-m-d H:i:s');
-                
+
                 $markdown .= "\n--- Debug Information ---\n";
-                $markdown .= "Generated: " . $now . "\n";
-                $markdown .= "Rendering Time: " . $duration . " ms\n";
-                $markdown .= "Rendering Mode: " . $renderMode . "\n";
+                $markdown .= 'Generated: ' . $now . "\n";
+                $markdown .= 'Rendering Time: ' . $duration . " ms\n";
+                $markdown .= 'Rendering Mode: ' . $renderMode . "\n";
             }
 
             // Save to cache if enabled and not in debug mode
@@ -189,7 +188,7 @@ class LlmsTxtController
         }
 
         // Use native TYPO3 CONTENT object rendering
-        // In TYPO3 12, the CONTENT object automatically handles language overlays 
+        // In TYPO3 12, the CONTENT object automatically handles language overlays
         // and filtering if the request is properly set on the ContentObjectRenderer.
         $contentConfiguration = [
             'table' => 'tt_content',
@@ -263,7 +262,7 @@ class LlmsTxtController
         }
 
         $url = $this->urlGenerator->generateHtmlUrl($page);
-        
+
         // Fetch HTML via GeneralUtility::getUrl
         $html = GeneralUtility::getUrl($url);
 
@@ -282,11 +281,11 @@ class LlmsTxtController
             libxml_use_internal_errors(true);
             $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html);
             libxml_clear_errors();
-            
+
             $xpath = new \DOMXPath($dom);
             // Search for element with ID (more reliable than getElementById in some PHP versions without DTD)
             $nodes = $xpath->query('//*[@id="' . $anchor . '"]');
-            
+
             if ($nodes->length > 0) {
                 $element = $nodes->item(0);
                 $html = '';

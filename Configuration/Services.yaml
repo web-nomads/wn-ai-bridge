@@ -6,7 +6,13 @@ services:
 
   WebNomads\WnAiBridge\:
     resource: '../Classes/*'
-    exclude: '../Classes/Domain/Model/*'
+    # Value objects — constructed from data, never injected.
+    exclude:
+      - '../Classes/Domain/Model/*'
+      - '../Classes/Subscription/SubscriptionToken.php'
+      - '../Classes/Subscription/SubscriptionStatus.php'
+      - '../Classes/Subscription/SubscriptionKeyException.php'
+      - '../Classes/Subscription/OnlineCheckResult.php'
 
   # Search providers, highest priority first (dedicated indexes before the
   # dependency-free page/content fallback). The tagged iterator is injected
@@ -34,13 +40,25 @@ services:
   WebNomads\WnAiBridge\Controller\AssistantWidgetController:
     public: true
 
-  WebNomads\WnAiBridge\Controller\Backend\LogModuleController:
+  WebNomads\WnAiBridge\Controller\Backend\EnquiriesModuleController:
     public: true
 
-  WebNomads\WnAiBridge\Controller\Backend\CorrectionsModuleController:
+  WebNomads\WnAiBridge\Controller\Backend\AnswersModuleController:
     public: true
 
   WebNomads\WnAiBridge\Controller\Backend\BotAccessModuleController:
+    public: true
+
+  # The subscription state is resolved once per request and cached in the
+  # service, so it must be a single shared instance. Public so the
+  # GeneralUtility::makeInstance() fallback in ConfigurationService gets that
+  # same instance instead of building a second one.
+  WebNomads\WnAiBridge\Subscription\SubscriptionService:
+    shared: true
+    public: true
+
+  WebNomads\WnAiBridge\Subscription\SubscriptionOnlineCheck:
+    shared: true
     public: true
 
   WebNomads\WnAiBridge\Middleware\RateLimiterMiddleware:
@@ -62,3 +80,9 @@ services:
       - name: 'console.command'
         command: 'ai-bridge:download-markdown'
         description: 'Download TYPO3 pages as Markdown files'
+
+  WebNomads\WnAiBridge\Command\CheckSubscriptionCommand:
+    tags:
+      - name: 'console.command'
+        command: 'ai-bridge:check-subscription'
+        description: 'Verify the subscription key and refresh its status with the issuing server'

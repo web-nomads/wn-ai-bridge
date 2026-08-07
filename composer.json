@@ -1,7 +1,7 @@
 {
     "name": "web-nomads/wn-ai-bridge",
     "type": "typo3-cms-extension",
-    "version": "1.14.1",
+    "version": "1.22.2",
     "description": "TYPO3 extension for generating llms.txt links based on the llmstxt.org specification and an on-site AI search assistant that helps visitors find information via ke_search and indexed_search.",
     "keywords": ["TYPO3", "CMS", "llm", "ai", "crawling", "policy", "search", "assistant", "chatbot"],
     "homepage": "https://github.com/web-nomads/wn-ai-bridge",
@@ -10,10 +10,16 @@
         {
             "name": "Marcel Marty",
             "role": "Developer"
+        },
+        {
+            "name": "web-vision",
+            "role": "Original author of web-vision/ai-llms-txt, from which this extension is derived",
+            "homepage": "https://github.com/web-vision/ai-llms-txt"
         }
     ],
     "require": {
         "php": "^8.2 || ^8.3 || ^8.4",
+        "ext-sodium": "*",
         "league/html-to-markdown": "^5.1",
         "typo3/cms-backend": "^13.4 || ^14.1",
         "typo3/cms-core": "^13.4 || ^14.1",
@@ -56,24 +62,17 @@
 		}
     },
     "scripts": {
-        "test": "./Build/Scripts/runTests.sh",
-        "test:unit": "./Build/Scripts/runTests.sh -s unit",
-        "test:functional": "./Build/Scripts/runTests.sh -s functional",
-        "test:php": "./Build/Scripts/runTests.sh -s lintPhp",
-        "cs:fix": "./Build/Scripts/runTests.sh -s cgl",
-        "cs:check": "./Build/Scripts/runTests.sh -s cgl -n",
-        "stan": "./Build/Scripts/runTests.sh -s phpstan",
-        "stan:baseline": "./Build/Scripts/runTests.sh -s phpstanGenerateBaseline",
-        "docs": "./Build/Scripts/runTests.sh -s renderDocumentation",
-        "ci:test": [
-            "@test:php",
+        "test": "@test:unit",
+        "test:unit": "phpunit --testsuite Unit",
+        "stan": "phpstan analyse --no-progress",
+        "stan:baseline": "phpstan analyse --no-progress --generate-baseline",
+        "cs:check": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix",
+        "release": "Build/Scripts/release.sh",
+        "ci": [
             "@cs:check",
             "@stan",
-            "@test:unit",
-            "@test:functional"
-        ],
-        "fix": [
-            "@cs:fix"
+            "@test:unit"
         ]
     },
     "config": {

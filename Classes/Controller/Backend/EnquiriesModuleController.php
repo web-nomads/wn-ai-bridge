@@ -20,14 +20,18 @@ use WebNomads\WnAiBridge\Domain\Repository\AssistantLogRepository;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
 use WebNomads\WnAiBridge\Service\CostCalculator;
 use WebNomads\WnAiBridge\Service\VisitorInfoService;
+use WebNomads\WnAiBridge\Subscription\SubscriptionService;
 
 /**
  * Backend module: a filterable list of logged assistant questions/answers with
  * a provider and token-usage overview.
  */
-final class LogModuleController
+final class EnquiriesModuleController
 {
-    private const MODULE_NAME = 'wn_ai_bridge_log';
+    private const MODULE_NAME = 'wn_ai_bridge_enquiries';
+
+    /** The module a logged answer can be overridden in. */
+    private const ANSWERS_MODULE_NAME = 'wn_ai_bridge_answers';
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
@@ -37,10 +41,21 @@ final class LogModuleController
         private readonly VisitorInfoService $visitorInfoService,
         private readonly CostCalculator $costCalculator,
         private readonly ViewFactoryInterface $viewFactory,
+        private readonly SubscriptionService $subscriptionService,
     ) {}
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
+        // The module route is already blocked without a subscription; this is the
+        // second line of defence so the log is never reachable by accident.
+        if (!$this->subscriptionService->hasFeature(SubscriptionService::FEATURE_LOG)) {
+            $moduleTemplate = $this->moduleTemplateFactory->create($request);
+            $moduleTemplate->setTitle('AI Assistant Enquiries');
+            $moduleTemplate->assign('subscription', $this->subscriptionService->getStatus());
+
+            return $moduleTemplate->renderResponse('Enquiries/SubscriptionRequired');
+        }
+
         $parsedBody = $request->getParsedBody();
         $params = array_merge($request->getQueryParams(), is_array($parsedBody) ? $parsedBody : []);
 
@@ -73,6 +88,7 @@ final class LogModuleController
         }
 
         $variables = [
+            'subscription' => $this->configurationService->getSubscriptionStatus(),
             'loggingEnabled' => $this->configurationService->isAssistantLoggingEnabled(),
             'tableError' => $tableError,
             'threads' => $threads,
@@ -80,6 +96,7 @@ final class LogModuleController
             'stats' => $stats,
             'providers' => $providers,
             'totalCostChf' => $totalCostChf,
+            'answersModuleUrl' => $this->subscriptionService->hasFeature(SubscriptionService::FEATURE_CORRECTIONS),
             'filter' => $filter->toFormValues(),
             'pagination' => $this->buildPagination($filter, $totalThreads),
             'moduleUrl' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME),
@@ -96,10 +113,10 @@ final class LogModuleController
         $pageRenderer->loadJavaScriptModule('@webnomads/wn-ai-bridge/backend-filter.js');
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $moduleTemplate->setTitle('AI Assistant Log');
+        $moduleTemplate->setTitle('AI Assistant Enquiries');
         $moduleTemplate->assignMultiple($variables);
 
-        return $moduleTemplate->renderResponse('Log/Index');
+        return $moduleTemplate->renderResponse('Enquiries/Index');
     }
 
     /**
@@ -117,7 +134,7 @@ final class LogModuleController
         ));
         $view->assignMultiple($variables);
 
-        return new HtmlResponse($view->render('Log/Results'));
+        return new HtmlResponse($view->render('Enquiries/Results'));
     }
 
     /**
@@ -165,6 +182,7 @@ final class LogModuleController
                     'entry' => $entry,
                     'costChf' => $this->costCalculator->format($turnCost),
                     'answerHtml' => $this->renderAnswerHtml($entry->answer, $entry->sources),
+                    'overrideUrl' => $this->buildOverrideUrl($entry),
                 ];
             }
 
@@ -185,6 +203,31 @@ final class LogModuleController
     }
 
     /**
+     * Link to the "Answers" module with this question and answer filled in, so a
+     * replacement can be written straight from the log.
+     *
+     * Empty when that module is not available — without a subscription covering
+     * it the route is blocked, and offering the link would lead nowhere.
+     */
+    private function buildOverrideUrl(AssistantLogEntry $entry): string
+    {
+        if (!$this->subscriptionService->hasFeature(SubscriptionService::FEATURE_CORRECTIONS)) {
+            return '';
+        }
+
+        try {
+            // Only the id travels: the question and the answer are read back from
+            // the log there, so nothing is truncated by URL length limits.
+            return (string)$this->uriBuilder->buildUriFromRoute(self::ANSWERS_MODULE_NAME, [
+                'new' => 1,
+                'logUid' => $entry->uid,
+            ]);
+        } catch (\Throwable $e) {
+            return '';
+        }
+    }
+
+    /**
      * Render the logged answer as safe HTML for the backend: escape everything,
      * then turn the "[n]" citation markers (and an optional bold page title the
      * model wrote right before one) into links pointing at the suggested page,
@@ -199,7 +242,7 @@ final class LogModuleController
 
         $link = static function (int $number) use ($sources): ?string {
             $source = $sources[$number - 1] ?? null;
-            if ($source === null || ($source['url'] ?? '') === '') {
+            if ($source === null || $source['url'] === '') {
                 return null;
             }
             $title = $source['title'] !== '' ? $source['title'] : $source['url'];

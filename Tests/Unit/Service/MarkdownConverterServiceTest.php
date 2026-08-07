@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionMethod;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
 use WebNomads\WnAiBridge\Service\HtmlCleanerService;
 use WebNomads\WnAiBridge\Service\MarkdownConverterService;
@@ -241,7 +240,7 @@ class MarkdownConverterServiceTest extends TestCase
 
     private function invokeProcessMarkdownUrl(string $url, string $siteUrl): string
     {
-        $method = new ReflectionMethod($this->subject, 'processMarkdownUrl');
+        $method = new \ReflectionMethod($this->subject, 'processMarkdownUrl');
         return $method->invoke($this->subject, $url, $siteUrl);
     }
 }

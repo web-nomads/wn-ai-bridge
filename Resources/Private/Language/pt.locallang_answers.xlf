@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="pt" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_corrections.xlf" date="2026-08-07T12:00:00Z">
+		<header>
+			<description>Language labels for the AI assistant corrections backend module</description>
+		</header>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Answers</source>
+				<target>Respostas</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>AI Assistant Answers</source>
+				<target>Respostas do assistente de IA</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>The answers the assistant gives for questions it recognises. Write your own, take one over from a logged answer, and review the corrections visitors made. An active answer is played back whenever a question matches it in meaning.</source>
+				<target>As respostas que o assistente dá às perguntas que reconhece. Escreva as suas, retome uma resposta registada e reveja as correções feitas pelos visitantes. Uma resposta ativa é apresentada assim que uma pergunta lhe corresponder pelo sentido.</target>
+			</trans-unit>
+			<trans-unit id="module.title">
+				<source>Answers</source>
+				<target>Respostas</target>
+			</trans-unit>
+			<trans-unit id="module.intro">
+				<source>Every answer here replaces what the assistant would have said on its own. Matching is by meaning, so a visitor does not have to use the wording you wrote. New entries can be written here or taken over from a logged answer in the "Enquiries" module; corrections visitors made in the chat arrive below for review.</source>
+				<target>Cada resposta aqui substitui o que o assistente teria dito por si. A correspondência é feita pelo sentido, pelo que um visitante não precisa de usar a sua formulação. As novas entradas podem ser escritas aqui ou retomadas de uma resposta registada no módulo "Pedidos"; as correções feitas pelos visitantes no chat aparecem abaixo para revisão.</target>
+			</trans-unit>
+			<trans-unit id="module.siteSwitchHint">
+				<source>Answers are only used on sites where "Learn from visitor corrections" is switched on in the site configuration.</source>
+				<target>As respostas só são usadas em sites onde "Aprender com as correções dos visitantes" está ativado na configuração do site.</target>
+			</trans-unit>
+			<trans-unit id="module.tableMissing">
+				<source>The answers table does not exist yet. Please run the database schema update (Admin Tools › Maintenance › Analyze Database Structure).</source>
+				<target>A tabela de respostas ainda não existe. Execute a atualização do esquema da base de dados (Ferramentas de administração › Manutenção › Analisar a estrutura da base de dados).</target>
+			</trans-unit>
+			<trans-unit id="subscription.required">
+				<source>This module requires an active subscription.</source>
+				<target>Este módulo requer uma subscrição ativa.</target>
+			</trans-unit>
+			<trans-unit id="pending.title">
+				<source>Visitor corrections awaiting review</source>
+				<target>Correções de visitantes por rever</target>
+			</trans-unit>
+			<trans-unit id="pending.empty">
+				<source>No visitor corrections are waiting for review.</source>
+				<target>Não há correções de visitantes à espera de revisão.</target>
+			</trans-unit>
+			<trans-unit id="approved.title">
+				<source>Active answers</source>
+				<target>Respostas ativas</target>
+			</trans-unit>
+			<trans-unit id="approved.intro">
+				<source>These answers are in use. The assistant plays one back verbatim as soon as a visitor's question matches it closely enough.</source>
+				<target>Estas respostas estão em uso. O assistente apresenta uma delas literalmente assim que a pergunta de um visitante lhe corresponder o suficiente.</target>
+			</trans-unit>
+			<trans-unit id="approved.empty">
+				<source>No active answers yet.</source>
+				<target>Ainda não há respostas ativas.</target>
+			</trans-unit>
+			<trans-unit id="edit.title">
+				<source>Edit answer</source>
+				<target>Editar a resposta</target>
+			</trans-unit>
+			<trans-unit id="new.title">
+				<source>New answer</source>
+				<target>Nova resposta</target>
+			</trans-unit>
+			<trans-unit id="edit.intro">
+				<source>The question is what the entry is matched against, the answer is what the assistant says. Matching is by meaning, so a visitor does not have to use the exact wording.</source>
+				<target>A pergunta é aquilo com que a entrada é comparada, a resposta é o que o assistente diz. A correspondência é feita pelo sentido, pelo que um visitante não precisa de usar a formulação exata.</target>
+			</trans-unit>
+			<trans-unit id="error.answerRequired">
+				<source>Please enter an answer — it is what the assistant will say.</source>
+				<target>Introduza uma resposta — é o que o assistente irá dizer.</target>
+			</trans-unit>
+			<trans-unit id="notice.saved">
+				<source>The answer has been saved.</source>
+				<target>A resposta foi guardada.</target>
+			</trans-unit>
+			<trans-unit id="notice.approved">
+				<source>The correction has been approved and is now in use.</source>
+				<target>A correção foi aprovada e está agora em uso.</target>
+			</trans-unit>
+			<trans-unit id="notice.deleted">
+				<source>The entry has been deleted.</source>
+				<target>A entrada foi eliminada.</target>
+			</trans-unit>
+			<trans-unit id="field.date">
+				<source>Date</source>
+				<target>Data</target>
+			</trans-unit>
+			<trans-unit id="field.topic">
+				<source>Question</source>
+				<target>Pergunta</target>
+			</trans-unit>
+			<trans-unit id="field.question">
+				<source>Question / topic</source>
+				<target>Pergunta / tema</target>
+			</trans-unit>
+			<trans-unit id="field.question.description">
+				<source>The question this entry answers. Visitors may phrase it differently — matching is done by meaning.</source>
+				<target>A pergunta a que esta entrada responde. Os visitantes podem formulá-la de outra forma — a correspondência é feita pelo sentido.</target>
+			</trans-unit>
+			<trans-unit id="field.wrongAnswer">
+				<source>Given answer</source>
+				<target>Resposta dada</target>
+			</trans-unit>
+			<trans-unit id="field.correction">
+				<source>Answer</source>
+				<target>Resposta</target>
+			</trans-unit>
+			<trans-unit id="field.answer">
+				<source>Answer</source>
+				<target>Resposta</target>
+			</trans-unit>
+			<trans-unit id="field.answer.description">
+				<source>Played back to the visitor exactly as written, so phrase it as a complete, self-contained reply.</source>
+				<target>É apresentada ao visitante exatamente como está escrita, por isso formule-a como uma resposta completa e compreensível por si só.</target>
+			</trans-unit>
+			<trans-unit id="field.keywords">
+				<source>Keywords</source>
+				<target>Palavras-chave</target>
+			</trans-unit>
+			<trans-unit id="field.keywords.description">
+				<source>Optional. Leave empty to derive them from the question and answer. Additional keywords widen the range of questions that match.</source>
+				<target>Opcional. Deixe vazio para as deduzir da pergunta e da resposta. Palavras-chave adicionais alargam o leque de perguntas correspondentes.</target>
+			</trans-unit>
+			<trans-unit id="field.site">
+				<source>Site</source>
+				<target>Site</target>
+			</trans-unit>
+			<trans-unit id="field.site.description">
+				<source>Site identifier the entry applies to. Must match the site, otherwise the answer is never used.</source>
+				<target>Identificador do site a que a entrada se aplica. Tem de corresponder ao site, caso contrário a resposta nunca é usada.</target>
+			</trans-unit>
+			<trans-unit id="field.language">
+				<source>Language ID</source>
+				<target>ID do idioma</target>
+			</trans-unit>
+			<trans-unit id="field.language.description">
+				<source>Language of the site the entry applies to (0 = default language).</source>
+				<target>Idioma do site a que a entrada se aplica (0 = idioma predefinido).</target>
+			</trans-unit>
+			<trans-unit id="field.status">
+				<source>Status</source>
+				<target>Estado</target>
+			</trans-unit>
+			<trans-unit id="field.status.description">
+				<source>Only active answers are used by the assistant.</source>
+				<target>O assistente só usa respostas ativas.</target>
+			</trans-unit>
+			<trans-unit id="field.source">
+				<source>Origin</source>
+				<target>Origem</target>
+			</trans-unit>
+			<trans-unit id="status.approved">
+				<source>Active</source>
+				<target>Ativa</target>
+			</trans-unit>
+			<trans-unit id="status.pending">
+				<source>Pending review</source>
+				<target>A aguardar revisão</target>
+			</trans-unit>
+			<trans-unit id="source.manual">
+				<source>Editorial</source>
+				<target>Editorial</target>
+			</trans-unit>
+			<trans-unit id="source.visitor">
+				<source>Visitor</source>
+				<target>Visitante</target>
+			</trans-unit>
+			<trans-unit id="action.approve">
+				<source>Approve</source>
+				<target>Aprovar</target>
+			</trans-unit>
+			<trans-unit id="action.reject">
+				<source>Reject</source>
+				<target>Rejeitar</target>
+			</trans-unit>
+			<trans-unit id="action.revoke">
+				<source>Deactivate</source>
+				<target>Desativar</target>
+			</trans-unit>
+			<trans-unit id="action.edit">
+				<source>Edit</source>
+				<target>Editar</target>
+			</trans-unit>
+			<trans-unit id="action.new">
+				<source>New answer</source>
+				<target>Nova resposta</target>
+			</trans-unit>
+			<trans-unit id="action.save">
+				<source>Save</source>
+				<target>Guardar</target>
+			</trans-unit>
+			<trans-unit id="action.cancel">
+				<source>Cancel</source>
+				<target>Cancelar</target>
+			</trans-unit>
+			<trans-unit id="action.delete">
+				<source>Delete</source>
+				<target>Eliminar</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

@@ -97,7 +97,7 @@ class NavigationBuilder
             if (!empty($item['url'])) {
                 $line = $indent . "- [{$item['title']}]({$item['url']})";
                 if (!empty($item['description']) && $level > 0) {
-                     $line .= ": {$item['description']}";
+                    $line .= ": {$item['description']}";
                 }
                 $lines[] = $line;
             }

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
+use WebNomads\WnAiBridge\Controller\Backend\AnswersModuleController;
 use WebNomads\WnAiBridge\Controller\Backend\BotAccessModuleController;
-use WebNomads\WnAiBridge\Controller\Backend\CorrectionsModuleController;
-use WebNomads\WnAiBridge\Controller\Backend\LogModuleController;
+use WebNomads\WnAiBridge\Controller\Backend\EnquiriesModuleController;
 
 /**
  * Backend module registration.
  *
- * A dedicated top-level "AI Bridge" module group holds three submodules:
- * the assistant log, the visitor-correction moderation and the bot access log.
+ * A dedicated top-level "AI Bridge" module group holds three submodules: the
+ * visitors' enquiries, the curated answers and the bot access log.
  */
 return [
     'wn_ai_bridge' => [
@@ -20,29 +20,35 @@ return [
         'iconIdentifier' => 'wn-ai-bridge-module',
         'position' => ['after' => 'web'],
     ],
-    'wn_ai_bridge_log' => [
+    'wn_ai_bridge_enquiries' => [
         'parent' => 'wn_ai_bridge',
         'access' => 'user',
         'workspaces' => 'live',
         'iconIdentifier' => 'wn-ai-bridge-module',
-        'path' => '/module/wn-ai-bridge/log',
-        'labels' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf',
+        'path' => '/module/wn-ai-bridge/enquiries',
+        // Formerly "wn_ai_bridge_log". The alias keeps backend group permissions
+        // and bookmarks pointing at the old identifier working.
+        'aliases' => ['wn_ai_bridge_log'],
+        'labels' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf',
         'routes' => [
             '_default' => [
-                'target' => LogModuleController::class . '::handleRequest',
+                'target' => EnquiriesModuleController::class . '::handleRequest',
             ],
         ],
     ],
-    'wn_ai_bridge_corrections' => [
+    'wn_ai_bridge_answers' => [
         'parent' => 'wn_ai_bridge',
         'access' => 'user',
         'workspaces' => 'live',
         'iconIdentifier' => 'wn-ai-bridge-module',
-        'path' => '/module/wn-ai-bridge/corrections',
-        'labels' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_corrections.xlf',
+        'path' => '/module/wn-ai-bridge/answers',
+        // Formerly "Corrections". The alias keeps backend group permissions and
+        // bookmarks pointing at the old identifier working.
+        'aliases' => ['wn_ai_bridge_corrections'],
+        'labels' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_answers.xlf',
         'routes' => [
             '_default' => [
-                'target' => CorrectionsModuleController::class . '::handleRequest',
+                'target' => AnswersModuleController::class . '::handleRequest',
             ],
         ],
     ],

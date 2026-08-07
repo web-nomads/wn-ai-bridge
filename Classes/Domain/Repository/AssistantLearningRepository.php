@@ -10,13 +10,23 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WebNomads\WnAiBridge\Domain\Model\AssistantLearning;
 
 /**
- * Storage and retrieval for owner-moderated learning entries (visitor
- * corrections). Written from the frontend request path, moderated in a backend
- * module, and read back (approved only) to enrich future answers.
+ * Storage and retrieval for the local learning source: visitor corrections
+ * captured from the frontend and question/answer pairs maintained in the backend
+ * module. Only approved entries are ever read back into an answer.
+ *
+ * Relevance ranking deliberately lives in {@see \WebNomads\WnAiBridge\Service\LearningService};
+ * this class only bounds the candidate set in SQL so the matching stays portable
+ * across database platforms.
  */
 final class AssistantLearningRepository
 {
     public const TABLE = 'tx_wnaibridge_assistant_learning';
+
+    /**
+     * Upper bound for the approved entries considered for one question. Large
+     * enough for any hand-maintained knowledge base, small enough to stay cheap.
+     */
+    private const CANDIDATE_LIMIT = 300;
 
     private readonly ConnectionPool $connectionPool;
 
@@ -27,24 +37,48 @@ final class AssistantLearningRepository
 
     /**
      * @param array<string, mixed> $data
+     * @return int uid of the created entry
      */
-    public function add(array $data): void
+    public function add(array $data): int
     {
-        $this->connectionPool->getConnectionForTable(self::TABLE)->insert(self::TABLE, $data);
+        $connection = $this->connectionPool->getConnectionForTable(self::TABLE);
+        $connection->insert(self::TABLE, $data);
+
+        return (int)$connection->lastInsertId();
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function update(int $uid, array $data): void
+    {
+        $data['tstamp'] = time();
+        $this->connectionPool->getConnectionForTable(self::TABLE)->update(self::TABLE, $data, ['uid' => $uid]);
     }
 
     public function setStatus(int $uid, string $status): void
     {
-        $this->connectionPool->getConnectionForTable(self::TABLE)->update(
-            self::TABLE,
-            ['status' => $status, 'tstamp' => time()],
-            ['uid' => $uid],
-        );
+        $this->update($uid, ['status' => $status]);
     }
 
     public function delete(int $uid): void
     {
         $this->connectionPool->getConnectionForTable(self::TABLE)->delete(self::TABLE, ['uid' => $uid]);
+    }
+
+    public function findByUid(int $uid): ?AssistantLearning
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder->getRestrictions()->removeAll();
+
+        $row = $queryBuilder
+            ->select('*')
+            ->from(self::TABLE)
+            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)))
+            ->executeQuery()
+            ->fetchAssociative();
+
+        return is_array($row) ? AssistantLearning::fromRow($row) : null;
     }
 
     /**
@@ -81,19 +115,13 @@ final class AssistantLearningRepository
     }
 
     /**
-     * Approved corrections for a site/language whose stored keywords overlap the
-     * given query terms. Matching is a simple keyword-overlap done in PHP so it
-     * stays portable; the candidate set is bounded first in SQL.
+     * All approved entries of a site/language, newest first, as the candidate set
+     * for relevance matching.
      *
-     * @param list<string> $terms
      * @return list<AssistantLearning>
      */
-    public function findApprovedMatching(array $terms, string $siteIdentifier, int $languageUid, int $limit = 3): array
+    public function findApproved(string $siteIdentifier, int $languageUid): array
     {
-        if ($terms === []) {
-            return [];
-        }
-
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $queryBuilder->getRestrictions()->removeAll();
 
@@ -101,37 +129,45 @@ final class AssistantLearningRepository
             ->select('*')
             ->from(self::TABLE)
             ->where(
-                $queryBuilder->expr()->eq('status', $queryBuilder->createNamedParameter(AssistantLearning::STATUS_APPROVED)),
-                $queryBuilder->expr()->eq('site_identifier', $queryBuilder->createNamedParameter($siteIdentifier)),
-                $queryBuilder->expr()->eq('language_uid', $queryBuilder->createNamedParameter($languageUid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq(
+                    'status',
+                    $queryBuilder->createNamedParameter(AssistantLearning::STATUS_APPROVED)
+                ),
+                $queryBuilder->expr()->eq(
+                    'site_identifier',
+                    $queryBuilder->createNamedParameter($siteIdentifier)
+                ),
+                $queryBuilder->expr()->eq(
+                    'language_uid',
+                    $queryBuilder->createNamedParameter($languageUid, Connection::PARAM_INT)
+                ),
             )
             ->orderBy('crdate', 'DESC')
-            ->setMaxResults(200)
+            ->setMaxResults(self::CANDIDATE_LIMIT)
             ->executeQuery()
             ->fetchAllAssociative();
 
-        $scored = [];
-        foreach ($rows as $row) {
-            $keywords = array_filter(explode(' ', mb_strtolower((string)($row['keywords'] ?? ''))));
-            if ($keywords === []) {
-                continue;
-            }
-            $overlap = 0;
-            foreach ($terms as $term) {
-                if (in_array(mb_strtolower($term), $keywords, true)) {
-                    $overlap++;
-                }
-            }
-            if ($overlap > 0) {
-                $scored[] = ['overlap' => $overlap, 'entry' => AssistantLearning::fromRow($row)];
-            }
-        }
+        return array_map(static fn(array $row): AssistantLearning => AssistantLearning::fromRow($row), $rows);
+    }
 
-        usort($scored, static fn(array $a, array $b): int => $b['overlap'] <=> $a['overlap']);
+    /**
+     * Distinct site identifiers that already have entries — used to pre-fill the
+     * site selector in the backend module.
+     *
+     * @return list<string>
+     */
+    public function findDistinctSiteIdentifiers(): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder->getRestrictions()->removeAll();
 
-        return array_map(
-            static fn(array $item): AssistantLearning => $item['entry'],
-            array_slice($scored, 0, $limit),
-        );
+        $rows = $queryBuilder
+            ->selectLiteral('DISTINCT site_identifier')
+            ->from(self::TABLE)
+            ->orderBy('site_identifier', 'ASC')
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        return array_values(array_filter(array_map(strval(...), $rows), static fn(string $v): bool => $v !== ''));
     }
 }

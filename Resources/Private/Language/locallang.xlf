@@ -273,7 +273,7 @@
 				<source>Optional value for this language. Leave empty to use the site-level (default language) value.</source>
 			</trans-unit>
 			<trans-unit id="site.aiAssistantLearning.description">
-				<source>When enabled, a correction a visitor makes to an answer is captured for review in the "AI Assistant Log" backend module. Only corrections you approve are used in future answers (and only when a question thematically matches). Off by default.</source>
+				<source>When enabled, a correction a visitor makes to an answer is captured for review in the "Answers" backend module. Only corrections you approve are used in future answers (and only when a question thematically matches). Off by default.</source>
 			</trans-unit>
 			<trans-unit id="site.aiAssistantSearchPid">
 				<source>Search Root Page</source>

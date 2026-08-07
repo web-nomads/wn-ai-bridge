@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="pt" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf" date="2026-08-07T12:00:00Z">
+		<header>
+			<description>Language labels for the AI assistant log backend module</description>
+		</header>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Enquiries</source>
+				<target>Pedidos</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>Enquiries</source>
+				<target>Pedidos ao assistente de IA</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>What visitors asked the AI search assistant and what it answered. Filterable, with provider, token usage and estimated cost.</source>
+				<target>O que os visitantes perguntaram ao assistente de pesquisa de IA e o que ele respondeu. Filtrável, com fornecedor, consumo de tokens e custo estimado.</target>
+			</trans-unit>
+			<trans-unit id="module.title">
+				<source>Enquiries</source>
+				<target>Pedidos</target>
+			</trans-unit>
+			<trans-unit id="thread.overrideAnswer">
+				<source>Define a different answer</source>
+				<target>Definir outra resposta</target>
+			</trans-unit>
+			<trans-unit id="subscription.required">
+				<source>This module requires an active subscription.</source>
+				<target>Este módulo requer uma subscrição ativa.</target>
+			</trans-unit>
+			<trans-unit id="module.loggingDisabled">
+				<source>Logging is currently disabled. Enable "Log inputs and answers" in the extension configuration to record new interactions. Existing entries are still shown below.</source>
+				<target>O registo está atualmente desativado. Ative "Registar perguntas e respostas" na configuração da extensão para registar novas interações. As entradas existentes continuam visíveis abaixo.</target>
+			</trans-unit>
+			<trans-unit id="module.tableMissing">
+				<source>The log table does not exist yet. Please run the database schema update (Admin Tools › Maintenance › Analyze Database Structure).</source>
+				<target>A tabela de registo ainda não existe. Execute a atualização do esquema da base de dados (Ferramentas de administração › Manutenção › Analisar a estrutura da base de dados).</target>
+			</trans-unit>
+			<trans-unit id="stats.total">
+				<source>Interactions</source>
+				<target>Interações</target>
+			</trans-unit>
+			<trans-unit id="stats.llm">
+				<source>LLM answers</source>
+				<target>Respostas do LLM</target>
+			</trans-unit>
+			<trans-unit id="stats.search">
+				<source>Search-only</source>
+				<target>Apenas pesquisa</target>
+			</trans-unit>
+			<trans-unit id="stats.tokens">
+				<source>Tokens (in / out / total)</source>
+				<target>Tokens (entrada / saída / total)</target>
+			</trans-unit>
+			<trans-unit id="stats.byProvider">
+				<source>By provider</source>
+				<target>Por fornecedor</target>
+			</trans-unit>
+			<trans-unit id="stats.cost">
+				<source>Estimated cost</source>
+				<target>Custo estimado</target>
+			</trans-unit>
+			<trans-unit id="filter.heading">
+				<source>Filter</source>
+				<target>Filtro</target>
+			</trans-unit>
+			<trans-unit id="filter.dateFrom">
+				<source>From</source>
+				<target>De</target>
+			</trans-unit>
+			<trans-unit id="filter.dateTo">
+				<source>To</source>
+				<target>Até</target>
+			</trans-unit>
+			<trans-unit id="filter.ip">
+				<source>IP address</source>
+				<target>Endereço IP</target>
+			</trans-unit>
+			<trans-unit id="filter.provider">
+				<source>Provider</source>
+				<target>Fornecedor</target>
+			</trans-unit>
+			<trans-unit id="filter.mode">
+				<source>Mode</source>
+				<target>Modo</target>
+			</trans-unit>
+			<trans-unit id="filter.search">
+				<source>Search text</source>
+				<target>Texto a pesquisar</target>
+			</trans-unit>
+			<trans-unit id="filter.apply">
+				<source>Apply</source>
+				<target>Aplicar</target>
+			</trans-unit>
+			<trans-unit id="filter.reset">
+				<source>Reset</source>
+				<target>Repor</target>
+			</trans-unit>
+			<trans-unit id="filter.all">
+				<source>All</source>
+				<target>Todos</target>
+			</trans-unit>
+			<trans-unit id="table.date">
+				<source>Date</source>
+				<target>Data</target>
+			</trans-unit>
+			<trans-unit id="table.ip">
+				<source>IP</source>
+				<target>IP</target>
+			</trans-unit>
+			<trans-unit id="table.question">
+				<source>Question</source>
+				<target>Pergunta</target>
+			</trans-unit>
+			<trans-unit id="table.answer">
+				<source>Answer</source>
+				<target>Resposta</target>
+			</trans-unit>
+			<trans-unit id="table.mode">
+				<source>Mode</source>
+				<target>Modo</target>
+			</trans-unit>
+			<trans-unit id="table.provider">
+				<source>Provider</source>
+				<target>Fornecedor</target>
+			</trans-unit>
+			<trans-unit id="table.model">
+				<source>Model</source>
+				<target>Modelo</target>
+			</trans-unit>
+			<trans-unit id="table.tokens">
+				<source>Tokens</source>
+				<target>Tokens</target>
+			</trans-unit>
+			<trans-unit id="table.empty">
+				<source>No log entries found for the current filter.</source>
+				<target>Não foram encontradas entradas de registo para o filtro atual.</target>
+			</trans-unit>
+			<trans-unit id="table.open">
+				<source>Open thread</source>
+				<target>Abrir a conversa</target>
+			</trans-unit>
+			<trans-unit id="thread.heading">
+				<source>Conversation thread</source>
+				<target>Conversa</target>
+			</trans-unit>
+			<trans-unit id="thread.back">
+				<source>Back to list</source>
+				<target>Voltar à lista</target>
+			</trans-unit>
+			<trans-unit id="thread.turns">
+				<source>Turns</source>
+				<target>Intervenções</target>
+			</trans-unit>
+			<trans-unit id="thread.question">
+				<source>Question</source>
+				<target>Pergunta</target>
+			</trans-unit>
+			<trans-unit id="thread.answer">
+				<source>Answer</source>
+				<target>Resposta</target>
+			</trans-unit>
+			<trans-unit id="thread.sources">
+				<source>Suggested pages</source>
+				<target>Páginas sugeridas</target>
+			</trans-unit>
+			<trans-unit id="thread.empty">
+				<source>This log entry could not be found (it may have been deleted).</source>
+				<target>Esta entrada de registo não foi encontrada (pode ter sido eliminada).</target>
+			</trans-unit>
+			<trans-unit id="learning.pendingTitle">
+				<source>Visitor corrections awaiting review</source>
+				<target>Correções de visitantes por rever</target>
+			</trans-unit>
+			<trans-unit id="learning.pendingHint">
+				<source>A visitor corrected an answer. Approve a correction to use it as a known hint in future answers (only when a question thematically matches), or reject it to discard.</source>
+				<target>Um visitante corrigiu uma resposta. Aprove uma correção para a usar como indicação confirmada em respostas futuras (apenas quando uma pergunta corresponder ao tema), ou rejeite-a para a descartar.</target>
+			</trans-unit>
+			<trans-unit id="learning.topic">
+				<source>Topic</source>
+				<target>Tema</target>
+			</trans-unit>
+			<trans-unit id="learning.wrongAnswer">
+				<source>Given answer</source>
+				<target>Resposta dada</target>
+			</trans-unit>
+			<trans-unit id="learning.correction">
+				<source>Correction</source>
+				<target>Correção</target>
+			</trans-unit>
+			<trans-unit id="learning.approve">
+				<source>Approve</source>
+				<target>Aprovar</target>
+			</trans-unit>
+			<trans-unit id="learning.reject">
+				<source>Reject</source>
+				<target>Rejeitar</target>
+			</trans-unit>
+			<trans-unit id="visitor.local">
+				<source>local / internal</source>
+				<target>local / interno</target>
+			</trans-unit>
+			<trans-unit id="action.clear">
+				<source>Clear log</source>
+				<target>Limpar o registo</target>
+			</trans-unit>
+			<trans-unit id="action.clearConfirm">
+				<source>Delete all log entries? This cannot be undone.</source>
+				<target>Eliminar todas as entradas do registo? Esta ação não pode ser anulada.</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

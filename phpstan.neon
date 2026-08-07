@@ -1,0 +1,18 @@
+# Level 6 on purpose: level 4 does not check the argument types handed to
+# Doctrine's query builder, which is where a wrong parameter type slips through
+# unnoticed until it fails at runtime.
+includes:
+    # 32 findings that predate this configuration — 31 missing array value types
+    # and one redundant ternary. Parked so the analysis runs green and anything
+    # new stands out; the file is meant to shrink, not to grow.
+    - phpstan-baseline.neon
+
+parameters:
+    level: 6
+    paths:
+        - Classes
+        - Tests
+    excludePaths:
+        analyseAndScan:
+            - .Build
+            - var

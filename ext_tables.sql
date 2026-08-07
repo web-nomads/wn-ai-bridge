@@ -32,8 +32,10 @@ CREATE TABLE tx_wnaibridge_assistant_log (
 );
 
 #
-# Owner-moderated "learning" from visitor corrections. A detected correction is
-# stored as "pending" and only used once an editor has approved it.
+# Owner-moderated "learning" from visitor corrections, and manually maintained
+# question/answer pairs. A detected correction is stored as "pending" and only
+# used once an editor has approved it; entries created in the backend are
+# approved right away.
 #
 CREATE TABLE tx_wnaibridge_assistant_learning (
     uid int(11) unsigned NOT NULL auto_increment,
@@ -43,6 +45,7 @@ CREATE TABLE tx_wnaibridge_assistant_learning (
     site_identifier varchar(128) DEFAULT '' NOT NULL,
     language_uid int(11) DEFAULT '0' NOT NULL,
     status varchar(16) DEFAULT 'pending' NOT NULL,
+    source varchar(16) DEFAULT 'visitor' NOT NULL,
     topic mediumtext,
     wrong_answer mediumtext,
     correction mediumtext,

@@ -6,12 +6,12 @@ namespace WebNomads\WnAiBridge\Tests\Unit\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use WebNomads\WnAiBridge\Domain\Repository\AssistantLearningRepository;
 use WebNomads\WnAiBridge\Dto\SearchResultItem;
 use WebNomads\WnAiBridge\Llm\LlmClientInterface;
 use WebNomads\WnAiBridge\Llm\LlmException;
 use WebNomads\WnAiBridge\Llm\LlmResult;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use WebNomads\WnAiBridge\Domain\Repository\AssistantLearningRepository;
 use WebNomads\WnAiBridge\Search\SearchProviderInterface;
 use WebNomads\WnAiBridge\Search\SearchService;
 use WebNomads\WnAiBridge\Service\AssistantService;

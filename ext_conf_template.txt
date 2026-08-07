@@ -1,3 +1,15 @@
+# cat=subscription; type=string; label=Subscription-Key: Der von WebNomads zugestellte Lizenzschlüssel. Er ist verschlüsselt und signiert und enthält die zulässigen Domains sowie das Ablaufdatum. Ohne gültigen Key sind der Chatbot und die Backend-Module "AI Assistant Log" und "Corrections" deaktiviert
+subscriptionKey =
+
+# cat=subscription; type=string; label=Öffentlicher Prüfschlüssel (optional): Nur ausfüllen, wenn WebNomads ein neues Schlüsselpaar ausgerollt hat. Leer lassen, um den in der Erweiterung hinterlegten Standardschlüssel zu verwenden
+subscriptionPublicKey =
+
+# cat=subscription; type=boolean; label=Täglicher Online-Check: Fragt einmal pro Tag beim Ausstellungsserver nach, ob die Subscription noch aktiv ist, damit ein Widerruf sofort wirkt. Die Abfrage erfolgt nur im Backend und per CLI, niemals in einer Besucher-Anfrage. Ist der Server nicht erreichbar, bleibt der Key anhand seines Ablaufdatums gültig
+subscriptionOnlineCheck = 1
+
+# cat=subscription; type=string; label=Ausstellungsserver (optional): Basis-URL für den Online-Check, z. B. https://www.webnomads.ch. Leer lassen, um die im Key hinterlegte Adresse zu verwenden
+subscriptionServerUrl =
+
 # cat=basic; type=boolean; label=Parsing-Fallback: HTML
 parsingFallbackHtml = 0
 

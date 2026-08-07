@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace WebNomads\WnAiBridge\Service;
 
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use WebNomads\WnAiBridge\Subscription\SubscriptionService;
+use WebNomads\WnAiBridge\Subscription\SubscriptionStatus;
 
 class ConfigurationService
 {
@@ -22,10 +23,14 @@ class ConfigurationService
 
     private readonly SiteFinder $siteFinder;
 
+    private readonly SubscriptionService $subscriptionService;
+
     public function __construct(
-        ?SiteFinder $siteFinder = null
+        ?SiteFinder $siteFinder = null,
+        ?SubscriptionService $subscriptionService = null
     ) {
         $this->siteFinder = $siteFinder ?? GeneralUtility::makeInstance(SiteFinder::class);
+        $this->subscriptionService = $subscriptionService ?? GeneralUtility::makeInstance(SubscriptionService::class);
     }
 
     public function setRequest(ServerRequestInterface $request): void
@@ -67,7 +72,7 @@ class ConfigurationService
     public function getCurrentPageId(): int
     {
         $request = $this->getRequest();
-        
+
         // Try to get page ID from request attribute first (standard for v12/v13/v14)
         $pageInformation = $request->getAttribute('frontend.page.information');
         if ($pageInformation instanceof \TYPO3\CMS\Frontend\Page\PageInformation) {
@@ -255,12 +260,27 @@ class ConfigurationService
     }
 
     /**
-     * Whether the assistant is active for the current site: requires both the
-     * global master switch and the per-site toggle (defaults to on when the
-     * global switch is set, so a single global flag is enough to get started).
+     * The current subscription status. Everything the subscription covers (chat
+     * bot, log module, corrections) is gated on this; llms.txt and the Markdown
+     * export are unaffected and keep working without a key.
+     */
+    public function getSubscriptionStatus(): SubscriptionStatus
+    {
+        return $this->subscriptionService->getStatus();
+    }
+
+    /**
+     * Whether the assistant is active for the current site: requires a valid
+     * subscription covering the chat bot, the global master switch and the
+     * per-site toggle (which defaults to on, so a single global flag is enough to
+     * get started).
      */
     public function isAssistantEnabledForCurrentSite(): bool
     {
+        if (!$this->subscriptionService->hasFeature(SubscriptionService::FEATURE_CHATBOT)) {
+            return false;
+        }
+
         if (!$this->isAssistantEnabled()) {
             return false;
         }
@@ -372,14 +392,18 @@ class ConfigurationService
     }
 
     /**
-     * Whether the assistant captures visitor corrections for owner-moderated
-     * learning on the current site. Configured per site in the Site settings and
-     * off by default. When on, a detected correction is stored as "pending" for
-     * review in the backend; only approved corrections are fed back into future
-     * answers (and only when the question thematically matches).
+     * Whether the assistant uses its local learning source on the current site.
+     * Requires a subscription covering corrections and the per-site switch in the
+     * Site settings (off by default). When on, a detected correction is stored as
+     * "pending" for review in the backend; only approved entries are played back
+     * into future answers, and only when the question matches them in meaning.
      */
     public function isAssistantLearningEnabled(): bool
     {
+        if (!$this->subscriptionService->hasFeature(SubscriptionService::FEATURE_CORRECTIONS)) {
+            return false;
+        }
+
         try {
             $site = $this->getCurrentSite();
             return $site instanceof Site && (bool)($site->getConfiguration()['aiAssistantLearning'] ?? false);

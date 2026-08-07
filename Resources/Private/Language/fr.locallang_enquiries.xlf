@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="fr" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf" date="2026-08-07T12:00:00Z">
+		<header>
+			<description>Language labels for the AI assistant log backend module</description>
+		</header>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Enquiries</source>
+				<target>Demandes</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>Enquiries</source>
+				<target>Demandes à l'assistant IA</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>What visitors asked the AI search assistant and what it answered. Filterable, with provider, token usage and estimated cost.</source>
+				<target>Ce que les visiteurs ont demandé à l'assistant de recherche IA et ce qu'il a répondu. Filtrable, avec le fournisseur, la consommation de jetons et le coût estimé.</target>
+			</trans-unit>
+			<trans-unit id="module.title">
+				<source>Enquiries</source>
+				<target>Demandes</target>
+			</trans-unit>
+			<trans-unit id="thread.overrideAnswer">
+				<source>Define a different answer</source>
+				<target>Définir une autre réponse</target>
+			</trans-unit>
+			<trans-unit id="subscription.required">
+				<source>This module requires an active subscription.</source>
+				<target>Ce module nécessite un abonnement actif.</target>
+			</trans-unit>
+			<trans-unit id="module.loggingDisabled">
+				<source>Logging is currently disabled. Enable "Log inputs and answers" in the extension configuration to record new interactions. Existing entries are still shown below.</source>
+				<target>L'enregistrement est actuellement désactivé. Activez « Enregistrer les saisies et les réponses » dans la configuration de l'extension pour enregistrer les nouvelles interactions. Les entrées existantes restent affichées ci-dessous.</target>
+			</trans-unit>
+			<trans-unit id="module.tableMissing">
+				<source>The log table does not exist yet. Please run the database schema update (Admin Tools › Maintenance › Analyze Database Structure).</source>
+				<target>La table du journal n'existe pas encore. Veuillez lancer la mise à jour du schéma de base de données (Outils d'administration › Maintenance › Analyser la structure de la base de données).</target>
+			</trans-unit>
+			<trans-unit id="stats.total">
+				<source>Interactions</source>
+				<target>Interactions</target>
+			</trans-unit>
+			<trans-unit id="stats.llm">
+				<source>LLM answers</source>
+				<target>Réponses du LLM</target>
+			</trans-unit>
+			<trans-unit id="stats.search">
+				<source>Search-only</source>
+				<target>Recherche seule</target>
+			</trans-unit>
+			<trans-unit id="stats.tokens">
+				<source>Tokens (in / out / total)</source>
+				<target>Jetons (entrée / sortie / total)</target>
+			</trans-unit>
+			<trans-unit id="stats.byProvider">
+				<source>By provider</source>
+				<target>Par fournisseur</target>
+			</trans-unit>
+			<trans-unit id="stats.cost">
+				<source>Estimated cost</source>
+				<target>Coût estimé</target>
+			</trans-unit>
+			<trans-unit id="filter.heading">
+				<source>Filter</source>
+				<target>Filtre</target>
+			</trans-unit>
+			<trans-unit id="filter.dateFrom">
+				<source>From</source>
+				<target>Du</target>
+			</trans-unit>
+			<trans-unit id="filter.dateTo">
+				<source>To</source>
+				<target>Au</target>
+			</trans-unit>
+			<trans-unit id="filter.ip">
+				<source>IP address</source>
+				<target>Adresse IP</target>
+			</trans-unit>
+			<trans-unit id="filter.provider">
+				<source>Provider</source>
+				<target>Fournisseur</target>
+			</trans-unit>
+			<trans-unit id="filter.mode">
+				<source>Mode</source>
+				<target>Mode</target>
+			</trans-unit>
+			<trans-unit id="filter.search">
+				<source>Search text</source>
+				<target>Texte recherché</target>
+			</trans-unit>
+			<trans-unit id="filter.apply">
+				<source>Apply</source>
+				<target>Appliquer</target>
+			</trans-unit>
+			<trans-unit id="filter.reset">
+				<source>Reset</source>
+				<target>Réinitialiser</target>
+			</trans-unit>
+			<trans-unit id="filter.all">
+				<source>All</source>
+				<target>Tous</target>
+			</trans-unit>
+			<trans-unit id="table.date">
+				<source>Date</source>
+				<target>Date</target>
+			</trans-unit>
+			<trans-unit id="table.ip">
+				<source>IP</source>
+				<target>IP</target>
+			</trans-unit>
+			<trans-unit id="table.question">
+				<source>Question</source>
+				<target>Question</target>
+			</trans-unit>
+			<trans-unit id="table.answer">
+				<source>Answer</source>
+				<target>Réponse</target>
+			</trans-unit>
+			<trans-unit id="table.mode">
+				<source>Mode</source>
+				<target>Mode</target>
+			</trans-unit>
+			<trans-unit id="table.provider">
+				<source>Provider</source>
+				<target>Fournisseur</target>
+			</trans-unit>
+			<trans-unit id="table.model">
+				<source>Model</source>
+				<target>Modèle</target>
+			</trans-unit>
+			<trans-unit id="table.tokens">
+				<source>Tokens</source>
+				<target>Jetons</target>
+			</trans-unit>
+			<trans-unit id="table.empty">
+				<source>No log entries found for the current filter.</source>
+				<target>Aucune entrée de journal trouvée pour le filtre actuel.</target>
+			</trans-unit>
+			<trans-unit id="table.open">
+				<source>Open thread</source>
+				<target>Ouvrir la conversation</target>
+			</trans-unit>
+			<trans-unit id="thread.heading">
+				<source>Conversation thread</source>
+				<target>Fil de conversation</target>
+			</trans-unit>
+			<trans-unit id="thread.back">
+				<source>Back to list</source>
+				<target>Retour à la liste</target>
+			</trans-unit>
+			<trans-unit id="thread.turns">
+				<source>Turns</source>
+				<target>Échanges</target>
+			</trans-unit>
+			<trans-unit id="thread.question">
+				<source>Question</source>
+				<target>Question</target>
+			</trans-unit>
+			<trans-unit id="thread.answer">
+				<source>Answer</source>
+				<target>Réponse</target>
+			</trans-unit>
+			<trans-unit id="thread.sources">
+				<source>Suggested pages</source>
+				<target>Pages suggérées</target>
+			</trans-unit>
+			<trans-unit id="thread.empty">
+				<source>This log entry could not be found (it may have been deleted).</source>
+				<target>Cette entrée de journal est introuvable (elle a peut-être été supprimée).</target>
+			</trans-unit>
+			<trans-unit id="learning.pendingTitle">
+				<source>Visitor corrections awaiting review</source>
+				<target>Corrections de visiteurs à examiner</target>
+			</trans-unit>
+			<trans-unit id="learning.pendingHint">
+				<source>A visitor corrected an answer. Approve a correction to use it as a known hint in future answers (only when a question thematically matches), or reject it to discard.</source>
+				<target>Un visiteur a corrigé une réponse. Approuvez une correction pour l'utiliser comme indication confirmée dans les réponses futures (uniquement si une question correspond thématiquement), ou rejetez-la pour l'écarter.</target>
+			</trans-unit>
+			<trans-unit id="learning.topic">
+				<source>Topic</source>
+				<target>Sujet</target>
+			</trans-unit>
+			<trans-unit id="learning.wrongAnswer">
+				<source>Given answer</source>
+				<target>Réponse donnée</target>
+			</trans-unit>
+			<trans-unit id="learning.correction">
+				<source>Correction</source>
+				<target>Correction</target>
+			</trans-unit>
+			<trans-unit id="learning.approve">
+				<source>Approve</source>
+				<target>Approuver</target>
+			</trans-unit>
+			<trans-unit id="learning.reject">
+				<source>Reject</source>
+				<target>Rejeter</target>
+			</trans-unit>
+			<trans-unit id="visitor.local">
+				<source>local / internal</source>
+				<target>local / interne</target>
+			</trans-unit>
+			<trans-unit id="action.clear">
+				<source>Clear log</source>
+				<target>Vider le journal</target>
+			</trans-unit>
+			<trans-unit id="action.clearConfirm">
+				<source>Delete all log entries? This cannot be undone.</source>
+				<target>Supprimer toutes les entrées du journal ? Cette action est irréversible.</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

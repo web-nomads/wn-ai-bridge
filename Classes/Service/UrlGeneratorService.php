@@ -96,7 +96,7 @@ class UrlGeneratorService
                 '',
                 \TYPO3\CMS\Core\Routing\RouterInterface::ABSOLUTE_URL
             );
-            
+
             if (str_starts_with($rootUri, '/')) {
                 $rootUri = $this->configurationService->getSiteUrl() . $rootUri;
             }
@@ -105,9 +105,9 @@ class UrlGeneratorService
             // This ensures we get the localized slug segment without language prefixes.
             $rootPath = parse_url($rootUri, PHP_URL_PATH) ?: '/';
             $pagePath = parse_url($uri, PHP_URL_PATH) ?: '/';
-            
+
             $anchor = trim(str_replace($rootPath, '', $pagePath), '/');
-            
+
             if ($anchor !== '') {
                 return rtrim($rootUri, '/') . '/#' . $anchor;
             }

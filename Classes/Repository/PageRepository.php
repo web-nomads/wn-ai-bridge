@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace WebNomads\WnAiBridge\Repository;
 
 use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Context\LanguageAspect;
 use TYPO3\CMS\Core\Context\LanguageAspectFactory;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -117,7 +116,7 @@ class PageRepository
                     return $this->mapRowToPageArray($localizedPage);
                 }
             }
-            
+
             // Final fallback: return the page we found first
             return $this->mapRowToPageArray($page);
         }

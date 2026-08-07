@@ -144,7 +144,7 @@ final class RateLimiterMiddleware implements MiddlewareInterface
 
         $response->getBody()->write(
             "429 Too Many Requests\n\n"
-            . "Rate limit exceeded. Please retry after " . $status->retryAfter . " seconds.\n"
+            . 'Rate limit exceeded. Please retry after ' . $status->retryAfter . " seconds.\n"
         );
 
         return $response;

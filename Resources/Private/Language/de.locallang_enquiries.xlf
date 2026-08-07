@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="de" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf" date="2026-08-07T12:00:00Z">
+		<header>
+			<description>Language labels for the AI assistant log backend module</description>
+		</header>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Enquiries</source>
+				<target>Anfragen</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>Enquiries</source>
+				<target>Anfragen an den KI-Assistenten</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>What visitors asked the AI search assistant and what it answered. Filterable, with provider, token usage and estimated cost.</source>
+				<target>Was Besucher den KI-Suchassistenten gefragt haben und was er geantwortet hat. Filterbar, mit Anbieter, Token-Verbrauch und geschätzten Kosten.</target>
+			</trans-unit>
+			<trans-unit id="module.title">
+				<source>Enquiries</source>
+				<target>Anfragen</target>
+			</trans-unit>
+			<trans-unit id="thread.overrideAnswer">
+				<source>Define a different answer</source>
+				<target>Andere Antwort festlegen</target>
+			</trans-unit>
+			<trans-unit id="subscription.required">
+				<source>This module requires an active subscription.</source>
+				<target>Dieses Modul benötigt eine aktive Subscription.</target>
+			</trans-unit>
+			<trans-unit id="module.loggingDisabled">
+				<source>Logging is currently disabled. Enable "Log inputs and answers" in the extension configuration to record new interactions. Existing entries are still shown below.</source>
+				<target>Die Protokollierung ist derzeit ausgeschaltet. Aktivieren Sie "Eingaben und Antworten loggen" in der Erweiterungskonfiguration, um neue Interaktionen zu erfassen. Vorhandene Einträge werden weiterhin angezeigt.</target>
+			</trans-unit>
+			<trans-unit id="module.tableMissing">
+				<source>The log table does not exist yet. Please run the database schema update (Admin Tools › Maintenance › Analyze Database Structure).</source>
+				<target>Die Protokolltabelle existiert noch nicht. Bitte führen Sie die Datenbankaktualisierung durch (Admin-Werkzeuge › Wartung › Datenbankstruktur analysieren).</target>
+			</trans-unit>
+			<trans-unit id="stats.total">
+				<source>Interactions</source>
+				<target>Interaktionen</target>
+			</trans-unit>
+			<trans-unit id="stats.llm">
+				<source>LLM answers</source>
+				<target>LLM-Antworten</target>
+			</trans-unit>
+			<trans-unit id="stats.search">
+				<source>Search-only</source>
+				<target>Nur Suche</target>
+			</trans-unit>
+			<trans-unit id="stats.tokens">
+				<source>Tokens (in / out / total)</source>
+				<target>Tokens (ein / aus / gesamt)</target>
+			</trans-unit>
+			<trans-unit id="stats.byProvider">
+				<source>By provider</source>
+				<target>Nach Anbieter</target>
+			</trans-unit>
+			<trans-unit id="stats.cost">
+				<source>Estimated cost</source>
+				<target>Geschätzte Kosten</target>
+			</trans-unit>
+			<trans-unit id="filter.heading">
+				<source>Filter</source>
+				<target>Filter</target>
+			</trans-unit>
+			<trans-unit id="filter.dateFrom">
+				<source>From</source>
+				<target>Von</target>
+			</trans-unit>
+			<trans-unit id="filter.dateTo">
+				<source>To</source>
+				<target>Bis</target>
+			</trans-unit>
+			<trans-unit id="filter.ip">
+				<source>IP address</source>
+				<target>IP-Adresse</target>
+			</trans-unit>
+			<trans-unit id="filter.provider">
+				<source>Provider</source>
+				<target>Anbieter</target>
+			</trans-unit>
+			<trans-unit id="filter.mode">
+				<source>Mode</source>
+				<target>Modus</target>
+			</trans-unit>
+			<trans-unit id="filter.search">
+				<source>Search text</source>
+				<target>Suchtext</target>
+			</trans-unit>
+			<trans-unit id="filter.apply">
+				<source>Apply</source>
+				<target>Anwenden</target>
+			</trans-unit>
+			<trans-unit id="filter.reset">
+				<source>Reset</source>
+				<target>Zurücksetzen</target>
+			</trans-unit>
+			<trans-unit id="filter.all">
+				<source>All</source>
+				<target>Alle</target>
+			</trans-unit>
+			<trans-unit id="table.date">
+				<source>Date</source>
+				<target>Datum</target>
+			</trans-unit>
+			<trans-unit id="table.ip">
+				<source>IP</source>
+				<target>IP</target>
+			</trans-unit>
+			<trans-unit id="table.question">
+				<source>Question</source>
+				<target>Frage</target>
+			</trans-unit>
+			<trans-unit id="table.answer">
+				<source>Answer</source>
+				<target>Antwort</target>
+			</trans-unit>
+			<trans-unit id="table.mode">
+				<source>Mode</source>
+				<target>Modus</target>
+			</trans-unit>
+			<trans-unit id="table.provider">
+				<source>Provider</source>
+				<target>Anbieter</target>
+			</trans-unit>
+			<trans-unit id="table.model">
+				<source>Model</source>
+				<target>Modell</target>
+			</trans-unit>
+			<trans-unit id="table.tokens">
+				<source>Tokens</source>
+				<target>Tokens</target>
+			</trans-unit>
+			<trans-unit id="table.empty">
+				<source>No log entries found for the current filter.</source>
+				<target>Für den aktuellen Filter wurden keine Protokolleinträge gefunden.</target>
+			</trans-unit>
+			<trans-unit id="table.open">
+				<source>Open thread</source>
+				<target>Verlauf öffnen</target>
+			</trans-unit>
+			<trans-unit id="thread.heading">
+				<source>Conversation thread</source>
+				<target>Gesprächsverlauf</target>
+			</trans-unit>
+			<trans-unit id="thread.back">
+				<source>Back to list</source>
+				<target>Zurück zur Liste</target>
+			</trans-unit>
+			<trans-unit id="thread.turns">
+				<source>Turns</source>
+				<target>Beiträge</target>
+			</trans-unit>
+			<trans-unit id="thread.question">
+				<source>Question</source>
+				<target>Frage</target>
+			</trans-unit>
+			<trans-unit id="thread.answer">
+				<source>Answer</source>
+				<target>Antwort</target>
+			</trans-unit>
+			<trans-unit id="thread.sources">
+				<source>Suggested pages</source>
+				<target>Vorgeschlagene Seiten</target>
+			</trans-unit>
+			<trans-unit id="thread.empty">
+				<source>This log entry could not be found (it may have been deleted).</source>
+				<target>Dieser Protokolleintrag wurde nicht gefunden (möglicherweise wurde er gelöscht).</target>
+			</trans-unit>
+			<trans-unit id="learning.pendingTitle">
+				<source>Visitor corrections awaiting review</source>
+				<target>Besucherkorrekturen zur Prüfung</target>
+			</trans-unit>
+			<trans-unit id="learning.pendingHint">
+				<source>A visitor corrected an answer. Approve a correction to use it as a known hint in future answers (only when a question thematically matches), or reject it to discard.</source>
+				<target>Ein Besucher hat eine Antwort korrigiert. Genehmigen Sie eine Korrektur, um sie in künftigen Antworten als bestätigten Hinweis zu verwenden (nur wenn eine Frage thematisch passt), oder lehnen Sie sie ab.</target>
+			</trans-unit>
+			<trans-unit id="learning.topic">
+				<source>Topic</source>
+				<target>Thema</target>
+			</trans-unit>
+			<trans-unit id="learning.wrongAnswer">
+				<source>Given answer</source>
+				<target>Gegebene Antwort</target>
+			</trans-unit>
+			<trans-unit id="learning.correction">
+				<source>Correction</source>
+				<target>Korrektur</target>
+			</trans-unit>
+			<trans-unit id="learning.approve">
+				<source>Approve</source>
+				<target>Genehmigen</target>
+			</trans-unit>
+			<trans-unit id="learning.reject">
+				<source>Reject</source>
+				<target>Ablehnen</target>
+			</trans-unit>
+			<trans-unit id="visitor.local">
+				<source>local / internal</source>
+				<target>lokal / intern</target>
+			</trans-unit>
+			<trans-unit id="action.clear">
+				<source>Clear log</source>
+				<target>Protokoll leeren</target>
+			</trans-unit>
+			<trans-unit id="action.clearConfirm">
+				<source>Delete all log entries? This cannot be undone.</source>
+				<target>Alle Protokolleinträge löschen? Das lässt sich nicht rückgängig machen.</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

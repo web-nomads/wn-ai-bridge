@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-	<file source-language="en" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_module.xlf" date="2026-07-17T12:00:00Z">
+	<file source-language="en" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf" date="2026-07-17T12:00:00Z">
 		<header>
 			<description>Language labels for the AI assistant log backend module</description>
 		</header>
 		<body>
 			<trans-unit id="mlang_tabs_tab">
-				<source>AI Assistant Log</source>
+				<source>Enquiries</source>
 			</trans-unit>
 			<trans-unit id="mlang_labels_tablabel">
-				<source>AI Assistant Log</source>
+				<source>AI Assistant Enquiries</source>
 			</trans-unit>
 			<trans-unit id="mlang_labels_tabdescr">
-				<source>Review logged questions and answers of the AI search assistant, filter them and see provider and token usage.</source>
+				<source>What visitors asked the AI search assistant and what it answered. Filterable, with provider, token usage and estimated cost.</source>
 			</trans-unit>
 
 			<trans-unit id="module.title">
-				<source>AI Assistant Log</source>
+				<source>Enquiries</source>
+			</trans-unit>
+			<trans-unit id="thread.overrideAnswer">
+				<source>Define a different answer</source>
+			</trans-unit>
+			<trans-unit id="subscription.required">
+				<source>This module requires an active subscription.</source>
 			</trans-unit>
 			<trans-unit id="module.loggingDisabled">
 				<source>Logging is currently disabled. Enable "Log inputs and answers" in the extension configuration to record new interactions. Existing entries are still shown below.</source>
