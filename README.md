@@ -108,6 +108,7 @@ the enabled features.
 | Chat widget, Enquiries, Answers | yes |
 | llms.txt, Markdown endpoints, Bot Access Log | no |
 
+**Important:**  
 Without a valid key the widget stays hidden and the two modules disappear.
 Everything else keeps working.
 
