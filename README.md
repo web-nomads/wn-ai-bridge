@@ -103,10 +103,10 @@ the **Subscription key** field of the extension configuration. The key is
 encrypted and signed; it carries the domains it is valid for, an expiry date and
 the enabled features.
 
-| | Needs a key |
+| Functions | Needs a key |
 |---|---|
-| Chat widget, **Enquiries**, **Answers** | yes |
-| llms.txt, Markdown endpoints, **Bot Access Log** | no |
+| Chat widget, Enquiries, Answers | yes |
+| llms.txt, Markdown endpoints, Bot Access Log | no |
 
 Without a valid key the widget stays hidden and the two modules disappear.
 Everything else keeps working.
