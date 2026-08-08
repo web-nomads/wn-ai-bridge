@@ -116,7 +116,9 @@ Order your subscription key:
 DE: [https://www.marcelmarty.ch/#extensions](https://www.marcelmarty.ch/#extensions)  
 EN: [https://www.marcelmarty.ch/en/#extensions](https://www.marcelmarty.ch/en/#extensions)  
 
-Email me for a 14-day free trial licence.  
+Order your **14 days free trial key** here:  
+DE: [https://www.marcelmarty.ch/ai-bridge-trial](https://www.marcelmarty.ch/ai-bridge-trial)  
+EN: [https://www.marcelmarty.ch/en/ai-bridge-trial](https://www.marcelmarty.ch/en/ai-bridge-trial)
 
 ### What the licence check sends
 
