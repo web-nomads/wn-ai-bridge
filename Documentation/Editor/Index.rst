@@ -1,110 +1,225 @@
-.. include:: /Includes.rst.txt
+..  include:: /Includes.rst.txt
 
-======
-Editor
-======
+..  _editor:
 
-Working with LLMS TXT Content
-==============================
+========
+Editors
+========
 
-As an editor, you don't need to directly interact with the AI Bridge extension in most cases. The extension automatically generates content based on your existing TYPO3 pages and content.
+Most of what this extension does happens without editorial work: ``llms.txt``
+and the Markdown versions are generated from the pages that already exist. Two
+things do belong to editors, though — writing content that survives the
+conversion, and looking after what the AI search assistant tells visitors.
 
-Understanding Generated Content
-===============================
+..  contents::
+    :local:
+    :depth: 2
 
-The extension creates two types of content from your TYPO3 pages:
+..  _editor-generated-content:
 
-llms.txt Files
+Generated content
+=================
+
+The extension derives two representations from the existing page tree.
+
+llms.txt
+--------
+
+One file per site, served at :file:`/.well-known/llms.txt` and :file:`/llms.txt`.
+It contains:
+
+*   **Site title and description** — from the site configuration, falling back
+    to the root page
+*   **Navigation structure** — the page hierarchy down to the configured depth
+*   **Topics and contact information** — maintained by administrators in the
+    site configuration
+
+Markdown pages
 --------------
 
-The extension automatically generates an llms.txt file that includes:
+Any page can be requested as Markdown by appending ``.md`` to its URL:
 
-* **Site title and description** - Taken from your site's root page
-* **Navigation structure** - Your page hierarchy and menu structure
-* **Topics and keywords** - Configured by administrators
-* **Contact information** - Configured by administrators
+*   :file:`/about` becomes :file:`/about.md`
+*   :file:`/services/consulting` becomes :file:`/services/consulting.md`
 
-This file helps AI systems understand your site's structure and content.
+The Markdown version contains the page title, the page description and all
+content elements — headings, text, lists, links and image alternative texts —
+in reading order. It ends with a link back to the rendered page, labelled in the
+language of that page ("Web version", "Webversion", "Version web", …).
 
-Markdown Pages
---------------
+Previewing
+----------
 
-Any page on your website can be viewed in Markdown format by adding ``.md`` to the URL. For example:
+To check what a model sees, request the URLs directly in a browser:
 
-* ``/about`` becomes ``/about.md``
-* ``/services/consulting`` becomes ``/services/consulting.md``
+..  list-table::
+    :header-rows: 1
+    :widths: 45 55
 
-The Markdown version includes:
+    * - To see
+      - Open
+    * - The llms.txt of a site
+      - :file:`https://example.com/.well-known/llms.txt`
+    * - A page as Markdown
+      - the page URL with ``.md`` appended
 
-* **Page title** - From the page properties
-* **Page description** - From the page properties
-* **All content elements** - Headers, text, images, etc. converted to Markdown format
+..  _editor-content-guidelines:
 
-Best Practices for Content
-===========================
+Writing content that converts well
+==================================
 
-To ensure your content works well with AI systems and the AI Bridge extension:
-
-Page Properties
+Page properties
 ---------------
 
-**Use descriptive titles**
-  Clear, descriptive page titles help AI systems understand your content's purpose.
+Use descriptive titles
+    Page titles carry most of the meaning in ``llms.txt``, where there is no
+    layout to provide context.
 
-**Add page descriptions**
-  The description field in page properties provides context for AI systems and appears in both llms.txt and Markdown output.
+Fill in the page description
+    The description appears in both the ``llms.txt`` entry and the Markdown
+    output, and it is what the assistant uses to judge relevance.
 
-**Structure your navigation logically**
-  Your site's navigation structure is included in the llms.txt file, so logical organization helps AI systems understand your content hierarchy.
+Keep the navigation structure logical
+    The page hierarchy is reproduced in ``llms.txt`` as-is.
 
-Content Elements
+Content elements
 ----------------
 
-**Use semantic headers**
-  Use header elements (H1, H2, H3, etc.) to structure your content logically.
+Use real headings
+    Heading elements (H1–H3) become Markdown headings and give the document its
+    structure. Text styled to look like a heading does not.
 
-**Write clear, descriptive text**
-  Well-written content is more useful for AI systems and human readers alike.
+Write self-contained text
+    The assistant quotes passages out of their page context. Text that only
+    makes sense next to the image beside it does not travel well.
 
-**Add alt text to images**
-  Image alternative text is included in Markdown conversion and helps AI systems understand visual content.
+Add alternative texts to images
+    Image alt text is carried into the Markdown output; the image itself is not
+    readable by a model.
 
-**Organize content logically**
-  Content elements are rendered in their page order, so logical organization improves the Markdown output.
+Order content deliberately
+    Content elements are rendered in their page order.
 
-Viewing Generated Content
-=========================
+..  _editor-content-limits:
 
-As an editor, you can preview the generated content to understand how AI systems will see your pages:
+What does not convert
+=====================
 
-**To view the llms.txt file:**
-  Visit ``/.well-known/llms.txt`` on your website's frontend.
+Markdown is a semantic format, so visual arrangement is deliberately dropped:
 
-**To view a page in Markdown:**
-  Add ``.md`` to any page URL to see the Markdown version.
+*   **Multi-column layouts** lose their arrangement and are rendered one after
+    another
+*   **Interactive elements** — forms, JavaScript widgets — do not convert
+    meaningfully
+*   **Custom styling** is simplified away
+*   **Media galleries** are reduced to their images and captions
 
-**To check navigation structure:**
-  The llms.txt file includes your site's navigation, which reflects your page tree structure.
+This is expected. The Markdown version is about meaning, not appearance.
 
-Content that Works Well
-=======================
+..  _editor-modules:
 
-The following types of content work particularly well with the AI Bridge extension:
-
-* **Articles and blog posts** - Convert cleanly to Markdown with proper heading structure
-* **Documentation pages** - Structured content with headers and lists
-* **Service descriptions** - Clear, descriptive content about what you offer
-* **About pages** - Company or organization information
-* **Contact information** - Structured contact details
-
-Content Limitations
+The backend modules
 ===================
 
-Some content types may not convert perfectly to Markdown:
+The module group :guilabel:`AI Bridge` holds three modules. Two of them are
+editorial work.
 
-* **Complex layouts** - Multi-column layouts may not preserve exact visual structure
-* **Interactive elements** - Forms, JavaScript widgets, etc. may not convert meaningfully
-* **Custom styling** - Visual formatting is simplified in Markdown
-* **Media galleries** - Complex image arrangements may be simplified
+..  note::
 
-This is normal and expected - the Markdown format is designed to be a simplified, semantic representation of your content that focuses on meaning rather than visual presentation.
+    If you know these modules under different names: :guilabel:`Corrections` is
+    now :guilabel:`Answers`, and :guilabel:`AI Assistant Log` is now
+    :guilabel:`Enquiries`. Only the names changed; the entries are the same.
+
+..  _editor-enquiries:
+
+Enquiries
+---------
+
+Every question a visitor asked the assistant, with the answer it gave. Each
+conversation is one collapsible row showing the first question, the date and
+the visitor's IP address and hostname; expanding it reveals the follow-up
+questions and answers.
+
+The list can be filtered by date range, IP address, provider, mode
+(``llm``, ``search``, ``learning``) and free text over question and answer. An
+overview above it counts the interactions, splits them into LLM-backed and
+search-only, totals the tokens used and estimates the cost.
+
+Read it regularly for two reasons: it shows what visitors actually want to
+know, and it is where a wrong answer becomes visible. Each answer carries a
+:guilabel:`Define a different answer` button, which opens the
+:guilabel:`Answers` module with that question filled in.
+
+..  warning::
+
+    The log stores IP addresses and the full text of every question and answer.
+    Treat it as personal data: it needs a retention period, and the
+    :guilabel:`Clear log` action is how that gets enforced.
+
+..  _editor-answers:
+
+Answers
+-------
+
+The answers the assistant gives for questions it recognises. An active entry
+replaces whatever the assistant would have produced on its own and is played
+back verbatim as soon as a visitor's question matches it in meaning — so the
+visitor does not have to use the wording you wrote. Weaker matches are handed
+to the language model as binding hints instead.
+
+An entry has these fields:
+
+..  list-table::
+    :header-rows: 1
+    :widths: 26 74
+
+    * - Field
+      - Meaning
+    * - :guilabel:`Question / topic`
+      - What the entry is matched against
+    * - :guilabel:`Answer`
+      - What the assistant says, word for word. Phrase it as a complete,
+        self-contained reply
+    * - :guilabel:`Keywords`
+      - Optional. Left empty they are derived from question and answer;
+        additional keywords widen the range of questions that match
+    * - :guilabel:`Site`
+      - The site identifier the entry applies to. A mismatch here means the
+        answer is never used
+    * - :guilabel:`Language ID`
+      - The site language the entry applies to (``0`` = default language)
+    * - :guilabel:`Status`
+      - Only :guilabel:`Active` entries are used
+    * - :guilabel:`Origin`
+      - :guilabel:`Editorial` for entries written in the backend,
+        :guilabel:`Visitor` for corrections captured in the chat
+
+Entries reach the module three ways:
+
+#.  Written directly in the module with :guilabel:`New answer`.
+#.  Taken over from a logged answer via :guilabel:`Define a different answer`
+    in :guilabel:`Enquiries`. This is the fastest way to fix a bad answer at
+    the moment you notice it.
+#.  Captured from a correction a visitor made in the chat, if
+    ``aiAssistantLearning`` is enabled for that site. These arrive under
+    :guilabel:`Visitor corrections awaiting review` with the status
+    :guilabel:`Pending review` and are **never used until approved**.
+
+..  tip::
+
+    Review pending corrections before approving them. They are unverified text
+    written by anonymous visitors, and approving one puts it in front of every
+    future visitor who asks a similar question.
+
+..  _editor-botaccess:
+
+Bot Access Log
+--------------
+
+Which bots and crawlers requested ``llms.txt``, the Markdown versions and
+normal pages, filterable by date, request type, bot and IP address, with an
+:guilabel:`AI crawlers only` switch. It is informational: useful for seeing
+whether the machine-readable content is actually being picked up, and by whom.
+
+This module does not require a subscription, but it only records anything while
+``botAccessLogging`` is enabled in the extension configuration.

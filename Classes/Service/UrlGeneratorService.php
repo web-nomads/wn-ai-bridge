@@ -46,10 +46,7 @@ class UrlGeneratorService
             \TYPO3\CMS\Core\Routing\RouterInterface::ABSOLUTE_URL
         );
 
-        // Prepend site URL if result is still relative
-        if (str_starts_with($uri, '/')) {
-            $uri = $this->configurationService->getSiteUrl() . $uri;
-        }
+        $uri = $this->toAbsoluteUrl($uri);
 
         // Ensure we don't have anchors in markdown URLs
         if (str_contains($uri, '#')) {
@@ -61,10 +58,18 @@ class UrlGeneratorService
 
     /**
      * Generate absolute URL for the HTML version of a page.
-     * Handles OnePage sites by using anchors for direct subpages of the root.
+     *
+     * On a OnePager the direct children of the site root are sections of the
+     * home page, so they link to "site/#section". Everywhere else they are real
+     * pages and must keep their own URL — which is why this is a per-site
+     * setting and not a guess from the page tree.
+     *
+     * @param array<string, mixed> $page
+     * @param bool|null $onePager Overrides the site setting. Null asks the site.
      */
-    public function generateHtmlUrl(array $page): string
+    public function generateHtmlUrl(array $page, ?bool $onePager = null): string
     {
+        $onePager ??= $this->configurationService->isLlmsTxtOnePagerEnabled();
         $site = $this->siteFinder->getSiteByPageId($page['uid']);
         $rootPageId = $site->getRootPageId();
         $languageId = (int)($page['sys_language_uid'] ?? 0);
@@ -82,14 +87,11 @@ class UrlGeneratorService
             \TYPO3\CMS\Core\Routing\RouterInterface::ABSOLUTE_URL
         );
 
-        // Prepend site URL if result is still relative
-        if (str_starts_with($uri, '/')) {
-            $uri = $this->configurationService->getSiteUrl() . $uri;
-        }
+        $uri = $this->toAbsoluteUrl($uri);
 
-        // Handle OnePage anchors: if it's a direct child of the root page
-        // we use the slug from the generated URI as an anchor on the root page.
-        if ((int)$page['pid'] === (int)$rootPageId && (int)$page['uid'] !== (int)$rootPageId) {
+        // OnePager only: a direct child of the root page is a section of the home
+        // page, so link to its anchor instead of its own URL.
+        if ($onePager && (int)$page['pid'] === (int)$rootPageId && (int)$page['uid'] !== (int)$rootPageId) {
             $rootUri = (string)$site->getRouter()->generateUri(
                 $rootPageId,
                 ['_language' => $siteLanguage],
@@ -97,9 +99,7 @@ class UrlGeneratorService
                 \TYPO3\CMS\Core\Routing\RouterInterface::ABSOLUTE_URL
             );
 
-            if (str_starts_with($rootUri, '/')) {
-                $rootUri = $this->configurationService->getSiteUrl() . $rootUri;
-            }
+            $rootUri = $this->toAbsoluteUrl($rootUri);
 
             // Extract the slug from the generated URI by removing the root URI part.
             // This ensures we get the localized slug segment without language prefixes.
@@ -122,14 +122,12 @@ class UrlGeneratorService
      * On OnePager sites (enabled per site via aiAssistantOnePager) the sections
      * are direct children of the root page and are rendered as anchors on the
      * homepage, so a hit on such a page must link to "https://site/#section"
-     * instead of "https://site/section". This delegates to generateHtmlUrl()
-     * which already contains that anchor logic. On normal multipage sites the
-     * flag stays off and real page URLs are produced.
+     * instead of "https://site/section". On normal multipage sites the flag
+     * stays off and real page URLs are produced.
      *
      * Returns an empty string when the page cannot be routed (e.g. deleted or
      * outside any site) so callers can skip the hit.
-     */
-    /**
+     *
      * @param array<string, mixed> $arguments Optional route arguments (e.g. the
      *        record parameters indexed_search stored for a hit), so the link can
      *        point at the exact record/detail view instead of the plain page
@@ -154,6 +152,8 @@ class UrlGeneratorService
                 // Record link could not be built — fall through to a page link.
             }
 
+            // The assistant has its own OnePager switch; pass the verdict on so
+            // the llms.txt setting does not decide for the chat widget.
             if ($this->configurationService->isAssistantOnePagerEnabled()) {
                 $pid = $this->fetchPid($pageId);
                 if ($pid !== null) {
@@ -161,7 +161,7 @@ class UrlGeneratorService
                         'uid' => $pageId,
                         'pid' => $pid,
                         'sys_language_uid' => $languageId,
-                    ]);
+                    ], true);
                 }
             }
 
@@ -207,11 +207,24 @@ class UrlGeneratorService
             return '';
         }
 
-        if (str_starts_with($uri, '/')) {
-            $uri = $this->configurationService->getSiteUrl() . $uri;
+        return $this->toAbsoluteUrl($uri);
+    }
+
+    /**
+     * Make a router result absolute.
+     *
+     * The router returns a path whenever the site base carries no host (an entry
+     * point like "/camino/"). That path already contains the entry point, so only
+     * scheme and host may be prefixed — prefixing the site URL would repeat it
+     * and produce "/camino/camino/faqs".
+     */
+    private function toAbsoluteUrl(string $uri): string
+    {
+        if (!str_starts_with($uri, '/')) {
+            return $uri;
         }
 
-        return $uri;
+        return $this->configurationService->getSiteOrigin() . $uri;
     }
 
     /**

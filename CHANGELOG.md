@@ -7,6 +7,120 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.25.0] - 2026-08-08
+
+### Removed
+- **The setting "Daily status check" (`subscriptionOnlineCheck`) is gone.** The
+  check is now always on and cannot be disabled. It is what carries a renewal to
+  the installation and what makes a revocation take effect, so an installation
+  with it switched off silently stopped following its own subscription — the one
+  state nobody wants and nothing reports
+
+### Fixed
+- **The daily check never ran in the backend at all.** The module guard listens
+  on `BeforeModuleCreationEvent`, which fires while the module list is built —
+  inside a middleware, before `Backend\Http\RequestHandler` puts the request into
+  `$GLOBALS`. The check refuses to make an outgoing request without one, so it
+  did nothing; and because the service caches its answer per request, that empty
+  verdict was what every module then displayed. This is the deeper reason behind
+  "the daily status check does not work": on an installation nobody used the CLI
+  on, the check only ever ran from the CLI. The status is now resolved a second
+  time once the request context allows it — once per request, not per call
+- **The chat panel could not be closed.** `.wn-ai-panel` carries `display: flex`
+  and nothing handled the `hidden` attribute, so the author style beat the
+  browser's own `[hidden] { display: none }`. The close button, the floating
+  toggle and Escape all set the attribute correctly and all appeared to do
+  nothing
+- **A wrong issuing server stayed invisible for a day.** The cached verdict was
+  keyed by subscription id alone, so correcting the address in the extension
+  configuration changed nothing until the previous day-old verdict expired. The
+  address is part of the cache key now, and a change takes effect immediately
+- **The daily check could be off while `ai-bridge:check-subscription` reported it
+  working.** The automatic path (`verdict()`) honoured the setting, the CLI path
+  (`refreshNow()`) never did. With the setting off, the command still printed
+  "active — confirmed by the server" while no backend request ever asked it. That
+  is exactly the symptom "the daily check does not work, but the command says it
+  does", and it made the one diagnostic tool available useless for the fault it
+  was meant to find. With the setting removed, both paths are the same code
+- **Sites served from an entry point produced doubled URLs.** With a site base
+  of `/camino/`, the router returns a path that already carries the entry point
+  (`/camino/faqs`), and the site URL — which also carries it — was prefixed on
+  top, yielding `https://example.com/camino/camino/faqs.md`. Every link in
+  `llms.txt` and every internal link inside the Markdown export was broken.
+  Router results are now made absolute with scheme and host only
+- **Every site was treated as a OnePager.** The anchor form (`/#packing-list`)
+  was applied to any direct child of the site root, without asking whether the
+  site actually is a OnePager — that check existed only on the chat assistant's
+  path. On a normal multipage site the Markdown export therefore linked to
+  anchors that do not exist
+
+### Added
+- **A failing issuing server is now reported instead of passing silently.** The
+  daily check distinguishes three failures — unreachable, an HTTP error, and an
+  answer that cannot be verified (malformed, wrong subscription, replayed nonce,
+  stale timestamp, bad signature) — and carries the reason through the cache.
+  It is shown as an error next to the subscription state at the top of every AI
+  Bridge backend module, with the address in bold so the typo is visible, and
+  named by `ai-bridge:check-subscription`, which also prints the server it
+  actually talked to. Nothing is switched off by it: the wording says so, because
+  while it lasts neither a renewal nor a revocation can arrive. It clears only on
+  an answer that verifies — signature, nonce, subscription id and timestamp — not
+  on a bare HTTP 200. Two states deliberately stay silent: "nobody has asked yet",
+  which is every fresh installation, and any key that is not valid in the first
+  place, where the key itself is the message that matters
+- **A default issuing server.** The address is resolved as configuration →
+  address inside the key → the issuing server that ships with the extension.
+  Previously a key carrying no address of its own, with `subscriptionServerUrl`
+  left empty, left the check with no one to ask, so it silently did nothing. The
+  same resolution now also applies to the tamper reports, which had the opposite
+  precedence
+- Site setting **`llmsTxtOnePager`** (AI Bridge tab, right below "Enable
+  LLMS.TXT Generation"), off by default. Only with it enabled do direct children
+  of the site root become anchors on the home page. While it has never been
+  saved on a site, the assistant's `aiAssistantOnePager` is used instead, so
+  existing OnePager installations keep their behaviour
+- The "Web version" link under a Markdown page is translated into the language
+  of the page — all 14 shipped languages, resolved per site language like the
+  chat widget's texts. It was hardcoded German ("Webversion") on every site
+
+### Changed
+- **Backend badges meet WCAG 2.1 AA.** Only the text colour was pinned before,
+  while the background still came from the backend theme, so the pair could drift
+  out of contrast — black on green or red measured 3.2-4.2:1. Both halves are now
+  fixed pairs: primary 5.84, secondary 6.09, success 6.45, danger 6.50, info
+  5.06, warning 9.69, light 14.99, dark 15.43
+- The documentation was rewritten for the renamed backend modules (Corrections →
+  **Answers**, AI Assistant Log → **Enquiries**), which older chapters still used
+  under their former names. Fixed along the way: a broken `toctree` in
+  `Index.rst` whose entries were indented one space short of its options, a
+  duplicated document title in the ChangeLog chapter, TypoScript examples that
+  did not match the shipped setup, and a `maxDepth` workaround pointing at
+  TypoScript where the setting is `llmsTxtMaxDepth` in the site configuration
+- `Documentation/guides.xml` carries the real release instead of "main
+  (development)", and the project title is the extension's name
+
+### Added (tests)
+- `SubscriptionOnlineCheckTest` (7): a cached verdict is reused instead of asking
+  again, an unreachable server yields "unknown" rather than "revoked", an answer
+  for another subscription is discarded, a key without an issuing server is never
+  checked, the configured server URL overrides the one inside the key, and a
+  stale `subscriptionOnlineCheck = 0` in `settings.php` suppresses nothing
+- `EntryPointUrlTest` (7): entry point not repeated, external links untouched,
+  existing extensions preserved, links outside the entry point get no `.md`
+- `OnePagerSettingTest` (8): the switch, its fallback, and that the assistant
+  keeps its own
+- `WebVersionLabelTest` (16): every shipped language translates the label
+
+### Note
+- The stale `subscriptionOnlineCheck` entry stays in `config/system/settings.php`
+  until the extension configuration is saved once. It is inert — nothing reads it
+- A PHPStan baseline entry became obsolete because `generateHtmlUrl()` now has a
+  typed `@param`, and was removed rather than regenerated
+- `generateHtmlUrl()` gained an optional `?bool $onePager` argument; null keeps
+  the previous behaviour of asking the site
+- `SubscriptionToken::__construct` and `UrlGeneratorService::generateUrlForPageId()`
+  each carried two docblocks, the first an outdated copy of the second
+
 ## [1.24.0] - 2026-08-07
 
 ### Changed

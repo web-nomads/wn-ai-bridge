@@ -21,6 +21,7 @@
 			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>Eşleşen bir sayfa buldum:</target></trans-unit>
 			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>%d eşleşen sayfa buldum:</target></trans-unit>
 			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>Aşağıdaki önerilere göz atın — aradığınız bilgileri orada bulacaksınız.</target></trans-unit>
+			<trans-unit id="markdown.webVersion"><source>Web version</source><target>Web sürümü</target></trans-unit>
 		</body>
 	</file>
 </xliff>

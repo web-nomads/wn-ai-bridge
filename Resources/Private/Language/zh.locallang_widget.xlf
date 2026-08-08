@@ -21,6 +21,7 @@
 			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>我找到了一个相关页面：</target></trans-unit>
 			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>我找到了 %d 个相关页面：</target></trans-unit>
 			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>请查看下方的建议——您可以在那里找到所需的信息。</target></trans-unit>
+			<trans-unit id="markdown.webVersion"><source>Web version</source><target>网页版</target></trans-unit>
 		</body>
 	</file>
 </xliff>

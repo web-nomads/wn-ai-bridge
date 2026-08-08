@@ -20,6 +20,23 @@
                 <div class="callout callout-warning"><div class="callout-body">{subscription.message}</div></div>
             </f:else>
         </f:if>
+
+        <f:comment>
+            The daily status check failed. Shown next to the state above rather
+            than replacing it: nothing is switched off, but the licence has lost
+            contact with its server, so no renewal and no revocation can arrive.
+            Only rendered for a valid key — see SubscriptionStatus.
+        </f:comment>
+        <f:if condition="{subscription.onlineCheckFailed}">
+            <div class="callout callout-danger">
+                <div class="callout-body">
+                    <f:if condition="{subscription.onlineCheck.serverUrl}">
+                        <strong>{subscription.onlineCheck.serverUrl}</strong>:
+                    </f:if>
+                    {subscription.onlineCheckMessage}
+                </div>
+            </div>
+        </f:if>
     </div>
 </f:if>
 

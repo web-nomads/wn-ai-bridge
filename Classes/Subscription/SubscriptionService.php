@@ -35,6 +35,17 @@ final class SubscriptionService implements SingletonInterface
 
     private ?SubscriptionStatus $status = null;
 
+    /**
+     * Set while the resolved status carries a verdict that was never fetched.
+     *
+     * The backend module guard asks for the status while the module list is
+     * built — that happens in a middleware, before the request reaches
+     * $GLOBALS['TYPO3_REQUEST'], so the status check may not run yet. Without
+     * this the whole request would keep that empty verdict, and the modules
+     * would show no server state at all.
+     */
+    private bool $awaitingOnlineCheck = false;
+
     public function __construct(
         private readonly SubscriptionOnlineCheck $onlineCheck,
         private readonly TamperReporter $tamperReporter,
@@ -42,6 +53,12 @@ final class SubscriptionService implements SingletonInterface
 
     public function getStatus(): SubscriptionStatus
     {
+        // Resolve again once the request context allows the check that was not
+        // possible earlier — see $awaitingOnlineCheck.
+        if ($this->status !== null && $this->awaitingOnlineCheck && $this->onlineCheck->mayRefreshNow()) {
+            $this->status = null;
+        }
+
         if ($this->status === null) {
             $this->status = $this->resolve();
             $this->reportIfSuspicious($this->status);
@@ -75,9 +92,12 @@ final class SubscriptionService implements SingletonInterface
                 return;
             }
 
-            // A forged key may not decode at all, so the server address can fall
-            // back to the configured one.
-            $baseUrl = $status->token?->checkUrl ?: $this->configValue('subscriptionServerUrl');
+            // A forged key may not decode at all, so the address falls back to
+            // the configured one and then to the shipped default.
+            $baseUrl = SubscriptionOnlineCheck::resolveServerUrl(
+                $this->configValue('subscriptionServerUrl'),
+                $status->token?->checkUrl ?? '',
+            );
 
             $this->tamperReporter->report(
                 $reason,
@@ -107,6 +127,7 @@ final class SubscriptionService implements SingletonInterface
     public function reset(): void
     {
         $this->status = null;
+        $this->awaitingOnlineCheck = false;
     }
 
     private function resolve(): SubscriptionStatus
@@ -143,8 +164,12 @@ final class SubscriptionService implements SingletonInterface
             $token->isExpiringWithin(self::FRONTEND_REFRESH_WINDOW),
         );
 
+        // "Unknown" with no failure means nobody asked. Worth another attempt
+        // later in the request, when the context may allow one.
+        $this->awaitingOnlineCheck = !$verdict->isVerified() && !$verdict->hasFailed();
+
         if ($verdict->isRevoked()) {
-            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_REVOKED, $token, $host);
+            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_REVOKED, $token, $host, 0, $verdict);
         }
 
         // A verified answer is authoritative for the end date — that is how a
@@ -154,10 +179,10 @@ final class SubscriptionService implements SingletonInterface
         $validUntil = self::effectiveValidUntil($token, $verdict);
 
         if (self::isExpired($token, $verdict)) {
-            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_EXPIRED, $token, $host, $validUntil);
+            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_EXPIRED, $token, $host, $validUntil, $verdict);
         }
 
-        return SubscriptionStatus::valid($token, $host, $validUntil);
+        return SubscriptionStatus::valid($token, $host, $validUntil, $verdict);
     }
 
     /**
@@ -196,6 +221,18 @@ final class SubscriptionService implements SingletonInterface
     public function getOnlineCheck(): SubscriptionOnlineCheck
     {
         return $this->onlineCheck;
+    }
+
+    /**
+     * The issuing server this installation actually talks to, after the
+     * configuration, the key and the shipped default have been weighed up.
+     */
+    public function getServerUrl(): string
+    {
+        return SubscriptionOnlineCheck::resolveServerUrl(
+            $this->configValue('subscriptionServerUrl'),
+            $this->getToken()?->checkUrl ?? '',
+        );
     }
 
     public function getVerificationKey(): string

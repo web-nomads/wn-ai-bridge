@@ -21,6 +21,7 @@
 			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>Encontrei uma página relevante:</target></trans-unit>
 			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>Encontrei %d páginas relevantes:</target></trans-unit>
 			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>Veja as sugestões abaixo — é aí que encontrará as informações que procura.</target></trans-unit>
+			<trans-unit id="markdown.webVersion"><source>Web version</source><target>Versão web</target></trans-unit>
 		</body>
 	</file>
 </xliff>

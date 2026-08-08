@@ -108,6 +108,34 @@ class ConfigurationService
         }
     }
 
+    /**
+     * Scheme, host and port of the current site — without the entry point path.
+     *
+     * Needed wherever a router result is turned into an absolute URL. When the
+     * site base is a path ("/camino/"), the router returns a path that already
+     * carries that entry point, so prefixing getSiteUrl() would repeat it.
+     */
+    public function getSiteOrigin(): string
+    {
+        try {
+            $site = $this->getCurrentSite();
+            if ($site instanceof Site) {
+                $base = $site->getBase();
+                $host = $base->getHost();
+
+                if ($host !== '') {
+                    $port = $base->getPort();
+
+                    return ($base->getScheme() ?: 'https') . '://' . $host . ($port ? ':' . $port : '');
+                }
+            }
+        } catch (\Exception $e) {
+            // No resolvable site — the request below is the better source anyway.
+        }
+
+        return $this->getFallbackBaseUrl();
+    }
+
     protected function getFallbackBaseUrl(): string
     {
         try {
@@ -443,6 +471,32 @@ class ConfigurationService
     {
         $site = $this->getCurrentSite();
         return $site instanceof Site && (bool)($site->getConfiguration()['aiAssistantOnePager'] ?? false);
+    }
+
+    /**
+     * Whether llms.txt and the Markdown export treat this site as a OnePager.
+     *
+     * Off by default: a site whose sub-pages are real pages must produce real
+     * page URLs. Only when this is on does a direct child of the site root
+     * become an anchor on the home page ("/#packing-list").
+     *
+     * Falls back to the assistant's own OnePager switch while this one has never
+     * been saved, so sites that were configured before it existed keep the
+     * behaviour they had.
+     */
+    public function isLlmsTxtOnePagerEnabled(): bool
+    {
+        $site = $this->getCurrentSite();
+        if (!$site instanceof Site) {
+            return false;
+        }
+
+        $configuration = $site->getConfiguration();
+        if (array_key_exists('llmsTxtOnePager', $configuration)) {
+            return (bool)$configuration['llmsTxtOnePager'];
+        }
+
+        return (bool)($configuration['aiAssistantOnePager'] ?? false);
     }
 
     /**

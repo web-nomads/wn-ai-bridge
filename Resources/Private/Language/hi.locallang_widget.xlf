@@ -21,6 +21,7 @@
 			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>मुझे एक प्रासंगिक पेज मिला:</target></trans-unit>
 			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>मुझे %d प्रासंगिक पेज मिले:</target></trans-unit>
 			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>नीचे दिए गए सुझाव देखें — वहाँ आपको वांछित जानकारी मिलेगी।</target></trans-unit>
+			<trans-unit id="markdown.webVersion"><source>Web version</source><target>वेब संस्करण</target></trans-unit>
 		</body>
 	</file>
 </xliff>

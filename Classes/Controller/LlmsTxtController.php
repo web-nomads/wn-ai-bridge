@@ -118,12 +118,13 @@ class LlmsTxtController
                 return "# Error\n\nPage rendered but conversion to Markdown failed.\n";
             }
 
-            // Add Webversion link at the bottom
+            // Link back to the rendered page, labelled in the page's own language.
             $page = $this->pageRepository->findById($pageId, $languageUid);
 
             if (!empty($page)) {
                 $htmlUrl = $this->urlGenerator->generateHtmlUrl($page);
-                $markdown .= "\n\n\n\nWebversion: " . $htmlUrl . "\n";
+                $label = $this->configurationService->translate('markdown.webVersion') ?: 'Web version';
+                $markdown .= "\n\n\n\n" . $label . ': ' . $htmlUrl . "\n";
             }
 
             if ($isDebug) {

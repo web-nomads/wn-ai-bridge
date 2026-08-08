@@ -1,179 +1,138 @@
-.. include:: /Includes.rst.txt
+..  include:: /Includes.rst.txt
+
+..  _known-problems:
 
 ==============
-Known Problems
+Known problems
 ==============
 
-Current Limitations
+..  contents::
+    :local:
+    :depth: 2
+
+..  _known-problems-markdown:
+
+Markdown conversion
 ===================
 
-Markdown Conversion
--------------------
+Markdown is a semantic format, so anything that only exists visually is
+deliberately lost. The following are limitations, not defects:
 
-**Complex HTML Structures**
-  Some complex HTML structures may not convert perfectly to Markdown. This particularly affects:
+*   **Multi-column layouts** are flattened; the columns are rendered one after
+    another.
+*   **Interactive elements** — forms, JavaScript widgets, sliders — do not
+    convert meaningfully.
+*   **Custom CSS classes and styling** are not preserved.
+*   **Media galleries** are reduced to their images and captions.
+*   **Custom content elements without semantic HTML** convert poorly, because
+    there is nothing in the markup to map onto.
 
-  * Multi-column layouts
-  * Nested tables with complex formatting
-  * Custom HTML elements with specific styling
-  * Interactive elements (JavaScript widgets, forms)
+Genuine rough edges:
 
-**Content Element Limitations**
-  Certain TYPO3 content elements may not convert optimally:
+..  list-table::
+    :header-rows: 1
+    :widths: 45 55
 
-  * File collections with custom rendering
-  * Media galleries with specific layouts
-  * Custom content elements without semantic HTML
+    * - Issue
+      - Workaround
+    * - Nested blockquotes may not render correctly
+      - Avoid deeply nested blockquote structures
+    * - Complex table formatting is simplified or lost
+      - Use simple table structures in content that will be converted
+    * - Very large pages can hit the memory limit during conversion
+      - Split the page, or raise ``memory_limit`` for the ``.md`` page type
 
-**Large Page Content**
-  Pages with very large amounts of content may experience:
+..  _known-problems-navigation:
 
-  * Memory limitations during HTML-to-Markdown conversion
-  * Slower response times for .md requests
-  * Potential timeouts on resource-constrained servers
-
-Navigation Structure
---------------------
-
-**Deep Navigation Hierarchies**
-  Sites with very deep page hierarchies (6+ levels) may experience:
-
-  * Performance impacts during navigation building
-  * Large llms.txt files that may be difficult for AI systems to process
-  * Memory usage scaling with site complexity
-
-**Hidden Page Handling**
-  The extension respects TYPO3's page visibility settings, but:
-
-  * Pages hidden in navigation are excluded from llms.txt
-  * Access-restricted pages may not appear in navigation structure
-  * Workspace/versioning states may affect page inclusion
-
-Web Server Configuration
-------------------------
-
-**.well-known Directory Access**
-  Some web server configurations may block access to ``.well-known`` directories:
-
-  * Apache servers may require specific .htaccess rules
-  * Nginx servers may need location block configuration
-  * Some shared hosting providers block hidden directory access
-
-**MIME Type Handling**
-  Text/plain MIME type for .md and llms.txt files may not be properly configured on all servers.
-
-Known Issues
-============
-
-HTML-to-Markdown Edge Cases
-----------------------------
-
-**Issue:** Nested blockquotes may not render correctly
-
-  **Workaround:** Avoid deeply nested blockquote structures in content elements
-
-**Issue:** Table formatting may be simplified or lost
-
-  **Workaround:** Use simple table structures for content that will be converted to Markdown
-
-**Issue:** Custom CSS classes and styling are not preserved
-
-  **Expected Behavior:** Markdown is a semantic format - visual styling is intentionally simplified
-
-Performance Issues
-------------------
-
-**Issue:** Large sites (1000+ pages) may experience slow llms.txt generation
-
-  **Workaround:** Reduce the ``maxDepth`` setting in TypoScript configuration
-
-  **Solution:** Consider implementing page-level caching for navigation structures
-
-**Issue:** Memory usage scales with page content size
-
-  **Workaround:** Monitor memory limits and consider splitting very large pages
-
-  **Solution:** Implement chunked processing for extremely large content
-
-Compatibility Issues
---------------------
-
-**Issue:** Some third-party extensions may interfere with content rendering
-
-  **Symptoms:** Missing content in Markdown output or errors during generation
-
-  **Workaround:** Test with third-party extensions disabled to isolate conflicts
-
-**Issue:** Custom TypoScript configurations may affect page type rendering
-
-  **Symptoms:** Incorrect MIME types or additional headers in output
-
-  **Solution:** Ensure the extension's TypoScript is loaded after custom configurations
-
-Planned Improvements
+Navigation structure
 ====================
 
-Performance Enhancements
--------------------------
+*   Sites with very deep hierarchies (six levels and more) produce long
+    ``llms.txt`` files that are less useful to a model, not more. Lower
+    :confval:`llmsTxtMaxDepth`.
+*   Navigation building scales with the size of the page tree, so generation
+    time and memory use grow with it.
+*   Pages hidden in menus, access-restricted pages and pages carrying a
+    ``noindex`` robots tag are excluded — see
+    :ref:`configuration-excluding-pages`. This is intended, but it does surprise
+    people who expect ``llms.txt`` to list everything.
 
-* **Caching Layer:** Implementation of dedicated caching for navigation structures and frequently accessed content
-* **Chunked Processing:** Support for processing very large pages in chunks to reduce memory usage
-* **Selective Rendering:** Options to exclude specific content types from Markdown conversion
+..  _known-problems-server:
 
-Feature Additions
-------------------
+Web server configuration
+========================
 
-* **Custom Content Filters:** Configuration options to exclude specific content element types
-* **Enhanced Metadata:** Support for additional llms.txt specification fields as the standard evolves
-* **Multi-language Support:** Better handling of multi-language sites and language-specific llms.txt files
+*   Some web server configurations block :file:`.well-known` directories.
+    Apache may need an :file:`.htaccess` rule, Nginx a ``location`` block, and
+    some shared hosting blocks hidden directories outright. :file:`/llms.txt`
+    works in those cases and is served by the same page type.
+*   The ``Content-Type: text/plain`` header set by the page types can be
+    overwritten by a reverse proxy or a misconfigured server.
 
-Developer Experience
---------------------
+..  _known-problems-compatibility:
 
-* **PSR-14 Events:** Addition of events for custom processing hooks
-* **Better Error Handling:** More detailed error messages and logging
-* **Development Tools:** CLI commands for testing and debugging llms.txt generation
+Compatibility
+=============
 
-Workarounds
+..  list-table::
+    :header-rows: 1
+    :widths: 45 55
+
+    * - Issue
+      - What to do
+    * - A third-party extension interferes with content rendering, so content is
+        missing from the Markdown output
+      - Test with the extension disabled to isolate the conflict
+    * - Custom TypoScript affects the page type rendering, producing wrong MIME
+        types or extra headers
+      - Make sure the extension's TypoScript is included after your own
+
+..  _known-problems-performance:
+
+Performance
 ===========
 
-Large Site Performance
-----------------------
+..  list-table::
+    :header-rows: 1
+    :widths: 45 55
 
-For sites with performance issues:
+    * - Issue
+      - What to do
+    * - Slow ``llms.txt`` generation on large sites (1000+ pages)
+      - Lower :confval:`llmsTxtMaxDepth`
+    * - Repeated Markdown conversion of the same crawled pages
+      - Enable :confval:`cacheMarkdown`
+    * - Memory use scales with page content size
+      - Split very large pages
 
-.. code-block:: typoscript
+..  _known-problems-planned:
 
-   llmstxt.settings {
-       # Reduce navigation depth
-       maxDepth = 2
+Planned improvements
+====================
 
-       # Consider adding custom page exclusion logic
-       # (requires custom extension development)
-   }
+*   **PSR-14 events** so that the generation and conversion can be extended
+    without replacing services.
+*   **Selective rendering** — configuration to exclude specific content element
+    types from the Markdown conversion.
+*   **Chunked processing** for very large pages, to bound memory use.
+*   **Caching layer** for navigation structures.
+*   **Additional llms.txt fields** as the specification evolves.
 
-Custom Content Filtering
--------------------------
+..  _known-problems-reporting:
 
-To exclude specific content types from Markdown conversion, extend the controller:
+Reporting an issue
+==================
 
-.. code-block:: php
+Issues belong in the
+`issue tracker <https://github.com/web-nomads/wn-ai-bridge/issues>`__. Please
+include:
 
-   <?php
-   // Custom implementation to filter content elements
-   // See Developer documentation for detailed examples
+*   TYPO3 version, PHP version and extension version
+*   the approximate number of pages, if the problem is about performance
+*   the exact error message, and the relevant entry from the TYPO3 log
+*   the steps to reproduce
+*   relevant server configuration — reverse proxy, CDN, blocked directories
 
-Reporting Issues
-================
-
-When reporting issues, please include:
-
-* TYPO3 version
-* PHP version
-* Extension version
-* Site size (approximate number of pages)
-* Specific error messages or unexpected behavior
-* Steps to reproduce the issue
-* Server configuration details (if relevant)
-
-Report issues on the project's issue tracker or contact the development team directly.
+For problems with the assistant, the output of
+``vendor/bin/typo3 ai-bridge:check-subscription`` is usually the first useful
+piece of information.

@@ -1,4 +1,6 @@
-.. include:: /Includes.rst.txt
+..  include:: /Includes.rst.txt
+
+..  _start:
 
 ===================
 AI Bridge for TYPO3
@@ -16,36 +18,49 @@ AI Bridge for TYPO3
 :Language:
     en
 
-:Copyright:
-    2025
-
 :Author:
     Marcel Marty
+
+:Copyright:
+    since 2025 by web-nomads & Contributors
+
+:License:
+    This document is published under the
+    `Open Publication License <https://www.opencontent.org/openpub/>`__.
 
 :Rendered:
     |today|
 
-:License:
-    This document is published under the Open Content License
-    available from http://www.opencontent.org/opl.shtml
+----
 
-    The content of this document is related to TYPO3,
-    a GNU/GPL CMS/Framework available from `www.typo3.org <http://www.typo3.org/>`_.
+AI Bridge makes a TYPO3 site readable for language models and adds an on-site
+AI search assistant for visitors. It generates ``llms.txt`` according to the
+`llmstxt.org specification <https://llmstxt.org/>`__, serves every page as
+Markdown under a ``.md`` suffix, and provides a chat widget that answers
+questions from the site's own content — with backend modules for the enquiries
+received, the answers given and the crawlers that came by.
+
+----
 
 **Table of Contents**
 
 ..  toctree::
-    :maxdepth: 5
+    :maxdepth: 2
     :titlesonly:
-    :glob:
 
-   Introduction/Index
-   Installation/Index
-   Administrator/Index
-   Editor/Index
-   Configuration/Index
-   AiAssistant/Index
-   Developer/Index
-   KnownProblems/Index
-   ChangeLog/Index
-   Sitemap
+    Introduction/Index
+    Installation/Index
+    Configuration/Index
+    AiAssistant/Index
+    Editor/Index
+    Administrator/Index
+    Developer/Index
+    KnownProblems/Index
+    ChangeLog/Index
+
+..  Meta Menu
+
+..  toctree::
+    :hidden:
+
+    Sitemap

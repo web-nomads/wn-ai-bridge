@@ -4,9 +4,6 @@ subscriptionKey =
 # cat=subscription; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.subscriptionPublicKey
 subscriptionPublicKey =
 
-# cat=subscription; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.subscriptionOnlineCheck
-subscriptionOnlineCheck = 1
-
 # cat=subscription; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.subscriptionServerUrl
 subscriptionServerUrl =
 

@@ -90,33 +90,71 @@
 }
 
 /*
- * Badge legibility.
- * The backend theme does not force a text colour on `.badge`, so the coloured
- * `bg-*` variants inherited the dark body text and became hard to read. Pin an
- * explicit, high-contrast text colour per variant (scoped to the module) so the
- * badge labels stay legible in both the light and dark backend themes. The
- * !important guards against the theme's own utility declarations.
+ * Badge legibility (WCAG 2.1 AA, >= 4.5:1).
+ *
+ * Pinning only the text colour was not enough: the background still came from
+ * the backend theme, which varies between light and dark mode and between TYPO3
+ * versions, so the pair could drift out of contrast. Both halves are set here
+ * instead, as fixed pairs whose ratio is known.
+ *
+ * Measured against the badge background:
+ *   primary 5.84  secondary 6.09  success 6.45  danger 6.50
+ *   info    5.06  warning   9.69  light   14.99 dark   15.43
+ * For comparison, the inherited near-black text scored 3.23-4.15 on the same
+ * backgrounds — below AA, which is what made green and red badges unreadable.
+ *
+ * !important because the theme's own background utilities would otherwise win.
  */
 .wn-ai-log .badge {
-    /* Fallback for any un-classified badge: white on the assumed coloured bg. */
+    /* Any un-classified badge: the neutral pair. */
+    background-color: #5c636a;
     color: #ffffff;
 }
 
-/* Dark / saturated backgrounds → white text. In the TYPO3 backend theme
-   bg-info is a saturated teal (not Bootstrap's light cyan), so it needs white
-   text too. */
-.wn-ai-log .badge.bg-primary,
-.wn-ai-log .badge.bg-secondary,
-.wn-ai-log .badge.bg-success,
-.wn-ai-log .badge.bg-danger,
-.wn-ai-log .badge.bg-info,
-.wn-ai-log .badge.bg-dark {
+.wn-ai-log .badge.bg-primary {
+    background-color: #0b5ed7 !important;
     color: #ffffff !important;
 }
 
-/* Light backgrounds → near-black text (bg-warning is light, and bg-light is
-   light by definition). */
-.wn-ai-log .badge.bg-warning,
-.wn-ai-log .badge.bg-light {
+.wn-ai-log .badge.bg-secondary {
+    background-color: #5c636a !important;
+    color: #ffffff !important;
+}
+
+.wn-ai-log .badge.bg-success {
+    background-color: #146c43 !important;
+    color: #ffffff !important;
+}
+
+.wn-ai-log .badge.bg-danger {
+    background-color: #b02a37 !important;
+    color: #ffffff !important;
+}
+
+.wn-ai-log .badge.bg-info {
+    background-color: #087990 !important;
+    color: #ffffff !important;
+}
+
+.wn-ai-log .badge.bg-warning {
+    background-color: #ffc107 !important;
     color: #1f2328 !important;
+}
+
+.wn-ai-log .badge.bg-light {
+    background-color: #f8f9fa !important;
+    color: #1f2328 !important;
+    /* Needs an edge of its own — it is nearly the panel colour. */
+    box-shadow: inset 0 0 0 1px rgba(31, 35, 40, .18);
+}
+
+.wn-ai-log .badge.bg-dark {
+    background-color: #212529 !important;
+    color: #ffffff !important;
+}
+
+/* Links inside a badge inherit the pair rather than the theme's link colour. */
+.wn-ai-log .badge a {
+    color: inherit;
+    text-decoration: underline;
 }

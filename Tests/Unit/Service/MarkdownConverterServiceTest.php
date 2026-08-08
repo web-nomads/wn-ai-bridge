@@ -27,6 +27,9 @@ class MarkdownConverterServiceTest extends TestCase
 
         $this->htmlCleanerService = new HtmlCleanerService();
         $this->configurationService = $this->createMock(ConfigurationService::class);
+        // Same host as getSiteUrl in these tests — the two only differ on sites
+        // served from an entry point, which EntryPointUrlTest covers.
+        $this->configurationService->method('getSiteOrigin')->willReturn('https://example.com');
 
         $this->subject = new MarkdownConverterService(
             $this->htmlCleanerService,
@@ -238,9 +241,13 @@ class MarkdownConverterServiceTest extends TestCase
         self::assertSame($expectedResult, $result);
     }
 
-    private function invokeProcessMarkdownUrl(string $url, string $siteUrl): string
+    /**
+     * @param string|null $siteOrigin Defaults to $siteUrl, which is right for
+     *        every site without an entry point path.
+     */
+    private function invokeProcessMarkdownUrl(string $url, string $siteUrl, ?string $siteOrigin = null): string
     {
         $method = new \ReflectionMethod($this->subject, 'processMarkdownUrl');
-        return $method->invoke($this->subject, $url, $siteUrl);
+        return $method->invoke($this->subject, $url, $siteUrl, $siteOrigin ?? $siteUrl);
     }
 }

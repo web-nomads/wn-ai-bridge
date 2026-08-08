@@ -13,9 +13,9 @@
                edit-on-github="web-nomads/wn-ai-bridge"
                typo3-core-preferred="stable"
     />
-    <project title="LLMS TXT - AI content generation for TYPO3 LMS"
-             release="main (development)"
-             version="main (development)"
+    <project title="AI Bridge for TYPO3"
+             release="1.25.0"
+             version="1.25"
              copyright="since 2025 by web-nomads &amp; Contributors"
     />
 </guides>

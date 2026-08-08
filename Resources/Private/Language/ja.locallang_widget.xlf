@@ -21,6 +21,7 @@
 			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source><target>該当するページが1件見つかりました：</target></trans-unit>
 			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source><target>該当するページが %d 件見つかりました：</target></trans-unit>
 			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source><target>下記の候補をご覧ください。お探しの情報が見つかります。</target></trans-unit>
+			<trans-unit id="markdown.webVersion"><source>Web version</source><target>ウェブ版</target></trans-unit>
 		</body>
 	</file>
 </xliff>

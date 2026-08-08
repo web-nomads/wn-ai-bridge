@@ -125,6 +125,12 @@
 			<trans-unit id="site.llmsTxtMaxDepth.description">
 				<source>Maximum depth of page hierarchy to include in navigation (1-5 levels)</source>
 			</trans-unit>
+			<trans-unit id="site.llmsTxtOnePager">
+				<source>OnePager Mode</source>
+			</trans-unit>
+			<trans-unit id="site.llmsTxtOnePager.description">
+				<source>Enable only if this site is a OnePager, i.e. its sub-pages are rendered as sections on the homepage. Links to direct children of the site root then use anchors ("/#packing-list") instead of their own page URL. Leave it off for normal multipage sites, otherwise llms.txt and the Markdown export link to anchors that do not exist.</source>
+			</trans-unit>
 			<trans-unit id="site.tab.assistant">
 				<source>AI Search Assistant</source>
 			</trans-unit>
@@ -286,9 +292,6 @@
 			</trans-unit>
 			<trans-unit id="config.subscriptionPublicKey">
 				<source>Verification key (optional): Only fill this in when the issuer has rolled over its key pair. Leave empty to use the key bundled with the extension</source>
-			</trans-unit>
-			<trans-unit id="config.subscriptionOnlineCheck">
-				<source>Daily status check: Asks the issuing server once a day whether the subscription is still active, so a revocation takes effect immediately. The check runs in the backend and on the command line, never inside a visitor request. When the server cannot be reached, the key stays valid until its expiry date</source>
 			</trans-unit>
 			<trans-unit id="config.subscriptionServerUrl">
 				<source>Issuing server (optional): Base URL for the status check. Leave empty to use the address carried inside the key</source>

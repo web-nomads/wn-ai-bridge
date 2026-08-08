@@ -17,10 +17,6 @@ final class SubscriptionToken
     /**
      * @param list<string> $domains Host patterns, e.g. "example.com" or "*.example.com".
      * @param list<string> $features Feature keys; an empty list means "everything".
-     */
-    /**
-     * @param list<string> $domains Host patterns, e.g. "example.com" or "*.example.com".
-     * @param list<string> $features Feature keys; an empty list means "everything".
      * @param string $checkUrl Base URL of the issuing server for the daily status
      *                         check. Part of the signed payload, so it cannot be
      *                         redirected to a server of the customer's choosing.

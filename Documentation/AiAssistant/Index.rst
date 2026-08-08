@@ -1,35 +1,58 @@
-.. include:: /Includes.rst.txt
+..  include:: /Includes.rst.txt
 
-.. _ai-assistant:
+..  _ai-assistant:
 
 ===================
 AI Search Assistant
 ===================
 
 The AI search assistant is an on-site chat widget that helps visitors find
-information on your website. Visitors ask a question in natural language and the
+information on the website. They ask a question in natural language and the
 assistant answers with concrete suggestions and links to the matching pages.
 
-It works in two modes:
+..  contents::
+    :local:
+    :depth: 2
 
-*   **Search-only** (default, no API key): the assistant returns the best
-    matching pages as ranked suggestions with links. Fast, free and privacy
-    friendly.
-*   **Hybrid / RAG** (with an LLM API key): the assistant additionally has an
-    LLM compose a short, grounded answer that cites the source pages
-    (retrieval-augmented generation). If the LLM is unavailable, it transparently
-    falls back to search-only.
+..  _assistant-modes:
+
+The two modes
+=============
+
+Search-only (default, no API key)
+    The assistant returns the best matching pages as ranked suggestions with
+    links. Fast, free and privacy friendly — no data leaves the server.
+
+Hybrid / RAG (with an LLM API key)
+    A language model additionally composes a short, grounded answer that cites
+    the source pages (retrieval-augmented generation). If the model is
+    unavailable, the assistant transparently falls back to search-only.
+
+..  note::
+
+    The fallback is silent by design: the visitor gets suggestions instead of an
+    error message. A missing API key, an account without credit or an unknown
+    model id therefore shows up as "the assistant only ever lists pages", never
+    as a visible failure. The incident is written to the TYPO3 log.
+
+..  _assistant-how-it-works:
 
 How it works
 ============
 
-1.  The visitor's question hits the JSON endpoint
-    ``POST …/wn-ai-bridge/ask`` (a PSR-15 middleware — no page or plugin needed).
-2.  The :php:`SearchService` queries every available search backend and merges
-    the results by rank, de-duplicating URLs.
-3.  If an LLM is configured, the retrieved passages plus the question are sent to
-    the model, which returns a cited answer. Otherwise the ranked hits are
+#.  The visitor's question hits the JSON endpoint ``POST …/wn-ai-bridge/ask``.
+    This is a PSR-15 middleware — no page, plugin or content element is needed.
+#.  :php:`SearchService` queries every available search backend and merges the
+    results by rank, de-duplicating URLs.
+#.  The curated answers are consulted. A close match by meaning is played back
+    verbatim (log mode ``learning``); weaker matches are carried forward as
+    binding hints. This lookup runs *before* the "nothing found" fallback, so a
+    stored answer is given even when the site search returns no hits.
+#.  If an LLM is configured, the retrieved passages plus the question are sent
+    to the model, which returns a cited answer. Otherwise the ranked hits are
     returned directly.
+
+..  _assistant-search-backends:
 
 Search backends
 ===============
@@ -37,161 +60,133 @@ Search backends
 The assistant aggregates the following backends and degrades gracefully — a
 backend that is not installed is simply skipped:
 
-*   ``ke_search`` — fulltext search on the ``tx_kesearch_index`` table.
-*   ``indexed_search`` — the TYPO3 core index (``index_phash`` /
-    ``index_fulltext``).
-*   ``pages`` — a dependency-free fallback that searches the ``pages`` and
-    ``tt_content`` tables directly, so the assistant works even without any
-    search index built yet.
+``ke_search``
+    Fulltext search on the ``tx_kesearch_index`` table.
 
-Third-party extensions can add their own backend by implementing
-:php:`WebNomads\WnAiBridge\Search\SearchProviderInterface` and tagging the
-service with ``wn_ai_bridge.search_provider``.
+``indexed_search``
+    The TYPO3 core index (``index_phash`` / ``index_fulltext``).
 
-Global configuration (Extension Configuration)
-==============================================
+``pages``
+    A dependency-free fallback that searches the ``pages`` and ``tt_content``
+    tables directly, so the assistant works even before any search index has
+    been built.
 
-.. confval:: assistantEnabled
+Which of them are used is controlled by :confval:`assistantSearchSources`.
+Third-party extensions can add their own backend — see
+:ref:`developer-search-provider`.
 
-    Master switch for the assistant. Off by default.
+..  _assistant-configuration:
 
-.. confval:: assistantProvider
+Configuration
+=============
 
-    LLM provider. Currently ``anthropic``.
+The assistant needs two switches to agree: :confval:`assistantEnabled` in the
+extension configuration turns the feature on at all,
+:confval:`aiAssistantEnabled` in the site configuration turns it on for a given
+site. Both are documented in :ref:`configuration`:
 
-.. confval:: assistantApiKey
+*   :ref:`configuration-assistant` — provider, model, tokens, temperature,
+    instructions, bot protection, logging
+*   :ref:`configuration-site-assistant` — window title, welcome message,
+    placeholder, avatar, search root, OnePager mode, learning, custom CSS
+*   :ref:`configuration-site-colors` — the twelve themeable colours
 
-    The provider API key. Leave empty for search-only mode.
+..  _assistant-curated-answers:
 
-.. confval:: assistantModel
+Curated answers
+===============
 
-    Model id, e.g. ``claude-haiku-4-5`` (fast/cheap) or ``claude-opus-4-8``
-    (highest quality).
+The :guilabel:`Answers` module holds question/answer pairs that the assistant
+uses as its own knowledge. An active entry replaces whatever the assistant would
+have produced on its own.
 
-.. confval:: assistantSearchSources
+Matching is by meaning rather than by wording: term overlap, prefix-tolerant so
+that "Versand" also matches "Versandkosten", combined with overall string
+similarity. A close match is played back verbatim; a weaker one is handed to the
+model as a binding hint.
 
-    Which backends to use: ``auto`` (all available), ``kesearch``, ``indexed``
-    or ``pages``.
+Entries come from three places — written in the module, taken over from a logged
+answer in :guilabel:`Enquiries`, or captured from a correction a visitor made in
+the chat when :confval:`aiAssistantLearning` is enabled. Visitor corrections
+arrive as :guilabel:`Pending review` and are never used until an editor approves
+them.
 
-.. confval:: assistantMaxResults
+The editorial workflow is described in :ref:`editor-answers`.
 
-    Number of search hits used as context / shown as suggestions.
+..  _assistant-logging:
 
-.. confval:: assistantMaxTokens
+Logging, statistics and cost
+============================
 
-    Maximum length of the generated answer in tokens.
+With :confval:`assistantLogging` enabled, every question and answer is persisted
+in ``tx_wnaibridge_assistant_log`` together with the date, client IP, user
+agent, mode (``llm`` / ``search`` / ``learning``), provider, model and token
+usage. Run ``vendor/bin/typo3 extension:setup`` after enabling, or the module
+opens with a table error.
 
-.. confval:: assistantTemperature
+The :guilabel:`Enquiries` module shows the entries in a filterable list — by
+date range, IP address, provider, mode and free text over question and answer —
+with a statistics overview above it: interactions, the LLM-versus-search split,
+input, output and total tokens, the estimated total cost and a per-provider
+breakdown. A :guilabel:`Clear log` action removes all entries.
 
-    Sampling temperature as a decimal between ``0.0`` (deterministic/precise)
-    and ``1.0`` (more creative). Default ``0.2``; invalid values fall back to
-    ``0.2`` and out-of-range values are clamped.
+Conversations
+-------------
 
-.. confval:: assistantInstructions
+Each chat session gets a conversation id, generated by the client and kept for
+the browser session, so all turns of one conversation are grouped. The list
+shows one collapsible row per conversation with the first question, the date and
+the visitor information; expanding it reveals the follow-up questions and
+answers with their provider, model and per-turn plus total token usage.
 
-    Global agent instructions (persona, tone, rules) added to the system prompt
-    on every answer. Applies to all sites and combines with the per-site
-    instructions (``aiAssistantSystemPrompt``).
+Estimated cost
+--------------
 
-.. confval:: assistantBotProtection
+The module estimates the LLM cost in CHF from the recorded token usage and
+per-model pricing, shown as a total, per conversation and per turn. Model prices
+are quoted in USD and converted with :confval:`assistantUsdToChfRate`. Prices
+change over time, so treat the figures as budgeting estimates, not accounting.
 
-    Blocks non-human requests to the assistant endpoint (crawlers, scripts,
-    known bots). On by default. Detection combines a proof header that only the
-    widget sends, bot User-Agent markers and a same-origin check; blocked
-    requests receive an HTTP ``403`` with a "no bots allowed" message.
+Visitor origin
+--------------
 
-Per-site configuration (Site tab "AI Search Assistant")
-=======================================================
+The collapsed row shows the visitor's IP address and reverse-DNS hostname,
+cached. With :confval:`assistantLogGeoLookup` enabled, the country is
+additionally resolved via the external service ``ip-api.com`` and cached. This
+runs only in the backend while the log is being viewed, never during a visitor
+request. Private and reserved addresses are flagged as such and are never sent.
 
-Each site has its own settings: enable/disable the widget, the window title,
-the welcome message, the input placeholder, additional system-prompt
-instructions (persona/tone, only used with an LLM) and an optional search root
-page to restrict the search to a subtree.
+..  warning::
 
-**OnePager mode:** enable ``aiAssistantOnePager`` for sites whose sub-pages are
-rendered as sections on the homepage. Result links to direct children of the
-site root then use homepage anchors (e.g. ``/#customers``) instead of separate
-sub-page URLs. Leave it off for normal multipage sites so real page URLs are
-produced.
+    The geolocation lookup sends the visitor IP address to a third party. It is
+    off by default — enable it only if this is compatible with your
+    data-protection requirements.
 
-**Colors:** the widget is fully themeable per site via the *AI Assistant Colors*
-tab. All twelve colours are optional HEX values — accent, background and text,
-plus background/text/link for the visitor messages, the assistant messages and
-the sources list. Colours you leave empty keep the built-in defaults (including
-automatic dark-mode).
+..  warning::
 
-**Avatar (logo/photo):** set ``aiAssistantAvatar`` to a logo or photo and it is
-shown as a round avatar in the widget header and next to each assistant answer
-(the floating button always keeps the chat icon). The value can be a URL
-(``https://…``), an extension path
-(``EXT:my_ext/Resources/Public/Images/bot.png``) or a path relative to the public
-root (``fileadmin/logo.png``). Since site configuration is file-based, this is a
-path/URL field rather than a FAL file picker. The image is cropped to a circle
-(``object-fit: cover``), so any aspect ratio looks tidy.
+    The log stores IP addresses and the full text of every question and answer.
+    Make sure this complies with your data-protection obligations: inform
+    visitors in the privacy policy, define a retention period and clear the log
+    on a schedule.
 
-**Custom CSS:** for full control beyond the colour settings, set
-``aiAssistantCustomCss`` to your own stylesheet (URL, ``EXT:`` path or a path
-relative to the public root). It is loaded *after* the widget's default styles,
-so your rules take precedence. Scope your selectors under ``#wn-ai-assistant``
-(e.g. ``#wn-ai-assistant .wn-ai-panel { … }``) and, where useful, override the
-CSS custom properties such as ``--wn-ai-accent`` or ``--wn-ai-radius``.
+..  _assistant-privacy:
 
-**Auto-open:** the overlay can open automatically after a configurable delay
-(``aiAssistantAutoOpen`` + ``aiAssistantAutoOpenDelay`` in seconds). Once a
-visitor closes the overlay it will not reopen automatically during the same
-browser session (tracked via ``sessionStorage``).
+Privacy
+=======
 
-Logging & backend module
-=========================
-
-Enable ``assistantLogging`` in the extension configuration to persist every
-question and answer. Each entry stores the date, client IP, user agent, mode
-(``llm``/``search``), provider, model and token usage in the
-``tx_wnaibridge_assistant_log`` table (run the database schema update after
-enabling).
-
-The **Enquiries** backend module (module group "AI Bridge") shows the
-entries in a filterable list — by date range, IP address, provider, mode and
-free text over question/answer — together with a statistics overview:
-interactions, the LLM-vs-search split, total input/output/total tokens, the
-estimated total cost and a per-provider breakdown. A "Clear log" action removes
-all entries.
-
-**Estimated cost:** the module estimates the LLM cost in CHF from the recorded
-token usage and per-model pricing, shown as a total in the overview, per thread
-and per turn. Model prices are quoted in USD and converted with the configurable
-``assistantUsdToChfRate``. These are rough estimates (prices change over time)
-for budgeting only.
-
-Each chat session gets a conversation id (client-generated, stored per browser
-session), so all turns of one conversation are grouped. The list shows **one
-collapsible row per thread** (with the first question, date and visitor info);
-expanding it reveals all follow-up questions and answers with their
-provider/model and per-turn plus total token usage.
-
-The collapsed row shows the visitor's IP address and reverse-DNS hostname
-(cached). When ``assistantLogGeoLookup`` is enabled, the country is additionally
-resolved via an external geolocation service (``ip-api.com``) and cached; this
-runs only in the backend when viewing the log, never during a visitor request.
-Private/reserved IPs (e.g. local testing) are flagged accordingly and are never
-sent to the geolocation service.
-
-.. warning::
-
-   The geolocation lookup sends the visitor IP to an external third-party
-   service. It is therefore off by default — enable it only if this is
-   compatible with your data-protection requirements.
-
-.. warning::
-
-   The log stores IP addresses and the full question/answer text. Make sure this
-   complies with your data-protection obligations (e.g. GDPR): inform users,
-   define a retention period and clear the log regularly.
-
-Privacy note
-============
-
-In search-only mode no data leaves your server. In hybrid mode the visitor's
+In search-only mode no data leaves the server. In hybrid mode the visitor's
 question and the retrieved page excerpts are sent to the configured LLM
-provider. Inform your visitors accordingly and choose the provider/model with
+provider. Inform your visitors accordingly and choose provider and model with
 your data-protection requirements in mind.
+
+What the licence check sends — which is unrelated to visitor data — is spelled
+out in :ref:`data-sent-to-the-licence-server`.
+
+..  _assistant-abuse:
+
+Protecting the endpoint
+=======================
+
+The ``/wn-ai-bridge/ask`` endpoint is public and, with an API key configured,
+every request to it can cost money. Before going live, read
+:ref:`administrator-security`.
