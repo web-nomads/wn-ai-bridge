@@ -109,17 +109,40 @@ final class SubscriptionStatus
     }
 
     /**
+     * Whether the configured key is a trial.
+     *
+     * Read from the key itself, so it holds even when the issuing server cannot
+     * be reached. Worth stating wherever the state is shown: a trial ends on its
+     * date and nothing renews it, so "active until" means something different
+     * here than it does for a bought subscription.
+     */
+    public function isTrial(): bool
+    {
+        return $this->token?->trial ?? false;
+    }
+
+    /**
      * A short, German explanation for the backend. Kept here (rather than in a
      * template) so every module can show the same wording.
      */
     public function getMessage(): string
     {
         return match ($this->reason) {
-            self::REASON_OK => sprintf(
-                'Subscription active for %s – valid until %s.',
-                $this->token?->getDomainList() ?: 'this domain',
-                $this->getValidUntil()?->format('Y-m-d') ?? 'unlimited',
-            ),
+            // A trial says so first and in its own sentence. It expires for good
+            // on that date — no renewal moves it — so presenting it in the same
+            // words as a bought subscription would set the wrong expectation.
+            self::REASON_OK => $this->isTrial()
+                ? sprintf(
+                    'Trial subscription active for %s – valid until %s. It does not renew; '
+                    . 'order a subscription to keep the AI Bridge running afterwards.',
+                    $this->token?->getDomainList() ?: 'this domain',
+                    $this->getValidUntil()?->format('Y-m-d') ?? 'unlimited',
+                )
+                : sprintf(
+                    'Subscription active for %s – valid until %s.',
+                    $this->token?->getDomainList() ?: 'this domain',
+                    $this->getValidUntil()?->format('Y-m-d') ?? 'unlimited',
+                ),
             self::REASON_MISSING => 'No subscription key is configured. '
                 . 'Enter the key in the extension configuration of "wn_ai_bridge".',
             self::REASON_MALFORMED => 'The configured subscription key has an invalid format. '
@@ -128,10 +151,15 @@ final class SubscriptionStatus
                 . 'The key was altered, or it was not issued by this vendor.',
             self::REASON_PAYLOAD => 'The contents of the subscription key could not be read. '
                 . 'Please request a new key.',
-            self::REASON_EXPIRED => sprintf(
-                'The subscription expired on %s. Please renew it.',
-                $this->getValidUntil()?->format('Y-m-d') ?? '',
-            ),
+            self::REASON_EXPIRED => $this->isTrial()
+                ? sprintf(
+                    'The trial ended on %s. Order a subscription to keep using the AI Bridge.',
+                    $this->getValidUntil()?->format('Y-m-d') ?? '',
+                )
+                : sprintf(
+                    'The subscription expired on %s. Please renew it.',
+                    $this->getValidUntil()?->format('Y-m-d') ?? '',
+                ),
             self::REASON_REVOKED => 'The subscription was revoked by the issuer. '
                 . 'Please get in touch.',
             self::REASON_DOMAIN => sprintf(

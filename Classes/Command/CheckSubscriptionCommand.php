@@ -71,6 +71,7 @@ final class CheckSubscriptionCommand extends Command
 
         $io->definitionList(
             ['Subscription' => $token->id],
+            ['Type' => $token->trial ? 'trial (does not renew)' : 'subscription'],
             ['Customer' => $token->customer !== '' ? $token->customer : '—'],
             ['Domains' => $token->getDomainList()],
             ['Valid until (key)' => $token->getExpiresAt()?->format('Y-m-d') ?? 'unlimited'],

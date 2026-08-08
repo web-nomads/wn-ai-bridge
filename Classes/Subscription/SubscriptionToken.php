@@ -6,7 +6,8 @@ namespace WebNomads\WnAiBridge\Subscription;
 
 /**
  * The decrypted content of a subscription key: who it was issued to, which
- * domains it covers, when it expires and which features it unlocks.
+ * domains it covers, when it expires, which features it unlocks and whether it
+ * is a trial.
  *
  * Instances are only ever created from an already decrypted and signature
  * verified payload (see {@see SubscriptionKeyCodec}), so the data in here can be
@@ -20,6 +21,9 @@ final class SubscriptionToken
      * @param string $checkUrl Base URL of the issuing server for the daily status
      *                         check. Part of the signed payload, so it cannot be
      *                         redirected to a server of the customer's choosing.
+     * @param bool $trial Whether this is a trial key — a full licence with a short
+     *                    term that does not renew. Signed as well, so what counts
+     *                    as a trial is decided by the issuer and not here.
      */
     public function __construct(
         public readonly string $id,
@@ -30,6 +34,7 @@ final class SubscriptionToken
         public readonly int $expiresAt,
         public readonly array $features,
         public readonly string $checkUrl = '',
+        public readonly bool $trial = false,
     ) {}
 
     /**
@@ -46,7 +51,21 @@ final class SubscriptionToken
             (int)($payload['exp'] ?? 0),
             self::stringList($payload['features'] ?? []),
             trim((string)($payload['chk'] ?? '')),
+            // Absent from every key issued before trials existed, and from every
+            // paid one since — a missing marker means an ordinary subscription.
+            (bool)($payload['trial'] ?? false),
         );
+    }
+
+    /**
+     * Whether this key was issued as a trial.
+     *
+     * Named so Fluid can reach it: a template asks for "trial", and Fluid
+     * resolves object properties only through get...(), is...() and has...().
+     */
+    public function isTrial(): bool
+    {
+        return $this->trial;
     }
 
     /**

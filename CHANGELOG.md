@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.0] - 2026-08-08
+
+### Added
+- **A trial key is shown as a trial.** Keys issued through the trial form of the
+  AI Bridge Server carry a marker inside their signed payload, and the
+  subscription state now reads it: the modules say "Trial subscription active …
+  it does not renew; order a subscription to keep the AI Bridge running
+  afterwards", and `ai-bridge:check-subscription` reports the type alongside the
+  subscription number. An expired trial points at ordering rather than at
+  renewing — there is nothing to renew
+- The marker is read from the key itself rather than from the daily status check,
+  so it holds even while the issuing server cannot be reached. A key without it
+  is an ordinary subscription, which is what every key issued before trials
+  existed, and every paid one since, looks like
+
 ## [1.25.1] - 2026-08-08
 
 ### Fixed
