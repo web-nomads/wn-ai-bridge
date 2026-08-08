@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.25.1] - 2026-08-08
+
+### Fixed
+- **Language pass over the documentation and the README.** Corrections that
+  changed the meaning, not just the wording:
+  - The Administrator chapter announced "two of the three tables ... and both are
+    off by default" above a table listing **three** of them. All three hold
+    personal data and all three are off by default
+  - The Editor chapter called two backend modules "editorial work". A module is
+    where the work happens, not the work itself
+  - The README described `llms.txt` as a "policy file" that "states how the site
+    would like to be used". It describes content, it does not restrict access —
+    the shared idea with `robots.txt` is the well-known location, not the purpose
+- **Two blocks in the README never rendered on GitHub.** The search-only and
+  hybrid modes used Markdown definition lists, which GitHub does not support, so
+  both paragraphs appeared with a stray leading colon
+- Grammar and wording: "expecting to ask instead of browse", "renamed in version
+  1.18.0 and 1.21.0" for two versions, "entries reach the module three ways",
+  "left empty they are derived", "privacy friendly" unhyphenated, "which served
+  nobody" in a sentence about the present, and a circular "visible where it is
+  noticed"
+- The example for prefix-tolerant matching used German words ("Versand" /
+  "Versandkosten") in the English manual
+- `licence` / `license` are used consistently again, British spelling in prose
+
 ## [1.25.0] - 2026-08-08
 
 ### Removed

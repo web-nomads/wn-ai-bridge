@@ -120,7 +120,19 @@ Behavioural changes worth checking after an update
 Release history
 ===============
 
-..  _changelog-1-26:
+..  _changelog-1-25-1:
+
+1.25.1 — 2026-08-08
+-------------------
+
+*   A language pass over the manual and the README. Three corrections changed
+    the meaning: the Administrator chapter announced "two of the three tables"
+    above a table listing three, the Editor chapter called two backend modules
+    "editorial work", and the README described ``llms.txt`` as a policy file.
+*   Two README sections used Markdown definition lists, which GitHub does not
+    render, so both showed a stray leading colon.
+
+..  _changelog-1-25:
 
 1.25.0 — 2026-08-08
 -------------------

@@ -12,7 +12,7 @@ What does it do?
 ================
 
 AI Bridge covers two things a TYPO3 site needs once language models start
-reading it and visitors start expecting to ask instead of browse:
+reading it and visitors start expecting to ask rather than browse:
 
 **Machine-readable content**
     An ``llms.txt`` file per site according to the
@@ -97,7 +97,7 @@ submodules:
 
 ..  note::
 
-    Two of these modules were renamed in version 1.18.0 and 1.21.0:
+    Two of these modules were renamed, in versions 1.18.0 and 1.21.0:
     :guilabel:`Corrections` became :guilabel:`Answers`, and
     :guilabel:`AI Assistant Log` became :guilabel:`Enquiries`. Older
     documentation, screenshots and blog posts may still use the former names.
