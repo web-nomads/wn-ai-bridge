@@ -111,6 +111,12 @@ the enabled features.
 Without a valid key the widget stays hidden and the two modules disappear.
 Everything else keeps working.
 
+Order your subscription key:  
+DE: [https://www.marcelmarty.ch/#extensions](https://www.marcelmarty.ch/#extensions)  
+EN: [https://www.marcelmarty.ch/en/#extensions](https://www.marcelmarty.ch/en/#extensions)  
+
+Write me an email for a 14 days free trial licence.  
+
 ### What the licence check sends
 
 Once a day the extension asks the issuing server whether the subscription is
