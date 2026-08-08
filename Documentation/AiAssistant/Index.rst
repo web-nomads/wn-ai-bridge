@@ -21,7 +21,7 @@ The two modes
 
 Search-only (default, no API key)
     The assistant returns the best matching pages as ranked suggestions with
-    links. Fast, free and privacy friendly — no data leaves the server.
+    links. Fast, free and privacy-friendly — no data leaves the server.
 
 Hybrid / RAG (with an LLM API key)
     A language model additionally composes a short, grounded answer that cites
@@ -101,7 +101,7 @@ uses as its own knowledge. An active entry replaces whatever the assistant would
 have produced on its own.
 
 Matching is by meaning rather than by wording: term overlap, prefix-tolerant so
-that "Versand" also matches "Versandkosten", combined with overall string
+that "delivery" also matches "delivery costs", combined with overall string
 similarity. A close match is played back verbatim; a weaker one is handed to the
 model as a binding hint.
 

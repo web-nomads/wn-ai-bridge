@@ -1,7 +1,7 @@
 {
     "name": "web-nomads/wn-ai-bridge",
     "type": "typo3-cms-extension",
-    "version": "1.25.0",
+    "version": "1.25.1",
     "description": "TYPO3 extension for generating llms.txt links based on the llmstxt.org specification and an on-site AI search assistant that helps visitors find information via ke_search and indexed_search.",
     "keywords": ["TYPO3", "CMS", "llm", "ai", "crawling", "policy", "search", "assistant", "chatbot"],
     "homepage": "https://github.com/web-nomads/wn-ai-bridge",

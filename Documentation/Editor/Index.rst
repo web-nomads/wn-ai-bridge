@@ -121,8 +121,8 @@ This is expected. The Markdown version is about meaning, not appearance.
 The backend modules
 ===================
 
-The module group :guilabel:`AI Bridge` holds three modules. Two of them are
-editorial work.
+The module group :guilabel:`AI Bridge` holds three modules. Two of them
+involve editorial work.
 
 ..  note::
 
@@ -181,8 +181,8 @@ An entry has these fields:
       - What the assistant says, word for word. Phrase it as a complete,
         self-contained reply
     * - :guilabel:`Keywords`
-      - Optional. Left empty they are derived from question and answer;
-        additional keywords widen the range of questions that match
+      - Optional. If left empty, they are derived from the question and the
+        answer; additional keywords widen the range of questions that match
     * - :guilabel:`Site`
       - The site identifier the entry applies to. A mismatch here means the
         answer is never used
@@ -194,7 +194,7 @@ An entry has these fields:
       - :guilabel:`Editorial` for entries written in the backend,
         :guilabel:`Visitor` for corrections captured in the chat
 
-Entries reach the module three ways:
+Entries reach the module in three ways:
 
 #.  Written directly in the module with :guilabel:`New answer`.
 #.  Taken over from a logged answer via :guilabel:`Define a different answer`

@@ -9,7 +9,7 @@ assistant that answers from the site's own content.
 
 Two halves that work independently:
 
-- **Machine-readable content** — an `llms.txt` policy file following the
+- **Machine-readable content** — an `llms.txt` file following the
   [llmstxt.org specification](https://llmstxt.org/), and a Markdown
   representation of every page. Free, no key needed.
 - **AI search assistant** — a chat widget that answers visitor questions from
@@ -54,11 +54,12 @@ So `https://example.com/about` also exists as `https://example.com/about.md`.
 
 ## What llms.txt is for
 
-`llms.txt` is to language models roughly what `robots.txt` is to crawlers: a
-file at a well-known location that states how the site would like to be used,
-lists its structure, and points at machine-readable versions of the content.
-This extension generates it from your actual page tree, so it stays correct
-without anyone maintaining it by hand.
+`llms.txt` sits at a well-known location and tells language models what a site
+is about: a short description, its structure, and links to machine-readable
+versions of the content. The place is the same idea as `robots.txt`, the purpose
+is not — it describes content rather than restricting access. This extension
+generates it from your actual page tree, so it stays correct without anyone
+maintaining it by hand.
 
 Configure the metadata (topics, contact, description) per site on the
 **AI Bridge** tab of the site configuration.
@@ -68,14 +69,13 @@ Configure the metadata (topics, contact, description) per site on the
 A floating chat widget. Switch it on in the extension configuration
 (`assistantEnabled`) and per site in the site configuration.
 
-**Search-only** (no API key)
-: Returns ranked matching pages as suggestions with links. Fast, free, and
-  nothing leaves your server.
+**Search-only** (no API key) returns ranked matching pages as suggestions with
+links. Fast, free, and nothing leaves your server.
 
-**Hybrid** (with an LLM API key in `assistantApiKey`)
-: Additionally lets the model compose a short answer from the retrieved pages
-  and cite them. Any failure — quota, timeout, malformed response — falls back
-  to search-only rather than showing an error.
+**Hybrid** (with an LLM API key in `assistantApiKey`) additionally lets the
+model compose a short answer from the retrieved pages and cite them. Any
+failure — quota, timeout, malformed response — falls back to search-only rather
+than showing an error.
 
 The assistant reads `ke_search` and `indexed_search` when they are installed,
 and always keeps a dependency-free `pages`/`tt_content` fallback so it returns
@@ -115,7 +115,7 @@ Order your subscription key:
 DE: [https://www.marcelmarty.ch/#extensions](https://www.marcelmarty.ch/#extensions)  
 EN: [https://www.marcelmarty.ch/en/#extensions](https://www.marcelmarty.ch/en/#extensions)  
 
-Write me an email for a 14 days free trial licence.  
+Email me for a 14-day free trial licence.  
 
 ### What the licence check sends
 
@@ -190,6 +190,6 @@ web-vision, which provides the llms.txt generation according to the
 [llmstxt.org](https://llmstxt.org/) specification. The AI search assistant, the
 Markdown endpoints and the subscription handling were added here.
 
-## License
+## Licence
 
 GPL-2.0-or-later, the same licence as the original — see [LICENSE](LICENSE).

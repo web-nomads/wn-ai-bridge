@@ -133,8 +133,8 @@ On installations nobody logs into, schedule the check daily:
     vendor/bin/typo3 ai-bridge:check-subscription --host=www.example.com
 
 The check cannot be switched off. It is what carries a renewal to the
-installation and what makes a revocation take effect, so an installation with it
-disabled only ever stopped following its own subscription. The server address
+installation and what makes a revocation take effect, so disabling it only ever
+stopped an installation from following its own subscription. The server address
 baked into the key can be overridden with :confval:`subscriptionServerUrl` for
 staging setups; a key that carries no address of its own falls back to the
 issuing server that ships with the extension.
@@ -146,9 +146,9 @@ When the server does not answer properly
 
 A check that fails is shown, not swallowed. Every AI Bridge backend module
 carries an error above the subscription state — with the address it tried, in
-bold, so a typo in :confval:`subscriptionServerUrl` is visible where it is
-noticed. ``ai-bridge:check-subscription`` names the same reason and prints the
-server it talked to:
+bold, so a typo in :confval:`subscriptionServerUrl` is visible in the place
+where the problem surfaces. ``ai-bridge:check-subscription`` names the same
+reason and prints the server it talked to:
 
 ..  list-table::
     :header-rows: 1
@@ -242,8 +242,8 @@ endpoint may return internal error details and writes rendered HTML to
 Personal data
 =============
 
-Two of the three tables the extension writes contain personal data, and both
-are off by default:
+All three tables the extension writes contain personal data, and all three are
+off by default:
 
 ..  list-table::
     :header-rows: 1
@@ -309,7 +309,7 @@ Switching it off
     the subscription features stay switched off; the llms.txt and Markdown
     endpoints work regardless. There is no setting that keeps the key but stops
     the recurring call: a subscription that does not follow its issuing server
-    can neither be renewed nor revoked, which served nobody.
+    can neither be renewed nor revoked, which serves nobody.
 
 When the server cannot be reached
     The check fails silently and the date inside the key decides. An unreachable
