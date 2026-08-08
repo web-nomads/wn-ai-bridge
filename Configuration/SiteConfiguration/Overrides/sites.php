@@ -86,6 +86,23 @@ $GLOBALS['SiteConfiguration']['site']['columns']['llmsTxtMaxDepth'] = [
     ],
 ];
 
+$GLOBALS['SiteConfiguration']['site']['columns']['llmsTxtOnePager'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.llmsTxtOnePager',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.llmsTxtOnePager.description',
+    'config' => [
+        'type' => 'check',
+        'renderType' => 'checkboxToggle',
+        'default' => 0,
+        'items' => [
+            [
+                'label' => '',
+                'labelChecked' => 'Enabled',
+                'labelUnchecked' => 'Disabled',
+            ],
+        ],
+    ],
+];
+
 $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantEnabled'] = [
     'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantEnabled',
     'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantEnabled.description',
@@ -283,6 +300,7 @@ if (!isset($GLOBALS['SiteConfiguration']['site']['types']['0']['showitem'])) {
 $GLOBALS['SiteConfiguration']['site']['types']['0']['showitem'] .= ',
     --div--;LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.tab.llmstxt,
         llmsTxtEnabled,
+        llmsTxtOnePager,
         llmsTxtTitle,
         llmsTxtDescription,
         llmsTxtAdditionalInfo,

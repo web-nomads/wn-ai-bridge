@@ -40,11 +40,16 @@ final class SubscriptionStatus
         public readonly ?SubscriptionToken $token,
         public readonly string $host,
         public readonly int $effectiveValidUntil = 0,
+        public readonly ?OnlineCheckResult $onlineCheck = null,
     ) {}
 
-    public static function valid(SubscriptionToken $token, string $host, int $effectiveValidUntil = 0): self
-    {
-        return new self(true, self::REASON_OK, $token, $host, $effectiveValidUntil);
+    public static function valid(
+        SubscriptionToken $token,
+        string $host,
+        int $effectiveValidUntil = 0,
+        ?OnlineCheckResult $onlineCheck = null,
+    ): self {
+        return new self(true, self::REASON_OK, $token, $host, $effectiveValidUntil, $onlineCheck);
     }
 
     public static function invalid(
@@ -52,8 +57,38 @@ final class SubscriptionStatus
         ?SubscriptionToken $token = null,
         string $host = '',
         int $effectiveValidUntil = 0,
+        ?OnlineCheckResult $onlineCheck = null,
     ): self {
-        return new self(false, $reason, $token, $host, $effectiveValidUntil);
+        return new self(false, $reason, $token, $host, $effectiveValidUntil, $onlineCheck);
+    }
+
+    /**
+     * Whether the last attempt to reach the issuing server went wrong. Worth
+     * showing: nothing is disabled by it, but a renewal cannot arrive and a
+     * revocation cannot take effect while it lasts.
+     *
+     * Only reported for a valid key. Without one there is nothing to renew or
+     * revoke, and the missing key is the message that matters — a second one
+     * about its server would only bury it.
+     */
+    public function hasOnlineCheckFailed(): bool
+    {
+        return $this->valid && ($this->onlineCheck?->hasFailed() ?? false);
+    }
+
+    /**
+     * The warning to show alongside the subscription state, empty when the last
+     * check was fine or none was made.
+     */
+    public function getOnlineCheckMessage(): string
+    {
+        if (!$this->hasOnlineCheckFailed()) {
+            return '';
+        }
+
+        return $this->onlineCheck?->getFailureMessage() . ' '
+            . 'The subscription keeps working according to the date in its key, '
+            . 'but a renewal or a revocation will not reach this installation until the server answers again.';
     }
 
     /**

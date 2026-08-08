@@ -23,6 +23,7 @@
 			<trans-unit id="message.searchOnly.one"><source>I found one matching page:</source></trans-unit>
 			<trans-unit id="message.searchOnly.many"><source>I found %d matching pages:</source></trans-unit>
 			<trans-unit id="message.searchOnly.tail"><source>Take a look at the suggestions below — that's where you'll find the information you're looking for.</source></trans-unit>
+			<trans-unit id="markdown.webVersion"><source>Web version</source></trans-unit>
 		</body>
 	</file>
 </xliff>

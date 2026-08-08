@@ -1,62 +1,188 @@
-.. include:: /Includes.rst.txt
+..  include:: /Includes.rst.txt
+
+..  _introduction:
 
 ============
 Introduction
 ============
 
-What does this extension do?
-============================
+..  _what-it-does:
 
-The AI Bridge extension provides TYPO3 with the capability to generate machine-readable files according to the `llmstxt.org specification <https://llmstxt.org/>`__.
+What does it do?
+================
 
-The extension creates two types of content:
+AI Bridge covers two things a TYPO3 site needs once language models start
+reading it and visitors start expecting to ask instead of browse:
 
-1. **llms.txt files** - Machine-readable policy files that inform Large Language Models (LLMs) and AI crawlers about your site's crawling preferences and content structure
-2. **Markdown content** - Human and machine-readable representations of your TYPO3 pages in Markdown format
+**Machine-readable content**
+    An ``llms.txt`` file per site according to the
+    `llmstxt.org specification <https://llmstxt.org/>`__, plus a Markdown
+    representation of every page under a ``.md`` suffix. Both are generated from
+    the existing page tree and content elements — nothing has to be maintained
+    twice.
 
-Key Features
-============
+**An on-site AI search assistant**
+    A chat widget that answers visitors' questions from the site's own content.
+    It runs on the site's search index and, optionally, has a language model
+    phrase the result. Everything it says is grounded in pages that exist.
 
-* **Automatic llms.txt generation** - Creates policy links at /.well-known/llms.txt according to the official specification
-* **Site navigation structure** - Automatically includes your site's navigation hierarchy in the llms.txt file
-* **Configurable metadata** - Add topics, contact information, and custom descriptions
-* **Markdown export** - Convert any TYPO3 page to Markdown format via .md suffix
-* **TYPO3 v12, v13 & v14 compatibility** - Supports all current LTS versions using modern PHP practices
-* **Flexible configuration** - Control depth, content, and behavior through Site Configuration
-* **Frontend rendering integration** - Leverages TYPO3's native content rendering pipeline
+Neither half depends on the other. A site can publish ``llms.txt`` without ever
+enabling the assistant.
+
+..  _features:
+
+Feature overview
+================
+
+..  list-table::
+    :header-rows: 1
+    :widths: 32 68
+
+    * - Feature
+      - Description
+    * - llms.txt generation
+      - Served at :file:`/llms.txt` and :file:`/.well-known/llms.txt`, with the
+        site title, description, topics, contact address and the navigation
+        structure down to a configurable depth
+    * - Markdown export
+      - Any page URL with ``.md`` appended returns the page as Markdown,
+        rendered through TYPO3's own content pipeline
+    * - AI search assistant
+      - Chat widget with search-only or LLM-backed answers, themeable per site
+    * - Search backend aggregation
+      - Uses ``ke_search``, ``indexed_search`` and a dependency-free fallback on
+        the ``pages`` / ``tt_content`` tables; missing backends are skipped
+    * - Curated answers
+      - Question/answer pairs the assistant plays back verbatim, maintained in
+        the backend
+    * - Enquiry log and cost tracking
+      - Every question and answer with provider, model, token usage and an
+        estimated cost
+    * - Bot access log
+      - Which crawlers requested ``llms.txt``, the Markdown versions and normal
+        pages
+    * - Rate limiting and bot protection
+      - Guards for the public assistant endpoint
+    * - Multi-language
+      - Per-language llms.txt texts and assistant texts on each site language;
+        backend modules translated into German, French, Italian, Portuguese and
+        Spanish
+
+..  _backend-modules:
+
+Backend modules
+===============
+
+The extension registers a module group :guilabel:`AI Bridge` with three
+submodules:
+
+..  list-table::
+    :header-rows: 1
+    :widths: 26 46 28
+
+    * - Module
+      - Purpose
+      - Requires a subscription
+    * - :guilabel:`Enquiries`
+      - The questions visitors asked and the answers they got, grouped per
+        conversation, with statistics and estimated cost
+      - Yes
+    * - :guilabel:`Answers`
+      - The answers the assistant gives for questions it recognises, including
+        the corrections visitors made
+      - Yes
+    * - :guilabel:`Bot Access Log`
+      - Accesses by bots and crawlers
+      - No
+
+..  note::
+
+    Two of these modules were renamed in version 1.18.0 and 1.21.0:
+    :guilabel:`Corrections` became :guilabel:`Answers`, and
+    :guilabel:`AI Assistant Log` became :guilabel:`Enquiries`. Older
+    documentation, screenshots and blog posts may still use the former names.
+    Both modules kept their previous route identifiers as aliases, so existing
+    backend group permissions and bookmarks continue to work — see
+    :ref:`configuration-module-access`.
+
+..  _what-is-llmstxt:
 
 What is llms.txt?
 =================
 
-llms.txt is an emerging standard for websites to communicate with Large Language Models and AI systems. Similar to robots.txt for web crawlers, llms.txt files provide:
+``llms.txt`` is an emerging convention for telling language models what a
+website is about and where its content lives, in the same spirit as
+:file:`robots.txt` for search engine crawlers. It is a plain Markdown file that
+carries:
 
-* **Crawling policies** - Guidelines for AI systems on how to interact with your content
-* **Site structure** - Navigation and content organization information
-* **Metadata** - Topics, contact information, and site descriptions
-* **Content access** - Direct links to machine-readable content formats
+*   a title and a short description of the site,
+*   topics and contact information,
+*   a curated list of links into the site's content,
+*   pointers to machine-readable versions of that content.
 
-The specification follows a simple, human-readable format that both humans and AI systems can easily parse.
+Because it is both human-readable and trivially parseable, it gives a model a
+reliable entry point instead of leaving it to guess from rendered HTML.
 
-Use Cases
+..  _use-cases:
+
+Use cases
 =========
 
-**Educational Institutions**
-  Provide structured access to course catalogs, faculty information, and academic content for AI-powered educational tools.
+Educational institutions
+    Structured access to course catalogues, faculty information and academic
+    content for AI-powered educational tools.
 
-**Content Publishers**
-  Offer clear guidelines for AI systems accessing articles, documentation, and media content.
+Content publishers
+    Clear guidance for AI systems accessing articles, documentation and media.
 
-**Business Websites**
-  Structure company information, services, and contact details for AI-powered business discovery tools.
+Business websites
+    Company information, services and contact details in a form that AI-powered
+    business discovery tools can use — and an assistant that answers the
+    questions the contact form would otherwise collect.
 
-**Documentation Sites**
-  Enable AI systems to better understand and reference technical documentation and knowledge bases.
+Documentation sites
+    Both halves apply: models reference the documentation more accurately, and
+    readers get an assistant that searches it.
+
+..  _requirements:
 
 Requirements
 ============
 
-* TYPO3 CMS 13.0 or higher
-* PHP 8.2 or higher
-* league/html-to-markdown package (automatically installed)
+..  list-table::
+    :header-rows: 1
+    :widths: 34 66
 
-The extension integrates seamlessly with existing TYPO3 installations and requires minimal configuration to get started.
+    * - Requirement
+      - Note
+    * - TYPO3 13.4 LTS or 14.x
+      - Older versions are not supported
+    * - PHP 8.2, 8.3 or 8.4
+      - —
+    * - PHP extension ``sodium``
+      - Needed to verify the subscription key. Part of PHP since 7.2 and
+        enabled in almost every distribution
+    * - ``league/html-to-markdown`` ^5.1
+      - Installed automatically by Composer
+    * - ``ke_search`` or ``indexed_search``
+      - Optional. The assistant works without either, but answers are
+        noticeably better with a real search index
+    * - An LLM API key
+      - Optional. Without it the assistant runs in search-only mode
+    * - A subscription key
+      - Required for the chat assistant and the :guilabel:`Enquiries` and
+        :guilabel:`Answers` modules. llms.txt, the Markdown export and the
+        :guilabel:`Bot Access Log` work without one
+
+Continue with :ref:`installation`.
+
+..  _credits:
+
+Credits
+=======
+
+This extension is derived from
+`web-vision/ai-llms-txt <https://github.com/web-vision/ai-llms-txt>`__ by
+web-vision, and uses
+`league/html-to-markdown <https://github.com/thephpleague/html-to-markdown>`__
+for the HTML-to-Markdown conversion.

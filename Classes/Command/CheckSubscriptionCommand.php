@@ -79,6 +79,7 @@ final class CheckSubscriptionCommand extends Command
                 : 'as stated in the key (the server did not answer)'],
             ['Features' => $token->features === [] ? 'all' : implode(', ', $token->features)],
             ['Server status' => $this->describeVerdict($verdict)],
+            ['Issuing server' => $this->subscriptionService->getServerUrl()],
         );
 
         if ($verdict->isRevoked()) {
@@ -92,9 +93,10 @@ final class CheckSubscriptionCommand extends Command
         }
 
         if ($verdict->status === OnlineCheckResult::STATUS_UNKNOWN) {
-            $io->warning(
-                'The issuing server could not be reached, or its answer could not be verified. '
-                . 'The key stays valid according to its own expiry date.'
+            $io->error(
+                ($verdict->getFailureMessage() ?: 'The issuing server did not answer.')
+                . ' The key stays valid according to its own expiry date, but a renewal or a revocation'
+                . ' cannot reach this installation until the server answers again.'
             );
             return Command::SUCCESS;
         }
@@ -109,7 +111,7 @@ final class CheckSubscriptionCommand extends Command
         return match ($verdict->status) {
             OnlineCheckResult::STATUS_ACTIVE => 'active',
             OnlineCheckResult::STATUS_REVOKED => 'revoked',
-            default => 'unknown (server not reachable)',
+            default => 'unknown — ' . ($verdict->getFailureMessage() ?: 'not asked'),
         };
     }
 }

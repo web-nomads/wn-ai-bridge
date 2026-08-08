@@ -32,6 +32,7 @@ class MarkdownConverterService
         }
 
         $siteUrl = $this->configurationService->getSiteUrl();
+        $siteOrigin = $this->configurationService->getSiteOrigin();
 
         // Use string literal for class name to avoid dependency issues during DI
         $converterClass = 'League\HTMLToMarkdown\HtmlConverter';
@@ -57,8 +58,8 @@ class MarkdownConverterService
             $markdown = preg_replace_callback('/<h6[^>]*>(.*?)<\/h6>/is', fn($m) => "\n###### " . preg_replace('/\s+/', ' ', trim(strip_tags($m[1]))) . "\n\n", $markdown);
 
             // Convert Links and ensure they are absolute and have .md extension
-            $markdown = preg_replace_callback('/<a[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', function ($m) use ($siteUrl) {
-                $url = $this->processMarkdownUrl($m[1], $siteUrl);
+            $markdown = preg_replace_callback('/<a[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', function ($m) use ($siteUrl, $siteOrigin) {
+                $url = $this->processMarkdownUrl($m[1], $siteUrl, $siteOrigin);
                 return '[' . strip_tags($m[2]) . '](' . $url . ')';
             }, $markdown);
 
@@ -93,8 +94,8 @@ class MarkdownConverterService
             $markdown = $converter->convert($html);
 
             // Manually make links absolute and append .md in library output
-            $markdown = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/', function ($m) use ($siteUrl) {
-                $url = $this->processMarkdownUrl($m[2], $siteUrl);
+            $markdown = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/', function ($m) use ($siteUrl, $siteOrigin) {
+                $url = $this->processMarkdownUrl($m[2], $siteUrl, $siteOrigin);
                 return '[' . $m[1] . '](' . $url . ')';
             }, $markdown);
 
@@ -125,12 +126,18 @@ class MarkdownConverterService
     /**
      * Process internal links to be absolute and ensure they have .md extension
      * for seamless markdown navigation.
+     *
+     * @param string $siteUrl Site base including the entry point path; decides
+     *        what counts as internal.
+     * @param string $siteOrigin Scheme and host only. A root-relative href
+     *        already contains the entry point, so prefixing $siteUrl would
+     *        repeat it ("/camino/camino/faqs").
      */
-    private function processMarkdownUrl(string $url, string $siteUrl): string
+    private function processMarkdownUrl(string $url, string $siteUrl, string $siteOrigin): string
     {
         // Make absolute if relative
         if (str_starts_with($url, '/')) {
-            $url = $siteUrl . $url;
+            $url = $siteOrigin . $url;
         }
 
         // Only process internal links that don't already have an extension

@@ -18,6 +18,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Asks the issuing server once a day whether a key is still valid, so a revoked
  * subscription stops working without waiting for its expiry date.
  *
+ * The check has no off switch. It is what carries a renewal to the installation
+ * and what makes a revocation take effect, so disabling it only ever produced a
+ * subscription that silently stopped following its own server.
+ *
  * The rules that keep this from ever taking a site down:
  *
  * - Only an explicitly signed "revoked" disables anything. An unreachable
@@ -34,6 +38,9 @@ final class SubscriptionOnlineCheck implements SingletonInterface, LoggerAwareIn
     use LoggerAwareTrait;
 
     public const CACHE_IDENTIFIER = 'wn_ai_bridge_subscription';
+
+    /** Issuing server used when neither the configuration nor the key names one. */
+    public const DEFAULT_SERVER_URL = 'https://www.marcelmarty.ch';
 
     /** How long a verified verdict is trusted — the "once a day" of the check. */
     public const VERDICT_LIFETIME = 86400;
@@ -64,7 +71,7 @@ final class SubscriptionOnlineCheck implements SingletonInterface, LoggerAwareIn
         string $host,
         bool $allowFrontendRefresh = false,
     ): OnlineCheckResult {
-        if ($token->id === '' || !$this->isEnabled()) {
+        if ($token->id === '') {
             return OnlineCheckResult::unknown();
         }
 
@@ -73,7 +80,7 @@ final class SubscriptionOnlineCheck implements SingletonInterface, LoggerAwareIn
             return OnlineCheckResult::unknown();
         }
 
-        $cached = $this->readCache($token->id);
+        $cached = $this->readCache($token->id, $baseUrl);
         if ($cached !== null) {
             return $cached;
         }
@@ -104,6 +111,8 @@ final class SubscriptionOnlineCheck implements SingletonInterface, LoggerAwareIn
         $nonce = OnlineCheckProtocol::createNonce();
         $url = OnlineCheckProtocol::buildUrl($baseUrl, $token->id, $host, $nonce);
 
+        $failure = OnlineCheckResult::FAILURE_NONE;
+
         try {
             $response = $this->requestFactory->request($url, 'GET', [
                 'timeout' => self::HTTP_TIMEOUT,
@@ -112,26 +121,51 @@ final class SubscriptionOnlineCheck implements SingletonInterface, LoggerAwareIn
                 'headers' => ['Accept' => 'application/json'],
             ]);
 
-            $result = $response->getStatusCode() === 200
-                ? OnlineCheckProtocol::parseResponse((string)$response->getBody(), $token->id, $nonce, $publicKeyHex)
-                : null;
+            if ($response->getStatusCode() !== 200) {
+                $result = null;
+                $failure = OnlineCheckResult::FAILURE_HTTP;
+                $this->logger?->warning('AI Bridge subscription check: the issuing server answered with an error.', [
+                    'status' => $response->getStatusCode(),
+                    'server' => $baseUrl,
+                ]);
+            } else {
+                $result = OnlineCheckProtocol::parseResponse((string)$response->getBody(), $token->id, $nonce, $publicKeyHex);
+                if ($result === null) {
+                    $failure = OnlineCheckResult::FAILURE_INVALID;
+                    $this->logger?->warning('AI Bridge subscription check: the answer of the issuing server could not be verified.', [
+                        'server' => $baseUrl,
+                    ]);
+                }
+            }
         } catch (\Throwable $e) {
-            $this->logger?->info('AI Bridge subscription check could not reach the issuing server.', [
+            $this->logger?->warning('AI Bridge subscription check: the issuing server could not be reached.', [
+                'server' => $baseUrl,
                 'exception' => mb_substr($e->getMessage(), 0, 200),
             ]);
             $result = null;
+            $failure = OnlineCheckResult::FAILURE_UNREACHABLE;
         }
 
         if ($result === null) {
             // Remember the failure briefly so an outage is not retried per request.
-            $this->writeCache($token->id, OnlineCheckResult::unknown(), self::FAILURE_LIFETIME);
+            $unknown = OnlineCheckResult::unknown(null, $failure, $baseUrl);
+            $this->writeCache($token->id, $baseUrl, $unknown, self::FAILURE_LIFETIME);
 
-            return OnlineCheckResult::unknown();
+            return $unknown;
         }
 
-        $this->writeCache($token->id, $result, self::VERDICT_LIFETIME);
+        $this->writeCache($token->id, $baseUrl, $result, self::VERDICT_LIFETIME);
 
         return $result;
+    }
+
+    /**
+     * Whether a check could be made right now — asked by the service to decide
+     * whether a verdict resolved earlier in the request is worth re-fetching.
+     */
+    public function mayRefreshNow(): bool
+    {
+        return $this->mayRefresh(false);
     }
 
     /**
@@ -158,31 +192,40 @@ final class SubscriptionOnlineCheck implements SingletonInterface, LoggerAwareIn
         }
     }
 
-    private function isEnabled(): bool
+    /**
+     * The server to ask, in falling order of precedence: the configured
+     * override, the URL baked into the key, and finally the issuing server this
+     * extension ships with.
+     *
+     * The default is what keeps a key working that carries no server address of
+     * its own — without it there was no one to ask, and the check silently did
+     * nothing.
+     */
+    public static function resolveServerUrl(string $configured, string $fromKey = ''): string
     {
-        $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        foreach ([trim($configured), trim($fromKey), self::DEFAULT_SERVER_URL] as $candidate) {
+            if (preg_match('#^https?://#i', $candidate) === 1) {
+                return $candidate;
+            }
+        }
 
-        return (bool)($extensionConfiguration['subscriptionOnlineCheck'] ?? true);
+        return '';
     }
 
-    /**
-     * The server to ask: primarily the URL baked into the key, overridable by
-     * configuration for staging setups.
-     */
     private function resolveBaseUrl(SubscriptionToken $token): string
     {
         $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
-        $configured = trim((string)($extensionConfiguration['subscriptionServerUrl'] ?? ''));
 
-        $url = $configured !== '' ? $configured : $token->checkUrl;
-
-        return preg_match('#^https?://#i', $url) === 1 ? $url : '';
+        return self::resolveServerUrl(
+            (string)($extensionConfiguration['subscriptionServerUrl'] ?? ''),
+            $token->checkUrl,
+        );
     }
 
-    private function readCache(string $subscriptionId): ?OnlineCheckResult
+    private function readCache(string $subscriptionId, string $baseUrl): ?OnlineCheckResult
     {
         try {
-            $entry = $this->getCache()?->get($this->cacheKey($subscriptionId));
+            $entry = $this->getCache()?->get($this->cacheKey($subscriptionId, $baseUrl));
         } catch (\Throwable $e) {
             return null;
         }
@@ -190,18 +233,23 @@ final class SubscriptionOnlineCheck implements SingletonInterface, LoggerAwareIn
         return is_array($entry) ? OnlineCheckResult::fromArray($entry) : null;
     }
 
-    private function writeCache(string $subscriptionId, OnlineCheckResult $result, int $lifetime): void
+    private function writeCache(string $subscriptionId, string $baseUrl, OnlineCheckResult $result, int $lifetime): void
     {
         try {
-            $this->getCache()?->set($this->cacheKey($subscriptionId), $result->toArray(), [], $lifetime);
+            $this->getCache()?->set($this->cacheKey($subscriptionId, $baseUrl), $result->toArray(), [], $lifetime);
         } catch (\Throwable $e) {
             // A missing cache must not break the check.
         }
     }
 
-    private function cacheKey(string $subscriptionId): string
+    /**
+     * The server address is part of the key on purpose: changing it in the
+     * extension configuration has to take effect now, not once a day-old verdict
+     * for the previous address expires.
+     */
+    private function cacheKey(string $subscriptionId, string $baseUrl): string
     {
-        return 'verdict-' . sha1($subscriptionId);
+        return 'verdict-' . sha1($subscriptionId . '|' . $baseUrl);
     }
 
     private function getCache(): ?FrontendInterface

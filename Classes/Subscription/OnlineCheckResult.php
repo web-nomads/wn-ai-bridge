@@ -18,10 +18,23 @@ final class OnlineCheckResult
     /** The server could not be reached, or its answer could not be verified. */
     public const STATUS_UNKNOWN = 'unknown';
 
+    /** Not asked at all — no attempt was made, so nothing went wrong. */
+    public const FAILURE_NONE = '';
+    /** No answer: connection refused, timeout, DNS, TLS. */
+    public const FAILURE_UNREACHABLE = 'unreachable';
+    /** Answered, but not with 200. */
+    public const FAILURE_HTTP = 'http';
+    /** Answered with 200, but the body was unusable — malformed, wrong
+     *  subscription, replayed nonce, stale timestamp or a bad signature. */
+    public const FAILURE_INVALID = 'invalid';
+
     private function __construct(
         public readonly string $status,
         public readonly int $validUntil,
         public readonly int $checkedAt,
+        public readonly string $failureReason = self::FAILURE_NONE,
+        /** The server that was asked — shown with the failure, so it can be corrected. */
+        public readonly string $serverUrl = '',
     ) {}
 
     public static function active(int $validUntil, ?int $checkedAt = null): self
@@ -34,9 +47,35 @@ final class OnlineCheckResult
         return new self(self::STATUS_REVOKED, 0, $checkedAt ?? time());
     }
 
-    public static function unknown(?int $checkedAt = null): self
+    public static function unknown(
+        ?int $checkedAt = null,
+        string $failureReason = self::FAILURE_NONE,
+        string $serverUrl = '',
+    ): self {
+        return new self(self::STATUS_UNKNOWN, 0, $checkedAt ?? time(), $failureReason, $serverUrl);
+    }
+
+    /**
+     * Whether an attempt was actually made and the server did not answer
+     * properly. "Unknown" alone does not say that — it is also the state before
+     * anyone asked.
+     */
+    public function hasFailed(): bool
     {
-        return new self(self::STATUS_UNKNOWN, 0, $checkedAt ?? time());
+        return $this->failureReason !== self::FAILURE_NONE;
+    }
+
+    /**
+     * A short English explanation of the failure, empty when there was none.
+     */
+    public function getFailureMessage(): string
+    {
+        return match ($this->failureReason) {
+            self::FAILURE_UNREACHABLE => 'The issuing server could not be reached.',
+            self::FAILURE_HTTP => 'The issuing server answered with an error.',
+            self::FAILURE_INVALID => 'The answer of the issuing server could not be verified.',
+            default => '',
+        };
     }
 
     public function isRevoked(): bool
@@ -55,11 +94,17 @@ final class OnlineCheckResult
     }
 
     /**
-     * @return array{status: string, validUntil: int, checkedAt: int}
+     * @return array{status: string, validUntil: int, checkedAt: int, failureReason: string, serverUrl: string}
      */
     public function toArray(): array
     {
-        return ['status' => $this->status, 'validUntil' => $this->validUntil, 'checkedAt' => $this->checkedAt];
+        return [
+            'status' => $this->status,
+            'validUntil' => $this->validUntil,
+            'checkedAt' => $this->checkedAt,
+            'failureReason' => $this->failureReason,
+            'serverUrl' => $this->serverUrl,
+        ];
     }
 
     /**
@@ -72,6 +117,17 @@ final class OnlineCheckResult
             $status = self::STATUS_UNKNOWN;
         }
 
-        return new self($status, (int)($data['validUntil'] ?? 0), (int)($data['checkedAt'] ?? 0));
+        $failureReason = (string)($data['failureReason'] ?? self::FAILURE_NONE);
+        if (!in_array($failureReason, [self::FAILURE_NONE, self::FAILURE_UNREACHABLE, self::FAILURE_HTTP, self::FAILURE_INVALID], true)) {
+            $failureReason = self::FAILURE_NONE;
+        }
+
+        return new self(
+            $status,
+            (int)($data['validUntil'] ?? 0),
+            (int)($data['checkedAt'] ?? 0),
+            $status === self::STATUS_UNKNOWN ? $failureReason : self::FAILURE_NONE,
+            (string)($data['serverUrl'] ?? ''),
+        );
     }
 }
