@@ -118,7 +118,9 @@ EN: [https://www.marcelmarty.ch/en/#extensions](https://www.marcelmarty.ch/en/#e
 
 Order your **14 days free trial key** here:  
 DE: [https://www.marcelmarty.ch/ai-bridge-trial](https://www.marcelmarty.ch/ai-bridge-trial)  
-EN: [https://www.marcelmarty.ch/en/ai-bridge-trial](https://www.marcelmarty.ch/en/ai-bridge-trial)
+EN: [https://www.marcelmarty.ch/en/ai-bridge-trial](https://www.marcelmarty.ch/en/ai-bridge-trial)  
+
+Once the trial key has expired, nothing will be automatically renewed or charged
 
 ### What the licence check sends
 
