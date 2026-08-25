@@ -6,8 +6,11 @@ services:
 
   WebNomads\WnAiBridge\:
     resource: '../Classes/*'
-    # Value objects — constructed from data, never injected.
     exclude:
+      # TYPO3 v14 only, registered from Services.php. Reflecting on it under v13
+      # fails over ModuleAccessGateInterface, which does not exist there.
+      - '../Classes/Backend/SubscriptionRequiredGate.php'
+      # Value objects — constructed from data, never injected.
       - '../Classes/Domain/Model/*'
       - '../Classes/Subscription/SubscriptionToken.php'
       - '../Classes/Subscription/SubscriptionStatus.php'

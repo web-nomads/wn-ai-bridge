@@ -61,6 +61,14 @@ What the subscription gates
     keys are part of already-issued licence keys and are therefore kept as they
     are.
 
+..  note::
+
+    How thoroughly the two modules are taken away depends on the TYPO3 version.
+    On v14 a module access gate blocks the module menu and the module routes
+    alike. TYPO3 13.4 has no such gates, so the modules are dropped from the
+    module menu only — reached through a bookmark or the live search, they
+    answer with a "subscription required" screen instead of the module.
+
 **llms.txt, the Markdown export, the** :guilabel:`Bot Access Log` **and the rate
 limiter are not part of the subscription** and keep working either way.
 

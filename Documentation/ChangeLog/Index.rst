@@ -120,6 +120,29 @@ Behavioural changes worth checking after an update
 Release history
 ===============
 
+..  _changelog-1-26-1:
+
+1.26.1 — 2026-08-25
+-------------------
+
+*   Fixed: on TYPO3 13.4 every backend request ended in
+    ``Interface "TYPO3\CMS\Backend\Module\ModuleAccessGateInterface" not found``,
+    the login screen included. Module access gates only exist on v14, and the
+    module guard loaded the gate class on both.
+*   The subscription-only modules are hidden on 13.4 again — from the module
+    menu, since v13 has no gate to block their routes with. Reached through a
+    bookmark or the live search they answer with the "subscription required"
+    screen; on v14 the gate keeps blocking menu and routes alike.
+
+..  _changelog-1-26:
+
+1.26.0 — 2026-08-08
+-------------------
+
+*   A trial key is recognised as one: the marker travels inside the signed key,
+    so the modules and ``ai-bridge:check-subscription`` say "trial" and point at
+    ordering rather than at renewing.
+
 ..  _changelog-1-25-1:
 
 1.25.1 — 2026-08-08

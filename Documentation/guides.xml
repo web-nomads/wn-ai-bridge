@@ -14,8 +14,8 @@
                typo3-core-preferred="stable"
     />
     <project title="AI Bridge for TYPO3"
-             release="1.25.1"
-             version="1.25"
+             release="1.26.1"
+             version="1.26"
              copyright="since 2025 by web-nomads &amp; Contributors"
     />
 </guides>
