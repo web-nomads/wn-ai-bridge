@@ -120,6 +120,21 @@ Behavioural changes worth checking after an update
 Release history
 ===============
 
+..  _changelog-1-26-2:
+
+1.26.2 — 2026-08-25
+-------------------
+
+*   Fixed: appending ``.md`` to the URL of a plugin's detail view returned the
+    Markdown of the list view. The source URL was rebuilt from the page id,
+    which every detail view on that page shares, so the arguments picking the
+    record were lost. The requested URL is now used as it came in.
+*   The "Web version" link on such a page pointed at the list view too, and now
+    points back at the record.
+*   Fixed: with :confval:`cacheMarkdown` enabled, all detail views of a page
+    shared a single cache entry, so whichever was rendered first was served for
+    all of them.
+
 ..  _changelog-1-26-1:
 
 1.26.1 — 2026-08-25

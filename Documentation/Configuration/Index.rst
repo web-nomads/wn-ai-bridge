@@ -462,6 +462,14 @@ It maps:
 
 Flush the caches afterwards.
 
+..  note::
+
+    The suffix works on the detail views of a plugin as well, as long as their
+    own route enhancer is configured for the site: append ``.md`` to the detail
+    URL and the Markdown is made from that record, not from the list view that
+    shares the page with it. Detail views reached through a query parameter
+    instead of an enhancer work the same way.
+
 ..  _configuration-pagetypes:
 
 Page types

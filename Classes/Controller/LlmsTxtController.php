@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace WebNomads\WnAiBridge\Controller;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -24,6 +26,13 @@ use WebNomads\WnAiBridge\Service\UrlGeneratorService;
  */
 class LlmsTxtController
 {
+    /**
+     * The suffix the shipped route enhancer maps to the Markdown page type.
+     *
+     * @see Configuration/Routes/RouterEnhancer.yaml
+     */
+    public const MARKDOWN_SUFFIX = '.md';
+
     public ?ContentObjectRenderer $cObj = null;
 
     private readonly LlmsTxtGeneratorService $llmsTxtGenerator;
@@ -92,6 +101,13 @@ class LlmsTxtController
 
         // Cache handling (only if debug is disabled to ensure fresh info during debugging)
         $cacheIdentifier = 'markdown_' . $pageId . '_' . $languageUid . '_' . ($isFallback ? 'fallback' : 'default');
+        // A page id is not enough to tell two renderings apart: every detail view
+        // of a plugin shares the page that hosts it, so without this they would
+        // all be served whichever one was rendered first.
+        $variant = self::contentVariant($this->getPageArguments());
+        if ($variant !== '') {
+            $cacheIdentifier .= '_' . $variant;
+        }
         if ($cacheEnabled && !$isDebug) {
             $cache = $this->cacheManager->getCache('wn_ai_bridge_markdown');
             $cachedContent = $cache->get($cacheIdentifier);
@@ -122,7 +138,7 @@ class LlmsTxtController
             $page = $this->pageRepository->findById($pageId, $languageUid);
 
             if (!empty($page)) {
-                $htmlUrl = $this->urlGenerator->generateHtmlUrl($page);
+                $htmlUrl = $this->getSourceUrl($page);
                 $label = $this->configurationService->translate('markdown.webVersion') ?: 'Web version';
                 $markdown .= "\n\n\n\n" . $label . ': ' . $htmlUrl . "\n";
             }
@@ -216,6 +232,101 @@ class LlmsTxtController
     }
 
     /**
+     * The HTML URL this Markdown is made from, and links back to.
+     *
+     * The requested URL wins. Rebuilding it from the page id is only correct as
+     * long as a page serves nothing but its own content: a detail view of an
+     * Extbase plugin lives on the page that hosts the plugin and is told apart
+     * by its route arguments alone, so the rebuilt URL silently returns the list
+     * view instead. The page is asked only when the request cannot answer — on
+     * the command line, and on a OnePager, where the HTML of a section lives
+     * behind an anchor on the home page and has no URL of its own.
+     *
+     * @param array<string, mixed> $page
+     */
+    protected function getSourceUrl(array $page): string
+    {
+        $generated = $this->urlGenerator->generateHtmlUrl($page);
+
+        if (str_contains($generated, '#')) {
+            return $generated;
+        }
+
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+        if ($request instanceof ServerRequestInterface) {
+            $requested = self::htmlUrlForMarkdownRequest($request->getUri());
+            if ($requested !== '') {
+                return $requested;
+            }
+        }
+
+        return $generated;
+    }
+
+    /**
+     * The HTML URL a ".md" request was made for: the requested URL with the
+     * suffix taken off again. Empty when the URL does not carry one, so callers
+     * can fall back to the page.
+     */
+    public static function htmlUrlForMarkdownRequest(UriInterface $uri): string
+    {
+        $path = $uri->getPath();
+        if (!str_ends_with($path, self::MARKDOWN_SUFFIX)) {
+            return '';
+        }
+
+        $path = substr($path, 0, -strlen(self::MARKDOWN_SUFFIX));
+
+        return (string)$uri->withPath($path !== '' ? $path : '/')->withFragment('');
+    }
+
+    /**
+     * What tells two Markdown renderings of the same page apart: the arguments
+     * that select a record within it.
+     *
+     * Empty for a plain page, so its cache entry keeps the identifier it always
+     * had — only detail views get one of their own. "type" and "cHash" are
+     * dropped: the first is the same for every ".md" request and the second is
+     * derived from the arguments already in here.
+     */
+    public static function contentVariant(?PageArguments $arguments): string
+    {
+        if ($arguments === null) {
+            return '';
+        }
+
+        $relevant = array_replace_recursive(
+            $arguments->getRouteArguments(),
+            $arguments->getDynamicArguments()
+        );
+        unset($relevant['type'], $relevant['cHash']);
+
+        if ($relevant === []) {
+            return '';
+        }
+
+        ksort($relevant);
+
+        return substr(md5((string)json_encode($relevant)), 0, 12);
+    }
+
+    /**
+     * The arguments the router resolved for this request, null outside a
+     * frontend request.
+     */
+    protected function getPageArguments(): ?PageArguments
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+        if (!$request instanceof ServerRequestInterface) {
+            return null;
+        }
+
+        $routing = $request->getAttribute('routing');
+
+        return $routing instanceof PageArguments ? $routing : null;
+    }
+
+    /**
      * Get the current language UID from TYPO3 frontend environment
      * Checks sys_language_uid first, falls back to page['sys_language_uid']
      */
@@ -262,7 +373,7 @@ class LlmsTxtController
             return '';
         }
 
-        $url = $this->urlGenerator->generateHtmlUrl($page);
+        $url = $this->getSourceUrl($page);
 
         // Fetch HTML via GeneralUtility::getUrl
         $html = GeneralUtility::getUrl($url);
