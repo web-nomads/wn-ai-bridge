@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.2] - 2026-08-25
+
+### Fixed
+- **A detail view asked for as Markdown answered with the list view.** Appending
+  `.md` to the URL of a plugin's detail page — an Extbase record, a news article,
+  a project — returned the Markdown of the page that hosts the plugin instead of
+  the record. The source URL was rebuilt from the page id, which is the same for
+  every detail view on that page, so the route arguments that pick the record
+  were dropped before the HTML was fetched. The requested URL is now used as it
+  came in, with only the `.md` suffix taken off
+- **The "Web version" link at the end of such a page pointed at the list view**
+  for the same reason, and now points back at the record it came from
+- **With `cacheMarkdown` enabled, every detail view on a page shared one cache
+  entry.** The identifier was built from the page id and the language alone, so
+  whichever record was rendered first was served for all of them. Detail views
+  now get an identifier of their own; a plain page keeps the one it had
+- A OnePager section still resolves through its page, since its HTML lives behind
+  an anchor on the home page and it has no URL of its own to request
+
 ## [1.26.1] - 2026-08-25
 
 ### Fixed
