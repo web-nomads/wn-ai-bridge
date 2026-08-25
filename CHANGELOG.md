@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.1] - 2026-08-25
+
+### Fixed
+- **The backend was unreachable on TYPO3 13.4.** Every request ended in
+  `Interface "TYPO3\CMS\Backend\Module\ModuleAccessGateInterface" not found`,
+  including the login screen — the module guard read a constant off the access
+  gate that hides the subscription-only modules, and loading that class means
+  loading the v14-only interface it implements. The identifier now lives on the
+  guard, and the gate is kept out of the service container on v13, where
+  reflecting on it would have failed just the same
+- **The subscription-only modules are hidden on TYPO3 13.4 again.** Module access
+  gates arrived with v14; 13.4 decides module access from the plain `access`
+  string, and a value it does not know still lets every admin through. On v13
+  the guard therefore drops "Enquiries" and "Answers" from the module menu
+  instead. Their routes stay reachable through a bookmark or the
+  live search, where the modules answer with the "subscription required" screen
+  they always had — on v14 the gate keeps blocking both at once
+
 ## [1.26.0] - 2026-08-08
 
 ### Added
