@@ -14,6 +14,7 @@ use WebNomads\WnAiBridge\Llm\LlmException;
 use WebNomads\WnAiBridge\Llm\LlmResult;
 use WebNomads\WnAiBridge\Search\SearchProviderInterface;
 use WebNomads\WnAiBridge\Search\SearchService;
+use WebNomads\WnAiBridge\Security\PageAccessService;
 use WebNomads\WnAiBridge\Service\AssistantService;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
 use WebNomads\WnAiBridge\Service\LearningService;
@@ -42,7 +43,18 @@ class AssistantServiceTest extends TestCase
             }
         };
 
-        return new SearchService([$provider], $configuration);
+        // Access is decided elsewhere and covered by its own test; here every
+        // page is open so the assistant logic is what is being looked at.
+        $pageAccess = new class () extends PageAccessService {
+            public function __construct() {}
+
+            public function isAccessible(int $pageId): bool
+            {
+                return true;
+            }
+        };
+
+        return new SearchService([$provider], $configuration, $pageAccess);
     }
 
     private function llmClient(?string $answer, ?\Throwable $throws = null): LlmClientInterface

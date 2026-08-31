@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WebNomads\WnAiBridge\Search;
 
 use WebNomads\WnAiBridge\Dto\SearchResultItem;
+use WebNomads\WnAiBridge\Security\PageAccessService;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
 
 /**
@@ -14,6 +15,12 @@ use WebNomads\WnAiBridge\Service\ConfigurationService;
  * rank rather than raw score: within one provider the top hit is worth the most,
  * and a URL that surfaces in several backends accumulates their rank weights, so
  * consensus hits bubble to the top. Duplicate URLs are collapsed.
+ *
+ * Every hit passes an access check before it is merged. A search index is a
+ * snapshot and outlives the page it describes: ke_search and indexed_search keep
+ * rows for pages that have since been disabled or put behind a login, and both
+ * are queried without the frontend's restrictions. The check is made here, once,
+ * rather than in each provider, so a provider added later cannot forget it.
  */
 final class SearchService
 {
@@ -23,6 +30,7 @@ final class SearchService
     private readonly array $providers;
 
     private readonly ConfigurationService $configurationService;
+    private readonly PageAccessService $pageAccessService;
 
     /**
      * @param iterable<SearchProviderInterface> $providers Ordered by priority
@@ -33,11 +41,13 @@ final class SearchService
     public function __construct(
         iterable $providers,
         ConfigurationService $configurationService,
+        PageAccessService $pageAccessService,
     ) {
         $this->providers = $providers instanceof \Traversable
             ? iterator_to_array($providers, false)
             : array_values($providers);
         $this->configurationService = $configurationService;
+        $this->pageAccessService = $pageAccessService;
     }
 
     /**
@@ -64,6 +74,10 @@ final class SearchService
             $results = $provider->search($query, $limit, $languageId, $rootPageId);
             $count = count($results);
             foreach ($results as $index => $item) {
+                if (!$this->mayBeShown($item)) {
+                    continue;
+                }
+
                 // Rank-based weight: normalises across providers with different scales.
                 $weight = ($count - $index) / max($count, 1);
                 $key = $this->normaliseUrl($item->url);
@@ -86,6 +100,19 @@ final class SearchService
         $items = array_map(static fn(array $entry): SearchResultItem => $entry['item'], array_values($merged));
 
         return array_slice($items, 0, $limit);
+    }
+
+    /**
+     * Whether a hit may reach the visitor who asked: the page behind it has to
+     * be one they could open themselves. A member page therefore surfaces for
+     * the member who is logged in and stays out of everyone else's results.
+     *
+     * A hit without a page id cannot be checked and is kept — the providers all
+     * set one, so this only covers a third-party provider that does not.
+     */
+    private function mayBeShown(SearchResultItem $item): bool
+    {
+        return $item->pageId <= 0 || $this->pageAccessService->isAccessible($item->pageId);
     }
 
     /**

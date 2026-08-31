@@ -27,7 +27,7 @@ purpose — they are constructed from data, never injected.
     * - Namespace
       - Responsibility
     * - :php:`Controller`
-      - Entry points. :php:`LlmsTxtController` serves the two page types via
+      - Entry points. :php:`LlmsTxtController` serves the three page types via
         TypoScript ``USER`` objects, :php:`AssistantWidgetController` renders
         the chat widget, :php:`Controller\Backend\*` are the three backend
         modules
@@ -36,12 +36,16 @@ purpose — they are constructed from data, never injected.
         JSON, :php:`RateLimiterMiddleware` throttles, and
         :php:`BotAccessLogMiddleware` records crawler accesses
     * - :php:`Service`
-      - The application services: llms.txt generation, Markdown conversion,
-        HTML cleanup, the assistant, the learning source, cost calculation,
-        configuration access
+      - The application services: llms.txt and llms-full.txt generation, page
+        rendering, Markdown conversion, HTML cleanup, the assistant, the
+        learning source, cost calculation, configuration access
     * - :php:`Search`
       - The search backends behind :php:`SearchProviderInterface` and the
         :php:`SearchService` that merges their results
+    * - :php:`Security`
+      - :php:`BotDetectionService` classifies a user agent, and
+        :php:`PageAccessService` decides whether a page may be shown — to the
+        current visitor, or to one without a login
     * - :php:`Llm`
       - The provider abstraction :php:`LlmClientInterface` and its Anthropic
         implementation
@@ -203,8 +207,8 @@ LlmsTxtController
 
 ..  php:class:: LlmsTxtController
 
-    The entry points for the two page types. Both are called as TypoScript
-    ``USER`` objects, so they follow the ``userFunc`` signature.
+    The entry points for the three page types. All of them are called as
+    TypoScript ``USER`` objects, so they follow the ``userFunc`` signature.
 
     ..  php:method:: generateAction(string $content = '', array $conf = [])
 
@@ -213,6 +217,17 @@ LlmsTxtController
         :param string $content: Content passed from TypoScript, usually empty
         :param array $conf: Configuration array from TypoScript
         :returns: The generated llms.txt content
+        :returntype: string
+
+    ..  php:method:: generateFullAction(string $content = '', array $conf = [])
+
+        Generates the llms-full.txt content for page type 1702: the readable
+        content of every page of the site in one document. Answers with a short
+        "disabled" document while :confval:`llmsFullTxt` is off.
+
+        :param string $content: Content passed from TypoScript, usually empty
+        :param array $conf: Configuration array from TypoScript
+        :returns: The generated llms-full.txt content
         :returntype: string
 
     ..  php:method:: renderPageAsMarkdown(string $content = '', array $conf = [])

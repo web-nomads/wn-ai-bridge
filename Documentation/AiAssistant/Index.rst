@@ -42,8 +42,9 @@ How it works
 
 #.  The visitor's question hits the JSON endpoint ``POST …/wn-ai-bridge/ask``.
     This is a PSR-15 middleware — no page, plugin or content element is needed.
-#.  :php:`SearchService` queries every available search backend and merges the
-    results by rank, de-duplicating URLs.
+#.  :php:`SearchService` queries every available search backend, drops the hits
+    the visitor may not open (see :ref:`assistant-visibility`) and merges what
+    is left by rank, de-duplicating URLs.
 #.  The curated answers are consulted. A close match by meaning is played back
     verbatim (log mode ``learning``); weaker matches are carried forward as
     binding hints. This lookup runs *before* the "nothing found" fallback, so a
@@ -74,6 +75,38 @@ backend that is not installed is simply skipped:
 Which of them are used is controlled by :confval:`assistantSearchSources`.
 Third-party extensions can add their own backend — see
 :ref:`developer-search-provider`.
+
+..  _assistant-visibility:
+
+Which pages the assistant may show
+==================================
+
+A search index is a snapshot and outlives the page it describes: ``ke_search``
+and ``indexed_search`` keep a record of a page long after it was disabled or put
+behind a login, and both are queried without the frontend's own restrictions.
+Every hit is therefore checked against the ``pages`` table before it reaches a
+visitor — once, in :php:`SearchService`, so a search backend added later cannot
+forget it.
+
+A page is dropped when it is:
+
+*   **disabled** (:guilabel:`Disable` on the page), or deleted,
+*   **outside its publication window** — :guilabel:`Publish Date` still in the
+    future or :guilabel:`Expiration Date` already passed,
+*   **restricted to a frontend group** the visitor is not in.
+
+Access is judged for the visitor who is asking, not for the site in general. A
+page restricted to a frontend group therefore appears in the results of a
+visitor who is logged in and holds that group, and stays out of everyone else's
+— including a page that only inherits the restriction from a parent that has
+:guilabel:`Extend to Subpages` set.
+
+..  note::
+
+    This is a *filter on results*, not a replacement for the page's own access
+    protection. The page itself keeps deciding whether it may be opened; the
+    assistant only stops offering links a visitor cannot follow, and stops
+    leaking their titles and text passages while doing so.
 
 ..  _assistant-configuration:
 

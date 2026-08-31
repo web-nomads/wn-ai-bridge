@@ -45,6 +45,19 @@ Tab "basic"
     Caches the generated Markdown of a page. Worth enabling on content-heavy
     pages that are requested by crawlers regularly.
 
+..  confval:: llmsFullTxt
+    :type: boolean
+    :Default: 0
+
+    Serves the full document at :file:`/llms-full.txt` and
+    :file:`/.well-known/llms-full.txt`: the readable content of every page of a
+    site in one file, instead of the list of links ``llms.txt`` is. Off by
+    default — a single request renders every page at once, which is expensive on
+    a large site. The page depth is the one configured per site with
+    :confval:`llmsTxtMaxDepth`, and at most 500 pages go into one document. While
+    it is on, ``llms.txt`` points at the full document in an ``## Optional``
+    section. See :ref:`editor-generated-content`.
+
 ..  confval:: parsingFallbackHtml
     :type: boolean
     :Default: 0
@@ -437,8 +450,8 @@ Route enhancers
 ===============
 
 Without route enhancers the endpoints are reachable by page type only
-(``?type=1699`` and ``?type=1701``). Import the shipped configuration into every
-site:
+(``?type=1699``, ``?type=1701`` and ``?type=1702``). Import the shipped
+configuration into every site:
 
 ..  code-block:: yaml
     :caption: config/sites/<identifier>/config.yaml
@@ -458,6 +471,8 @@ It maps:
         map:
           llms.txt: 1699
           .well-known/llms.txt: 1699
+          llms-full.txt: 1702
+          .well-known/llms-full.txt: 1702
           .md: 1701
 
 Flush the caches afterwards.
@@ -475,7 +490,7 @@ Flush the caches afterwards.
 Page types
 ==========
 
-The extension ships the two page types via its static TypoScript; nothing has
+The extension ships the three page types via its static TypoScript; nothing has
 to be added by hand. They are documented here for reference and for the rare
 case that a distribution needs to override them.
 
@@ -501,6 +516,33 @@ case that a distribution needs to override them.
         10 = USER
         10 {
             userFunc = WebNomads\WnAiBridge\Controller\LlmsTxtController->generateAction
+        }
+    }
+
+..  code-block:: typoscript
+    :caption: EXT:wn_ai_bridge/Configuration/TypoScript/llmsfull.typoscript
+
+    llmsfulltxt = PAGE
+    llmsfulltxt {
+        typeNum = 1702
+
+        config {
+            disableAllHeaderCode = 1
+            additionalHeaders.10 {
+                header = Content-Type: text/plain; charset=utf-8
+                replace = 1
+            }
+            xhtml_cleaning = 0
+            admPanel = 0
+            debug = 0
+            no_cache = 0
+            disableCharsetHeader = 1
+            forceAbsoluteUrls = 1
+        }
+
+        10 = USER
+        10 {
+            userFunc = WebNomads\WnAiBridge\Controller\LlmsTxtController->generateFullAction
         }
     }
 
@@ -539,17 +581,28 @@ The setup also adds an ``alternate`` link to the page head pointing at
 Excluding pages
 ===============
 
-The navigation in ``llms.txt`` follows TYPO3's own visibility rules, so the
-standard page properties are the way to keep a page out of it:
+``llms.txt`` and ``llms-full.txt`` describe the site as a visitor without a
+login sees it, so the standard page properties are the way to keep a page out of
+them:
 
-*   :guilabel:`Hide in menus` excludes the page from the ``llms.txt``
-    navigation
-*   :guilabel:`Access` restrictions keep it out for anonymous requests
-*   Hidden pages are excluded entirely
-*   A ``noindex`` robots meta tag on the page excludes it
+*   :guilabel:`Disable` excludes the page and everything below it
+*   :guilabel:`Publish Date` in the future or :guilabel:`Expiration Date` in the
+    past excludes it for as long as that holds, subpages included
+*   :guilabel:`Access` restrictions exclude it, subpages included — the verdict
+    is always the anonymous one here, whoever requested the document
+*   :guilabel:`Hide in menus` excludes the page from the navigation both
+    documents are built from, while leaving it reachable and keeping its ``.md``
+    version
 
 The same applies to content elements in the Markdown output: hidden elements
 and elements outside the standard column positions are not rendered.
+
+..  note::
+
+    A ``noindex`` robots meta tag is *not* evaluated. It tells search engines
+    what to do with a page they fetched, and the pages above are excluded before
+    anything is fetched at all. Use :guilabel:`Hide in menus` to keep a page out
+    of the documents.
 
 ..  _configuration-module-access:
 

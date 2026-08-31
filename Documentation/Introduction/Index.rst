@@ -44,6 +44,10 @@ Feature overview
       - Served at :file:`/llms.txt` and :file:`/.well-known/llms.txt`, with the
         site title, description, topics, contact address and the navigation
         structure down to a configurable depth
+    * - llms-full.txt generation
+      - Optional companion document at :file:`/llms-full.txt`: the readable
+        content of every page in one file rather than a list of links. Off by
+        default
     * - Markdown export
       - Any page URL with ``.md`` appended returns the page as Markdown,
         rendered through TYPO3's own content pipeline

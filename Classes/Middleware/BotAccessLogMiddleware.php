@@ -82,7 +82,11 @@ final class BotAccessLogMiddleware implements MiddlewareInterface
     {
         $path = rtrim($request->getUri()->getPath(), '/');
 
-        if (str_ends_with($path, '/llms.txt') || $path === '/llms.txt') {
+        // The full document shares the type of the link list — the recorded path
+        // still tells the two apart.
+        if (str_ends_with($path, '/llms.txt') || $path === '/llms.txt'
+            || str_ends_with($path, '/llms-full.txt') || $path === '/llms-full.txt'
+        ) {
             return 'llmstxt';
         }
         if (str_ends_with($path, '.md')) {

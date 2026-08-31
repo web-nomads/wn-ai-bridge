@@ -58,6 +58,7 @@ class LlmsTxtGeneratorService
         $this->appendHeader($lines, $homePage);
         $this->appendTopicsAndContact($lines);
         $this->appendNavigation($lines, $site->getRootPageId(), $languageUid);
+        $this->appendFullDocumentLink($lines);
         $this->appendAdditionalInfo($lines);
 
         return implode("\n", $lines) . "\n";
@@ -126,6 +127,25 @@ class LlmsTxtGeneratorService
         foreach ($this->navigationBuilder->formatAsMarkdown($navigationStructure, $languageUid) as $line) {
             $lines[] = $line;
         }
+    }
+
+    /**
+     * Point at the full document, but only where it is actually served — a link
+     * to llms-full.txt is worthless while the endpoint is switched off.
+     *
+     * @param list<string> $lines
+     */
+    private function appendFullDocumentLink(array &$lines): void
+    {
+        if (!$this->configurationService->isLlmsFullTxtEnabled()) {
+            return;
+        }
+
+        $lines[] = '';
+        $lines[] = '## Optional';
+        $lines[] = '';
+        $lines[] = '- [Full site content](' . $this->configurationService->getSiteUrl()
+            . '/llms-full.txt): The readable content of every page in one document';
     }
 
     /**

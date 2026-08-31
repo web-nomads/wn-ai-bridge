@@ -238,6 +238,20 @@ Before going live:
 *   Keep :confval:`assistantMaxTokens` at a sensible value to bound the cost of
     a single answer.
 
+Protected pages stay out of what is published
+---------------------------------------------
+
+``llms.txt``, ``llms-full.txt`` and the Markdown export describe the site as a
+visitor without a login sees it: disabled pages, pages outside their publication
+window and pages behind a frontend group are left out, together with everything
+below them. That verdict does not depend on who requested the document, so an
+editor fetching :file:`/llms.txt` while logged in cannot put protected pages
+into the page cache for everyone.
+
+The assistant judges the same three points per request, so a group-restricted
+page appears in the results of a visitor who holds that group and in nobody
+else's. See :ref:`assistant-visibility`.
+
 Keep debug output off
 ---------------------
 

@@ -13,9 +13,11 @@ use WebNomads\WnAiBridge\Middleware\RateLimiterMiddleware;
  * resolved reverse proxy IP are available) but before the page is actually
  * resolved, so throttled requests are rejected as cheaply as possible.
  *
- * The assistant endpoint runs right after the rate limiter (so its requests are
- * throttled too) and before the page resolver, since it answers directly with
- * JSON and must not go through page rendering.
+ * The assistant endpoint runs after the rate limiter (so its requests are
+ * throttled too) and after the frontend authentication, because whether a hit
+ * may be shown depends on the visitor's frontend groups. It stays before the
+ * page resolver, since it answers directly with JSON and must not go through
+ * page rendering.
  */
 return [
     'frontend' => [
@@ -43,6 +45,7 @@ return [
             'target' => AssistantRequestMiddleware::class,
             'after' => [
                 'web-nomads/wn-ai-bridge/rate-limiter',
+                'typo3/cms-frontend/authentication',
             ],
             'before' => [
                 'typo3/cms-frontend/page-resolver',

@@ -20,6 +20,12 @@ ExtensionManagementUtility::addTypoScript(
 ExtensionManagementUtility::addTypoScript(
     'wn_ai_bridge',
     'setup',
+    '@import "EXT:wn_ai_bridge/Configuration/TypoScript/llmsfull.typoscript"'
+);
+
+ExtensionManagementUtility::addTypoScript(
+    'wn_ai_bridge',
+    'setup',
     '@import "EXT:wn_ai_bridge/Configuration/TypoScript/markdown.typoscript"'
 );
 

@@ -13,11 +13,18 @@ use TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository as CorePageRepository;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WebNomads\WnAiBridge\Security\PageAccessService;
 
 /**
  * Repository for fetching page data
  * Handles all database queries related to pages using the Repository pattern
  * Uses Core's PageRepository for proper language fallback handling
+ *
+ * What it hands out is what a visitor without a login would see: the navigation
+ * lookups drop disabled pages, pages outside their publication window and pages
+ * behind a frontend group, together with everything below them. The documents
+ * built from it — llms.txt, llms-full.txt, the Markdown export — are public and
+ * cached for everyone, so they must not depend on who happened to request them.
  */
 class PageRepository
 {
@@ -57,6 +64,11 @@ class PageRepository
         'l10n_parent',
         'slug',
         'l10n_diffsource',
+        'hidden',
+        'starttime',
+        'endtime',
+        'fe_group',
+        'extendToSubpages',
     ];
 
     private readonly ConnectionPool $connectionPool;
@@ -242,8 +254,17 @@ class PageRepository
         $queryBuilder = $this->createNavigationQueryBuilder($parentUid, $languageUid);
         $result = $queryBuilder->executeQuery();
 
+        $now = $this->now();
+
         $pages = [];
         while ($row = $result->fetchAssociative()) {
+            // Disabled, expired and access-restricted pages are left out with
+            // their whole subtree — nothing behind a page a visitor cannot reach
+            // belongs in a public document either.
+            if (!PageAccessService::isVisibleRow($row, PageAccessService::ANONYMOUS_GROUPS, $now)) {
+                continue;
+            }
+
             // Skip folders, spacers, and shortcuts but fetch their subpages
             if (in_array((int)$row['doktype'], self::EXCLUDED_DOKTYPES, true)) {
                 // Recursively get children of skipped pages
@@ -315,6 +336,11 @@ class PageRepository
             'l10n_parent' => (int)$row['l10n_parent'],
             'slug' => $row['slug'] ?? '',
             'l10n_diffsource' => $row['l10n_diffsource'] ?? '',
+            'hidden' => (int)($row['hidden'] ?? 0),
+            'starttime' => (int)($row['starttime'] ?? 0),
+            'endtime' => (int)($row['endtime'] ?? 0),
+            'fe_group' => (string)($row['fe_group'] ?? ''),
+            'extendToSubpages' => (int)($row['extendToSubpages'] ?? 0),
         ];
     }
 
@@ -358,8 +384,13 @@ class PageRepository
         $result = $queryBuilder->executeQuery();
 
         // Group results by parent UID
+        $now = $this->now();
         $grouped = [];
         while ($row = $result->fetchAssociative()) {
+            if (!PageAccessService::isVisibleRow($row, PageAccessService::ANONYMOUS_GROUPS, $now)) {
+                continue;
+            }
+
             $pid = (int)$row['pid'];
             if (!isset($grouped[$pid])) {
                 $grouped[$pid] = [];
@@ -400,15 +431,33 @@ class PageRepository
 
         // Filter pages based on language visibility
         $languageAspect = LanguageAspectFactory::createFromSiteLanguage($siteLanguage);
+        $now = $this->now();
         $result = [];
 
         foreach ($overlaidPages as $page) {
+            // Checked again after the overlay: a translation carries its own
+            // "disable" flag and publication window, and only the overlaid row
+            // shows them.
+            if (!PageAccessService::isVisibleRow($page, PageAccessService::ANONYMOUS_GROUPS, $now)) {
+                continue;
+            }
+
             if ($corePageRepository->isPageSuitableForLanguage($page, $languageAspect)) {
                 $result[] = $this->mapRowToPageArray($page);
             }
         }
 
         return $result;
+    }
+
+    /**
+     * The moment page visibility is judged against.
+     */
+    protected function now(): int
+    {
+        $timestamp = (int)$this->context->getPropertyFromAspect('date', 'timestamp', 0);
+
+        return $timestamp > 0 ? $timestamp : time();
     }
 
     /**

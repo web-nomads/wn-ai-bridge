@@ -52,10 +52,11 @@ Navigation structure
     :confval:`llmsTxtMaxDepth`.
 *   Navigation building scales with the size of the page tree, so generation
     time and memory use grow with it.
-*   Pages hidden in menus, access-restricted pages and pages carrying a
-    ``noindex`` robots tag are excluded — see
+*   Pages hidden in menus, disabled pages, pages outside their publication
+    window and access-restricted pages are excluded, subpages included — see
     :ref:`configuration-excluding-pages`. This is intended, but it does surprise
-    people who expect ``llms.txt`` to list everything.
+    people who expect ``llms.txt`` to list everything. A ``noindex`` robots tag
+    is not evaluated.
 
 ..  _known-problems-server:
 
