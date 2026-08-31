@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0] - 2026-08-31
+
+### Added
+- **An `llms-full.txt` can be served alongside `llms.txt`.** Where `llms.txt` is
+  a list of links, the full document carries the readable content of every page
+  of a site in one file — the form a model can consume without following a
+  single link. It is served at `/llms-full.txt` and
+  `/.well-known/llms-full.txt` (page type 1702) once the route enhancer is
+  imported
+- The new extension configuration option `llmsFullTxt` switches it on. **Off by
+  default**: one request renders every page of the site at once, which is
+  expensive on a large site, so it is a deliberate decision rather than
+  something that starts happening after an update
+- The document follows the layout a full document is validated against: one H1
+  with the site title, a blockquote summary, then one section per page. A page's
+  own headings are nested directly below its section heading, so the outline
+  never skips a level and the document keeps exactly one H1
+- Each section carries the page description as a blockquote and the URL it was
+  taken from. Page depth is the one already configured per site for `llms.txt`;
+  at most 500 pages go into one document, and a document cut short says so
+- While the option is on, `llms.txt` points at the full document in an
+  `## Optional` section, so it is discoverable from the file crawlers ask for
+  first
+- The rate limiter and the bot access log treat the new endpoint like the
+  existing ones
+
+### Fixed
+- **The search assistant offered pages that are switched off.** A search index
+  is a snapshot and outlives the page it describes: ke_search and
+  indexed_search keep a row for a page long after it was disabled, and both
+  were queried with the frontend's restrictions removed. Disabled pages, pages
+  whose publish date has not arrived and pages whose expiry has passed are now
+  dropped from the results — together with their title and the text passage
+  that would otherwise have been quoted back
+- **Pages behind a login were offered to visitors who cannot open them.** A
+  page restricted to a frontend group now appears only in the results of a
+  visitor who is logged in and holds that group, and a restriction a parent
+  extends to its subpages counts as well. The check is made once, in
+  `SearchService`, so a search backend added later cannot forget it. For this
+  the assistant endpoint now runs after the frontend authentication, which is
+  what makes the visitor's groups known at all
+- **`llms.txt` listed pages that are switched off.** The page tree walk relied
+  on TYPO3's frontend restrictions, which depend on the context a request
+  happens to carry. Disabled pages, pages outside their publication window and
+  pages behind a frontend group are now left out explicitly, together with
+  everything below them — a page a visitor cannot reach has no place in a
+  public document. This also applies to `llms-full.txt` and to
+  `ai-bridge:download-markdown`
+- The verdict is deliberately the anonymous one for those documents, so an
+  editor fetching `/llms.txt` while logged in cannot write protected pages into
+  the page cache for everyone
+
+### Changed
+- Page rendering moved out of `LlmsTxtController` into a `PageContentRenderer`,
+  which both the `.md` endpoint and the full document use. The `.md` output is
+  unchanged
+- `SearchService` takes the new `PageAccessService` as a third constructor
+  argument. Relevant only for code constructing it by hand
+
 ## [1.26.2] - 2026-08-25
 
 ### Fixed

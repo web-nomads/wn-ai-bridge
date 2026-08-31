@@ -74,8 +74,8 @@ Step 2: Readable URLs
 =====================
 
 Without route enhancers the endpoints are reachable by page type only
-(``?type=1699`` and ``?type=1701``). Import the shipped configuration into each
-site:
+(``?type=1699``, ``?type=1701`` and ``?type=1702``). Import the shipped
+configuration into each site:
 
 ..  code-block:: yaml
     :caption: config/sites/<identifier>/config.yaml
@@ -93,6 +93,10 @@ site:
     * - llms.txt
       - ``/?type=1699``
       - :file:`/.well-known/llms.txt` and :file:`/llms.txt`
+    * - llms-full.txt
+      - ``/?type=1702``
+      - :file:`/.well-known/llms-full.txt` and :file:`/llms-full.txt`, once
+        :confval:`llmsFullTxt` is switched on
     * - Markdown
       - ``/?type=1701``
       - ``.md`` appended to any page URL

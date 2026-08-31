@@ -14,8 +14,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use WebNomads\WnAiBridge\Repository\PageRepository;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
+use WebNomads\WnAiBridge\Service\LlmsFullTxtGeneratorService;
 use WebNomads\WnAiBridge\Service\LlmsTxtGeneratorService;
 use WebNomads\WnAiBridge\Service\MarkdownConverterService;
+use WebNomads\WnAiBridge\Service\PageContentRenderer;
 use WebNomads\WnAiBridge\Service\UrlGeneratorService;
 
 /**
@@ -36,23 +38,29 @@ class LlmsTxtController
     public ?ContentObjectRenderer $cObj = null;
 
     private readonly LlmsTxtGeneratorService $llmsTxtGenerator;
+    private readonly LlmsFullTxtGeneratorService $llmsFullTxtGenerator;
     private readonly ConfigurationService $configurationService;
     private readonly MarkdownConverterService $markdownConverter;
+    private readonly PageContentRenderer $pageContentRenderer;
     private readonly PageRepository $pageRepository;
     private readonly UrlGeneratorService $urlGenerator;
     private readonly CacheManager $cacheManager;
 
     public function __construct(
         ?LlmsTxtGeneratorService $llmsTxtGenerator = null,
+        ?LlmsFullTxtGeneratorService $llmsFullTxtGenerator = null,
         ?ConfigurationService $configurationService = null,
         ?MarkdownConverterService $markdownConverter = null,
+        ?PageContentRenderer $pageContentRenderer = null,
         ?PageRepository $pageRepository = null,
         ?UrlGeneratorService $urlGenerator = null,
         ?CacheManager $cacheManager = null
     ) {
         $this->llmsTxtGenerator = $llmsTxtGenerator ?? GeneralUtility::makeInstance(LlmsTxtGeneratorService::class);
+        $this->llmsFullTxtGenerator = $llmsFullTxtGenerator ?? GeneralUtility::makeInstance(LlmsFullTxtGeneratorService::class);
         $this->configurationService = $configurationService ?? GeneralUtility::makeInstance(ConfigurationService::class);
         $this->markdownConverter = $markdownConverter ?? GeneralUtility::makeInstance(MarkdownConverterService::class);
+        $this->pageContentRenderer = $pageContentRenderer ?? GeneralUtility::makeInstance(PageContentRenderer::class);
         $this->pageRepository = $pageRepository ?? GeneralUtility::makeInstance(PageRepository::class);
         $this->urlGenerator = $urlGenerator ?? GeneralUtility::makeInstance(UrlGeneratorService::class);
         $this->cacheManager = $cacheManager ?? GeneralUtility::makeInstance(CacheManager::class);
@@ -71,6 +79,24 @@ class LlmsTxtController
         } catch (\Exception $e) {
             // Return error message in llms.txt format
             return "llmstxt: 1.0\nsite: " . $this->configurationService->getSiteUrl() . "\nerror: Failed to generate content\n";
+        }
+    }
+
+    /**
+     * Generate llms-full.txt content for TypoScript USER object
+     *
+     * @param array<string, mixed> $conf
+     */
+    #[AsAllowedCallable]
+    public function generateFullAction(string $content, array $conf): string
+    {
+        try {
+            $currentPageId = $this->configurationService->getCurrentPageId();
+            $languageUid = $this->getLanguageUid();
+            return $this->llmsFullTxtGenerator->generateLlmsFullTxt($currentPageId, $languageUid);
+        } catch (\Exception $e) {
+            // The endpoint is public, so keep the failure free of internals.
+            return "# llms-full.txt\n\n> The document could not be generated.\n";
         }
     }
 
@@ -173,62 +199,15 @@ class LlmsTxtController
     }
 
     /**
-     * Get the fully rendered page content from TYPO3's frontend rendering
-     * This captures content elements from all column positions or only colPos 0
-     * based on extension configuration.
+     * The rendered HTML of the requested page — its heading, description and the
+     * content elements in colPos 0.
      */
     protected function getRenderedPageContent(): string
     {
-        // Always use a fresh ContentObjectRenderer to avoid state issues or double rendering
-        $cObject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
-        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
-        if ($request instanceof ServerRequestInterface) {
-            $cObject->setRequest($request);
-        }
-        $cObject->start([], 'pages');
-
-        $pageId = $this->configurationService->getCurrentPageId();
-        $languageUid = $this->getLanguageUid();
-
-        $page = $this->pageRepository->findById($pageId, $languageUid);
-
-        $html = '';
-
-        // Use seo_title if available, otherwise fall back to title
-        $displayTitle = ($page['seo_title'] ?? '') ?: ($page['title'] ?? '');
-        if ($displayTitle !== '') {
-            $html .= '<h1>' . htmlspecialchars((string)$displayTitle) . '</h1>';
-        }
-
-        if (!empty($page['description'])) {
-            $html .= '<p class="page-description"> > ' . htmlspecialchars((string)$page['description']) . '</p>';
-        }
-
-        // Use native TYPO3 CONTENT object rendering
-        // In TYPO3 12, the CONTENT object automatically handles language overlays
-        // and filtering if the request is properly set on the ContentObjectRenderer.
-        $contentConfiguration = [
-            'table' => 'tt_content',
-            'select.' => [
-                'pidInList' => (string)$pageId,
-                'orderBy' => 'sorting',
-                'where' => 'colPos=0',
-            ],
-        ];
-
-        $renderedContent = $cObject->cObjGetSingle('CONTENT', $contentConfiguration);
-
-        if (!empty($renderedContent)) {
-            $html .= $renderedContent;
-        }
-
-        if ($this->configurationService->isDebugEnabled()) {
-            $debugFile = GeneralUtility::getFileAbsFileName('EXT:wn_ai_bridge/var/log/debug_default_render_' . $pageId . '.html');
-            GeneralUtility::mkdir_deep(dirname($debugFile));
-            GeneralUtility::writeFile($debugFile, (string)$html);
-        }
-
-        return $html;
+        return $this->pageContentRenderer->render(
+            $this->configurationService->getCurrentPageId(),
+            $this->getLanguageUid()
+        );
     }
 
     /**

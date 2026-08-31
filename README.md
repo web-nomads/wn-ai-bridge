@@ -10,7 +10,8 @@ assistant that answers from the site's own content.
 Two halves that work independently:
 
 - **Machine-readable content** — an `llms.txt` file following the
-  [llmstxt.org specification](https://llmstxt.org/), and a Markdown
+  [llmstxt.org specification](https://llmstxt.org/), an optional `llms-full.txt`
+  carrying the content of every page in one document, and a Markdown
   representation of every page. Free, no key needed.
 - **AI search assistant** — a chat widget that answers visitor questions from
   your search index, with links to the pages it used. Requires a subscription
@@ -48,7 +49,11 @@ imports:
 | | Without enhancer | With enhancer |
 |---|---|---|
 | llms.txt | `/?type=1699` | `/.well-known/llms.txt` and `/llms.txt` |
+| llms-full.txt | `/?type=1702` | `/.well-known/llms-full.txt` and `/llms-full.txt` |
 | Markdown | `/?type=1701` | append `.md` to any page URL |
+
+`llms-full.txt` is off by default; switch on `llmsFullTxt` in the extension
+configuration to serve it.
 
 So `https://example.com/about` also exists as `https://example.com/about.md`.
 

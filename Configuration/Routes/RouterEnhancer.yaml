@@ -4,4 +4,6 @@ routeEnhancers:
     map:
       llms.txt: 1699
       .well-known/llms.txt: 1699
+      llms-full.txt: 1702
+      .well-known/llms-full.txt: 1702
       .md: 1701

@@ -221,6 +221,17 @@ class ConfigurationService
         return (bool)($extConf['parsingFallbackHtml'] ?? false);
     }
 
+    /**
+     * Whether the llms-full.txt endpoint is served. Off by default: one request
+     * renders every page of the site, which is far more expensive than the link
+     * list of llms.txt.
+     */
+    public function isLlmsFullTxtEnabled(): bool
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        return (bool)($extConf['llmsFullTxt'] ?? false);
+    }
+
     public function isDebugEnabled(): bool
     {
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];

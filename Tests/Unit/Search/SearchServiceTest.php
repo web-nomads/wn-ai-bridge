@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use WebNomads\WnAiBridge\Dto\SearchResultItem;
 use WebNomads\WnAiBridge\Search\SearchProviderInterface;
 use WebNomads\WnAiBridge\Search\SearchService;
+use WebNomads\WnAiBridge\Security\PageAccessService;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
 
 class SearchServiceTest extends TestCase
@@ -50,10 +51,26 @@ class SearchServiceTest extends TestCase
         return $configuration;
     }
 
+    /**
+     * @param list<int> $inaccessiblePageIds Pages the current visitor may not open
+     */
+    private function pageAccess(array $inaccessiblePageIds = []): PageAccessService
+    {
+        return new class ($inaccessiblePageIds) extends PageAccessService {
+            /** @param list<int> $inaccessiblePageIds */
+            public function __construct(private readonly array $inaccessiblePageIds) {}
+
+            public function isAccessible(int $pageId): bool
+            {
+                return !in_array($pageId, $this->inaccessiblePageIds, true);
+            }
+        };
+    }
+
     #[Test]
     public function returnsEmptyForBlankQuery(): void
     {
-        $service = new SearchService([$this->provider('pages', [])], $this->configuration());
+        $service = new SearchService([$this->provider('pages', [])], $this->configuration(), $this->pageAccess());
         self::assertSame([], $service->search('   ', 5, 0));
     }
 
@@ -69,7 +86,7 @@ class SearchServiceTest extends TestCase
         $sharedDuplicate = SearchResultItem::create('SharedDup', 'https://example.com/a/', 'snippet a2', 9.0, 'pages', 1);
         $pagesProvider = $this->provider('pages', [$sharedDuplicate, $onlyPages]);
 
-        $service = new SearchService([$keProvider, $pagesProvider], $this->configuration());
+        $service = new SearchService([$keProvider, $pagesProvider], $this->configuration(), $this->pageAccess());
         $results = $service->search('anything', 10, 0);
 
         $urls = array_map(static fn(SearchResultItem $item): string => $item->url, $results);
@@ -96,6 +113,7 @@ class SearchServiceTest extends TestCase
         $service = new SearchService(
             [$this->provider('indexed', [$home]), $this->provider('pages', [$about, $services])],
             $this->configuration(),
+            $this->pageAccess(),
         );
 
         $urls = array_map(
@@ -118,6 +136,7 @@ class SearchServiceTest extends TestCase
         $service = new SearchService(
             [$this->provider('kesearch', [$keItem]), $this->provider('pages', [$pagesItem])],
             $this->configuration('kesearch'),
+            $this->pageAccess(),
         );
 
         $results = $service->search('anything', 10, 0);
@@ -136,6 +155,7 @@ class SearchServiceTest extends TestCase
                 $this->provider('pages', [$pagesItem]),
             ],
             $this->configuration('kesearch'),
+            $this->pageAccess(),
         );
 
         // ke_search was requested but is unavailable — the always-on page
@@ -146,6 +166,43 @@ class SearchServiceTest extends TestCase
     }
 
     #[Test]
+    public function dropsHitsOnPagesTheVisitorMayNotOpen(): void
+    {
+        // An index keeps a row long after the page was disabled or put behind a
+        // login, so a hit is only as good as the page behind it still is.
+        $open = SearchResultItem::create('Open', 'https://example.com/open', '', 5.0, 'kesearch', 1);
+        $closed = SearchResultItem::create('Members only', 'https://example.com/members', '', 9.0, 'kesearch', 2);
+
+        $service = new SearchService(
+            [$this->provider('kesearch', [$open, $closed])],
+            $this->configuration(),
+            $this->pageAccess([2]),
+        );
+
+        $results = $service->search('anything', 10, 0);
+
+        self::assertCount(1, $results);
+        self::assertSame('https://example.com/open', $results[0]->url);
+    }
+
+    #[Test]
+    public function aHiddenPageIsDroppedEvenWhenAnotherProviderAlsoFoundIt(): void
+    {
+        // Two providers agreeing on a hit would normally make it rank first —
+        // it must not sneak back in through the second one.
+        $item = SearchResultItem::create('Gone', 'https://example.com/gone', '', 5.0, 'kesearch', 7);
+        $same = SearchResultItem::create('Gone', 'https://example.com/gone', '', 5.0, 'indexed', 7);
+
+        $service = new SearchService(
+            [$this->provider('kesearch', [$item]), $this->provider('indexed', [$same])],
+            $this->configuration(),
+            $this->pageAccess([7]),
+        );
+
+        self::assertSame([], $service->search('anything', 10, 0));
+    }
+
+    #[Test]
     public function respectsResultLimit(): void
     {
         $items = [];
@@ -153,7 +210,7 @@ class SearchServiceTest extends TestCase
             $items[] = SearchResultItem::create('T' . $i, 'https://example.com/' . $i, '', 10.0 - $i, 'pages', $i);
         }
 
-        $service = new SearchService([$this->provider('pages', $items)], $this->configuration());
+        $service = new SearchService([$this->provider('pages', $items)], $this->configuration(), $this->pageAccess());
         self::assertCount(3, $service->search('anything', 3, 0));
     }
 }

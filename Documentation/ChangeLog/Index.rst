@@ -27,6 +27,16 @@ Upgrading
     releases added tables or columns, and a missing column fails at the moment
     the feature is used, not at the moment of the update.
 
+..  note::
+
+    Version 1.27.0 added the page type 1702 and two suffixes to the shipped
+    route enhancer. A site that imports
+    :file:`EXT:wn_ai_bridge/Configuration/Routes/RouterEnhancer.yaml` by
+    reference picks both up after a cache flush; a site that copied the mapping
+    into its own :file:`config.yaml` has to add ``llms-full.txt: 1702`` and
+    ``.well-known/llms-full.txt: 1702`` by hand. Nothing changes until
+    :confval:`llmsFullTxt` is switched on.
+
 ..  _changelog-renames:
 
 Renamed backend modules

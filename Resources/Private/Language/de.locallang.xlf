@@ -15,6 +15,10 @@
 				<source>Issuing server (optional): Base URL for the status check. Leave empty to use the address carried inside the key</source>
 				<target>Ausstellungsserver (optional): Basis-URL für den Online-Check. Leer lassen, um die im Key hinterlegte Adresse zu verwenden</target>
 			</trans-unit>
+			<trans-unit id="config.llmsFullTxt">
+				<source>Generate llms-full.txt: Additionally serves the readable content of every page of a site as one document at /llms-full.txt and /.well-known/llms-full.txt. Off by default — a request renders every page at once, which is expensive on large sites. The page depth is the one configured per site for llms.txt</source>
+				<target>llms-full.txt erzeugen: Liefert zusätzlich den lesbaren Inhalt aller Seiten einer Site als ein Dokument unter /llms-full.txt und /.well-known/llms-full.txt. Standardmässig aus — ein Aufruf rendert alle Seiten auf einmal, was bei grossen Sites teuer ist. Die Seitentiefe ist die pro Site für llms.txt eingestellte</target>
+			</trans-unit>
 			<trans-unit id="config.parsingFallbackHtml">
 				<source>HTML parsing fallback: Convert the rendered HTML of a page when no structured content could be read</source>
 				<target>Parsing-Fallback HTML: Wandelt das gerenderte HTML einer Seite um, wenn kein strukturierter Inhalt gelesen werden konnte</target>

@@ -20,7 +20,7 @@ conversion, and looking after what the AI search assistant tells visitors.
 Generated content
 =================
 
-The extension derives two representations from the existing page tree.
+The extension derives three representations from the existing page tree.
 
 llms.txt
 --------
@@ -33,6 +33,41 @@ It contains:
 *   **Navigation structure** — the page hierarchy down to the configured depth
 *   **Topics and contact information** — maintained by administrators in the
     site configuration
+
+llms-full.txt
+-------------
+
+The same site as one readable document instead of a list of links: the site
+title, a summary, and then one section per page carrying the text of that page.
+Served at :file:`/llms-full.txt` and :file:`/.well-known/llms-full.txt`, but only
+once an administrator switches :confval:`llmsFullTxt` on — it is off by default
+because one request renders every page at once. While it is on, ``llms.txt``
+links to it.
+
+Nothing has to be maintained for it: it is built from the same page titles,
+descriptions and content elements as everything else on this page.
+
+Which pages appear
+------------------
+
+Both documents describe the site as a visitor without a login sees it. A page is
+left out, together with everything below it, when it is:
+
+*   **disabled** — the :guilabel:`Disable` checkbox on the page,
+*   **outside its publication window** — a :guilabel:`Publish Date` still in the
+    future or an :guilabel:`Expiration Date` already passed,
+*   **restricted to a frontend group**, so it needs a login.
+
+Nothing has to be done for this: taking a page offline the usual way takes it
+out of the documents at the next cache flush. The same pages are also kept out
+of the search assistant, where a group-restricted page appears only for a
+visitor who is logged in and entitled to it — see :ref:`assistant-visibility`.
+
+..  note::
+
+    :guilabel:`Hide in Menu` also keeps a page out of ``llms.txt``, because the
+    document is built from the navigation. The page is still reachable and still
+    has its ``.md`` version.
 
 Markdown pages
 --------------
@@ -60,6 +95,8 @@ To check what a model sees, request the URLs directly in a browser:
       - Open
     * - The llms.txt of a site
       - :file:`https://example.com/.well-known/llms.txt`
+    * - The full document of a site
+      - :file:`https://example.com/llms-full.txt`
     * - A page as Markdown
       - the page URL with ``.md`` appended
 
