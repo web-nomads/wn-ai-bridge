@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0] - 2026-09-02
+
+### Added
+- **The Bot Access Log counts `llms-full.txt` separately.** Accesses to the full
+  document were recorded under the same type as `llms.txt`, so the module could
+  not say how often it was actually fetched — which is the number that matters
+  for a document that renders every page of the site in one request. It has its
+  own tile, its own filter option and its own badge in the list now
+- The tile and the filter option are shown while `llmsFullTxt` is switched on: a
+  site that does not serve the document has nothing to count. Accesses are
+  recorded either way, so switching it on later does not start from zero
+
+### Note
+- Accesses recorded before this version stay filed under `llms.txt`; the path
+  column tells them apart. Only `llms-full.txt` was affected, and it has been
+  available since 1.27.0
+
 ## [1.27.0] - 2026-08-31
 
 ### Added

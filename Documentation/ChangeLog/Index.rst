@@ -130,6 +130,33 @@ Behavioural changes worth checking after an update
 Release history
 ===============
 
+..  _changelog-1-28:
+
+1.28.0 — 2026-09-02
+-------------------
+
+*   The :guilabel:`Bot Access Log` counts ``llms-full.txt`` separately, with its
+    own tile, filter option and badge. Accesses used to be filed under
+    ``llms.txt``, which hid the one number that matters for a document that
+    renders every page of the site in one request.
+*   The tile and the filter option appear while :confval:`llmsFullTxt` is on.
+    Accesses are recorded either way, so switching the document on later does
+    not start from zero — entries from before this version stay under
+    ``llms.txt`` and are told apart by their path.
+
+..  _changelog-1-27:
+
+1.27.0 — 2026-08-31
+-------------------
+
+*   An ``llms-full.txt`` alongside ``llms.txt``: the readable content of every
+    page in one document, at ``/llms-full.txt`` and ``/.well-known/llms-full.txt``
+    (page type 1702), switched on with :confval:`llmsFullTxt` and off by default.
+*   The search assistant and ``llms.txt`` no longer offer pages that are
+    switched off, outside their publication window or behind a frontend group.
+*   Sites that copied the route enhancer mapping into their own
+    :file:`config.yaml` have to add ``llms-full.txt: 1702`` by hand.
+
 ..  _changelog-1-26-2:
 
 1.26.2 — 2026-08-25

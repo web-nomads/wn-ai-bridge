@@ -43,6 +43,9 @@
             <select name="requestType" class="form-select form-select-sm">
                 <option value=""><f:translate key="{ll}filter.all"/></option>
                 <option value="llmstxt"<f:if condition="{filter.requestType} == 'llmstxt'"> selected</f:if>>llms.txt</option>
+                <f:if condition="{llmsFullEnabled}">
+                    <option value="llmsfull"{f:if(condition: "{filter.requestType} == 'llmsfull'", then: ' selected')}>llms-full.txt</option>
+                </f:if>
                 <option value="markdown"<f:if condition="{filter.requestType} == 'markdown'"> selected</f:if>>Markdown (.md)</option>
                 <option value="page"<f:if condition="{filter.requestType} == 'page'"> selected</f:if>><f:translate key="{ll}stats.page"/></option>
             </select>

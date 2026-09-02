@@ -253,10 +253,19 @@ Entries reach the module in three ways:
 Bot Access Log
 --------------
 
-Which bots and crawlers requested ``llms.txt``, the Markdown versions and
-normal pages, filterable by date, request type, bot and IP address, with an
-:guilabel:`AI crawlers only` switch. It is informational: useful for seeing
-whether the machine-readable content is actually being picked up, and by whom.
+Which bots and crawlers requested ``llms.txt``, ``llms-full.txt``, the Markdown
+versions and normal pages, filterable by date, request type, bot and IP address,
+with an :guilabel:`AI crawlers only` switch. It is informational: useful for
+seeing whether the machine-readable content is actually being picked up, and by
+whom.
+
+The link list and the full document are counted apart, because how often each is
+asked for says something different: ``llms.txt`` is a table of contents a crawler
+reads to find its way around, ``llms-full.txt`` is the whole site in one
+expensive request. Its tile and its filter option appear while
+:confval:`llmsFullTxt` is switched on — a site that does not serve the document
+has nothing to show for it. Accesses are recorded either way, so switching the
+document on later does not start from zero.
 
 This module does not require a subscription, but it only records anything while
 ``botAccessLogging`` is enabled in the extension configuration.
