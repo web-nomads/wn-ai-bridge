@@ -10,7 +10,9 @@
 <f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_botaccess.xlf:</f:variable>
 
 <f:comment>Statistics overview</f:comment>
-<div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
+<f:comment>One more column while the full document is served, so the tiles stay on one row.</f:comment>
+<f:variable name="statColumns" value="{f:if(condition: llmsFullEnabled, then: 6, else: 5)}"/>
+<div class="row row-cols-2 row-cols-md-3 row-cols-xl-{statColumns} g-3 mb-4">
     <div class="col"><div class="card h-100"><div class="card-body">
         <div class="h2 mb-0">{stats.total}</div>
         <div class="text-body-secondary"><f:translate key="{ll}stats.total"/></div>
@@ -23,6 +25,12 @@
         <div class="h2 mb-0">{stats.llmstxt}</div>
         <div class="text-body-secondary">llms.txt</div>
     </div></div></div>
+    <f:if condition="{llmsFullEnabled}">
+        <div class="col"><div class="card h-100"><div class="card-body">
+            <div class="h2 mb-0">{stats.llmsfull}</div>
+            <div class="text-body-secondary">llms-full.txt</div>
+        </div></div></div>
+    </f:if>
     <div class="col"><div class="card h-100"><div class="card-body">
         <div class="h2 mb-0">{stats.markdown}</div>
         <div class="text-body-secondary"><f:translate key="{ll}stats.markdown"/></div>
@@ -56,6 +64,7 @@
                             <td>
                                 <f:switch expression="{e.requestType}">
                                     <f:case value="llmstxt"><span class="badge bg-primary">llms.txt</span></f:case>
+                                    <f:case value="llmsfull"><span class="badge bg-primary">llms-full.txt</span></f:case>
                                     <f:case value="markdown"><span class="badge bg-info">.md</span></f:case>
                                     <f:defaultCase><span class="badge bg-secondary"><f:translate key="{ll}stats.page"/></span></f:defaultCase>
                                 </f:switch>

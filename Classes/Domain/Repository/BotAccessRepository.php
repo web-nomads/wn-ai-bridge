@@ -64,7 +64,7 @@ final class BotAccessRepository
     /**
      * Aggregate counts per request type for the current filter.
      *
-     * @return array{total: int, llmstxt: int, markdown: int, page: int, ai: int}
+     * @return array{total: int, llmstxt: int, llmsfull: int, markdown: int, page: int, ai: int}
      */
     public function getStatistics(BotAccessFilter $filter): array
     {
@@ -93,6 +93,7 @@ final class BotAccessRepository
         return [
             'total' => $total,
             'llmstxt' => $byType['llmstxt'] ?? 0,
+            'llmsfull' => $byType['llmsfull'] ?? 0,
             'markdown' => $byType['markdown'] ?? 0,
             'page' => $byType['page'] ?? 0,
             'ai' => $ai,

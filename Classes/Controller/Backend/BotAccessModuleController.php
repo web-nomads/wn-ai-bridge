@@ -49,7 +49,7 @@ final class BotAccessModuleController
         $tableError = false;
         $entries = [];
         $total = 0;
-        $stats = ['total' => 0, 'llmstxt' => 0, 'markdown' => 0, 'page' => 0, 'ai' => 0];
+        $stats = ['total' => 0, 'llmstxt' => 0, 'llmsfull' => 0, 'markdown' => 0, 'page' => 0, 'ai' => 0];
         $botNames = [];
         try {
             $entries = $this->repository->findByFilter($filter);
@@ -65,6 +65,10 @@ final class BotAccessModuleController
             // subscription and keeps working without one.
             'subscription' => $this->configurationService->getSubscriptionStatus(),
             'loggingEnabled' => $this->configurationService->isBotAccessLoggingEnabled(),
+            // Accesses to llms-full.txt are always recorded, but a site that
+            // does not serve the document has nothing to show for it — the
+            // count and the filter option would only be noise.
+            'llmsFullEnabled' => $this->configurationService->isLlmsFullTxtEnabled(),
             'tableError' => $tableError,
             'entries' => $entries,
             'total' => $total,

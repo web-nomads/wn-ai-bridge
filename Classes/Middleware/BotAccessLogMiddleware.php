@@ -50,7 +50,7 @@ final class BotAccessLogMiddleware implements MiddlewareInterface
             return; // Only bots are logged.
         }
 
-        $type = $this->classify($request, $response);
+        $type = self::classify($request, $response);
         if ($type === null) {
             return; // Not a page/llms.txt/markdown response we care about.
         }
@@ -74,19 +74,23 @@ final class BotAccessLogMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Classify the request as llms.txt, a Markdown version or a normal page.
-     * Normal pages are only logged when the response is an HTML document, so
-     * assets, feeds and JSON endpoints are ignored.
+     * Classify the request as llms.txt, llms-full.txt, a Markdown version or a
+     * normal page. Normal pages are only logged when the response is an HTML
+     * document, so assets, feeds and JSON endpoints are ignored.
+     *
+     * The link list and the full document are counted apart: one is a table of
+     * contents a crawler reads to find its way around, the other is the whole
+     * site in a single expensive request, and how often each is asked for says
+     * something different about the traffic.
      */
-    private function classify(ServerRequestInterface $request, ResponseInterface $response): ?string
+    public static function classify(ServerRequestInterface $request, ResponseInterface $response): ?string
     {
         $path = rtrim($request->getUri()->getPath(), '/');
 
-        // The full document shares the type of the link list — the recorded path
-        // still tells the two apart.
-        if (str_ends_with($path, '/llms.txt') || $path === '/llms.txt'
-            || str_ends_with($path, '/llms-full.txt') || $path === '/llms-full.txt'
-        ) {
+        if (str_ends_with($path, '/llms-full.txt') || $path === '/llms-full.txt') {
+            return 'llmsfull';
+        }
+        if (str_ends_with($path, '/llms.txt') || $path === '/llms.txt') {
             return 'llmstxt';
         }
         if (str_ends_with($path, '.md')) {
