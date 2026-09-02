@@ -29,6 +29,13 @@ final class SubscriptionModuleGuardTest extends TestCase
         'workspaces' => 'live',
     ];
 
+    /**
+     * Spelled out rather than written as ::class on purpose: the constant would
+     * make static analysis resolve the gate, which fails on v13 for the very
+     * reason this test exists.
+     */
+    private const GATE = 'WebNomads\\WnAiBridge\\Backend\\SubscriptionRequiredGate';
+
     #[Test]
     public function theGuardNeverLoadsTheV14OnlyGate(): void
     {
@@ -38,7 +45,7 @@ final class SubscriptionModuleGuardTest extends TestCase
         $event = $this->guard(13, hasFeature: false)('wn_ai_bridge_enquiries');
 
         self::assertFalse(
-            class_exists(\WebNomads\WnAiBridge\Backend\SubscriptionRequiredGate::class, false),
+            class_exists(self::GATE, false),
             'The module guard pulled in the v14-only access gate.'
         );
         self::assertSame('user', $event->getConfigurationValue('access'));

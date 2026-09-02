@@ -16,3 +16,9 @@ parameters:
         analyseAndScan:
             - .Build
             - var
+            # TYPO3 v14 only: it implements ModuleAccessGateInterface, which does
+            # not exist on v13, and analysing it against a v13 installation ends
+            # the whole run with "Result is incomplete" rather than one finding.
+            # The class is never loaded there either — see
+            # Configuration/Services.php and SubscriptionModuleGuard.
+            - Classes/Backend/SubscriptionRequiredGate.php

@@ -130,6 +130,20 @@ Behavioural changes worth checking after an update
 Release history
 ===============
 
+..  _changelog-1-28-1:
+
+1.28.1 — 2026-09-02
+-------------------
+
+*   Fixed: ``llms-full.txt`` answered with a 404 on sites that had copied the
+    route enhancer mapping into their :file:`config.yaml` instead of importing
+    it. Such a copy is a snapshot and knows nothing of the endpoint added in
+    1.27.0.
+*   A suffix the extension serves but the site does not map is now added to the
+    site's ``PageType`` enhancer when the configuration is read. Existing
+    mappings are never touched, and a site without such an enhancer is left
+    alone. Flush the caches after updating.
+
 ..  _changelog-1-28:
 
 1.28.0 — 2026-09-02

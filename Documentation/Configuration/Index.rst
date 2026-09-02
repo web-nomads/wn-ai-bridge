@@ -477,6 +477,19 @@ It maps:
 
 Flush the caches afterwards.
 
+..  tip::
+
+    Import the file by reference rather than copying its content. A copy is a
+    snapshot: ``llms-full.txt`` was added in 1.27.0, and a site holding an older
+    copy answered it with a 404.
+
+    Since 1.28.1 the extension repairs that case itself — a suffix it serves but
+    the site does not map is added to the site's ``PageType`` enhancer when the
+    configuration is read. Suffixes the site already maps are never touched,
+    whatever they point at, and a site without a ``PageType`` enhancer is left
+    alone: introducing one changes how every URL on that site is built. Flush the
+    caches after updating, since the completed configuration is what gets cached.
+
 ..  note::
 
     The suffix works on the detail views of a plugin as well, as long as their

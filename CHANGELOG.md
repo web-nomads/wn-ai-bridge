@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.1] - 2026-09-02
+
+### Fixed
+- **`llms-full.txt` answered with a 404 on sites that had copied the route
+  enhancer mapping.** `Configuration/Routes/RouterEnhancer.yaml` is meant to be
+  imported by reference, and a site that does so picked up the new endpoint of
+  1.27.0 by itself. Copying its content into `config.yaml` is just as common,
+  and that copy is a snapshot: it maps `llms.txt` and `.md`, knows nothing of
+  `llms-full.txt`, and the request never reaches the page type — with nothing in
+  the backend to suggest why
+- A suffix the extension serves but the site does not map is now added to the
+  site's `PageType` enhancer while the configuration is read. Suffixes the site
+  already maps are left exactly as they are, whatever they point at, and a site
+  without a `PageType` enhancer is left alone entirely — introducing one changes
+  how every URL on that site is built. Flush the caches after updating: the
+  completed configuration is what gets cached
+
 ## [1.28.0] - 2026-09-02
 
 ### Added
