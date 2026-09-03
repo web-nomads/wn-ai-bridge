@@ -41,25 +41,65 @@ final class SubscriptionStatus
         public readonly string $host,
         public readonly int $effectiveValidUntil = 0,
         public readonly ?OnlineCheckResult $onlineCheck = null,
+        /**
+         * The domains this installation goes by — the issuing server's list once
+         * it confirmed one, the key's otherwise. Empty only when there is no
+         * token at all.
+         *
+         * @var list<string>
+         */
+        public readonly array $domains = [],
     ) {}
 
+    /**
+     * @param list<string> $domains
+     */
     public static function valid(
         SubscriptionToken $token,
         string $host,
         int $effectiveValidUntil = 0,
         ?OnlineCheckResult $onlineCheck = null,
+        array $domains = [],
     ): self {
-        return new self(true, self::REASON_OK, $token, $host, $effectiveValidUntil, $onlineCheck);
+        return new self(true, self::REASON_OK, $token, $host, $effectiveValidUntil, $onlineCheck, $domains);
     }
 
+    /**
+     * @param list<string> $domains
+     */
     public static function invalid(
         string $reason,
         ?SubscriptionToken $token = null,
         string $host = '',
         int $effectiveValidUntil = 0,
         ?OnlineCheckResult $onlineCheck = null,
+        array $domains = [],
     ): self {
-        return new self(false, $reason, $token, $host, $effectiveValidUntil, $onlineCheck);
+        return new self(false, $reason, $token, $host, $effectiveValidUntil, $onlineCheck, $domains);
+    }
+
+    /**
+     * The domains behind this state, as one readable line.
+     *
+     * Falls back to the key's own list, so a status assembled without a verdict
+     * — a malformed key, a test, an older caller — still says something rather
+     * than nothing.
+     */
+    public function getDomainList(): string
+    {
+        $domains = $this->domains !== [] ? $this->domains : ($this->token?->domains ?? []);
+
+        return implode(', ', $domains);
+    }
+
+    /**
+     * Whether the domains above were confirmed by the issuing server rather than
+     * read out of the key. Worth saying in the backend: only then does a domain
+     * added to the licence show up here.
+     */
+    public function hasServerConfirmedDomains(): bool
+    {
+        return ($this->onlineCheck?->domains ?? []) !== [];
     }
 
     /**
@@ -135,12 +175,12 @@ final class SubscriptionStatus
                 ? sprintf(
                     'Trial subscription active for %s – valid until %s. It does not renew; '
                     . 'order a subscription to keep the AI Bridge running afterwards.',
-                    $this->token?->getDomainList() ?: 'this domain',
+                    $this->getDomainList() ?: 'this domain',
                     $this->getValidUntil()?->format('Y-m-d') ?? 'unlimited',
                 )
                 : sprintf(
                     'Subscription active for %s – valid until %s.',
-                    $this->token?->getDomainList() ?: 'this domain',
+                    $this->getDomainList() ?: 'this domain',
                     $this->getValidUntil()?->format('Y-m-d') ?? 'unlimited',
                 ),
             self::REASON_MISSING => 'No subscription key is configured. '
@@ -163,9 +203,11 @@ final class SubscriptionStatus
             self::REASON_REVOKED => 'The subscription was revoked by the issuer. '
                 . 'Please get in touch.',
             self::REASON_DOMAIN => sprintf(
-                'The subscription key is not valid for the domain "%s", but for: %s.',
+                'The subscription is not valid for the domain "%s", but for: %s. '
+                . 'A domain can be added to the licence by its issuer; the change reaches this '
+                . 'installation with the next daily status check, without a new key.',
                 $this->host,
-                $this->token?->getDomainList() ?: '(no domain stored)',
+                $this->getDomainList() ?: '(no domain stored)',
             ),
             self::REASON_UNSUPPORTED => 'The subscription key cannot be verified '
                 . 'because the PHP extension "sodium" is not available.',

@@ -19,6 +19,7 @@ use WebNomads\WnAiBridge\Domain\Model\LogFilter;
 use WebNomads\WnAiBridge\Domain\Repository\AssistantLogRepository;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
 use WebNomads\WnAiBridge\Service\CostCalculator;
+use WebNomads\WnAiBridge\Service\SiteListService;
 use WebNomads\WnAiBridge\Service\VisitorInfoService;
 use WebNomads\WnAiBridge\Subscription\SubscriptionService;
 
@@ -42,6 +43,7 @@ final class EnquiriesModuleController
         private readonly CostCalculator $costCalculator,
         private readonly ViewFactoryInterface $viewFactory,
         private readonly SubscriptionService $subscriptionService,
+        private readonly SiteListService $siteListService,
     ) {}
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
@@ -72,13 +74,13 @@ final class EnquiriesModuleController
         $totalThreads = 0;
         $stats = $this->emptyStatistics();
         $providers = [];
-        $totalCostChf = $this->costCalculator->format(0.0);
+        $totalCost = $this->costCalculator->format(0.0);
         try {
             $stats = $this->repository->getStatistics($filter);
             $providers = $this->repository->findDistinctProviders();
             $totalThreads = $this->repository->countThreads($filter);
-            $totalCostChf = $this->costCalculator->format(
-                $this->costCalculator->totalCostChf($this->repository->getModelTokenTotals($filter))
+            $totalCost = $this->costCalculator->format(
+                $this->costCalculator->totalCost($this->repository->getModelTokenTotals($filter))
             );
             $conversationIds = $this->repository->findThreadConversationIds($filter);
             $threads = $this->buildThreads($conversationIds);
@@ -95,8 +97,11 @@ final class EnquiriesModuleController
             'total' => $totalThreads,
             'stats' => $stats,
             'providers' => $providers,
-            'totalCostChf' => $totalCostChf,
+            'totalCost' => $totalCost,
             'answersModuleUrl' => $this->subscriptionService->hasFeature(SubscriptionService::FEATURE_CORRECTIONS),
+            // Empty on a single-site installation — the template renders the
+            // site filter only when there is a choice to make.
+            'sites' => $this->siteListService->getFilterOptions(),
             'filter' => $filter->toFormValues(),
             'pagination' => $this->buildPagination($filter, $totalThreads),
             'moduleUrl' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME),
@@ -166,21 +171,21 @@ final class EnquiriesModuleController
             $inputTokens = 0;
             $outputTokens = 0;
             $totalTokens = 0;
-            $costChf = 0.0;
+            $cost = 0.0;
             $turns = [];
             foreach ($entries as $entry) {
                 $inputTokens += $entry->inputTokens;
                 $outputTokens += $entry->outputTokens;
                 $totalTokens += $entry->totalTokens;
 
-                $turnCost = $this->costCalculator->costChf($entry->model, $entry->inputTokens, $entry->outputTokens);
-                $costChf += $turnCost;
+                $turnCost = $this->costCalculator->cost($entry->model, $entry->inputTokens, $entry->outputTokens);
+                $cost += $turnCost;
 
                 // Wrap each turn so the template can show its per-turn cost and
                 // the answer with the "[n]" citations turned into real links.
                 $turns[] = [
                     'entry' => $entry,
-                    'costChf' => $this->costCalculator->format($turnCost),
+                    'cost' => $this->costCalculator->format($turnCost),
                     'answerHtml' => $this->renderAnswerHtml($entry->answer, $entry->sources),
                     'overrideUrl' => $this->buildOverrideUrl($entry),
                 ];
@@ -194,7 +199,7 @@ final class EnquiriesModuleController
                 'inputTokens' => $inputTokens,
                 'outputTokens' => $outputTokens,
                 'totalTokens' => $totalTokens,
-                'costChf' => $this->costCalculator->format($costChf),
+                'cost' => $this->costCalculator->format($cost),
                 'visitor' => $this->visitorInfoService->resolve($entries[0]->ipAddress),
             ];
         }

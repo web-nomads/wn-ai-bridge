@@ -201,6 +201,14 @@
 				<source>Delete</source>
 				<target>Eliminar</target>
 			</trans-unit>
+			<trans-unit id="filter.site">
+				<source>Site</source>
+				<target>Sitio</target>
+			</trans-unit>
+			<trans-unit id="filter.allSites">
+				<source>All sites</source>
+				<target>Todos los sitios</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

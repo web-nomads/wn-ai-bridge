@@ -20,8 +20,17 @@ use WebNomads\WnAiBridge\Service\UrlGeneratorService;
  */
 final class PageContentSearchProvider implements SearchProviderInterface
 {
-    private const MAX_SUBTREE_DEPTH = 6;
-    private const MAX_SUBTREE_PAGES = 2000;
+    /**
+     * Bounds for walking the subtree the search is restricted to.
+     *
+     * Generous, because this is no longer only the optional "search below this
+     * page" narrowing: on an installation with several sites the site's own root
+     * page is the restriction, and a whole website has to fit inside it. A tree
+     * deeper or larger than this loses its tail from the results — which is why
+     * these are far above what a site realistically has, rather than snug.
+     */
+    private const MAX_SUBTREE_DEPTH = 15;
+    private const MAX_SUBTREE_PAGES = 10000;
 
     private readonly ConnectionPool $connectionPool;
     private readonly UrlGeneratorService $urlGenerator;

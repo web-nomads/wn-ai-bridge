@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace WebNomads\WnAiBridge\Search;
 
+use TYPO3\CMS\Core\Site\SiteFinder;
 use WebNomads\WnAiBridge\Dto\SearchResultItem;
 use WebNomads\WnAiBridge\Security\PageAccessService;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
@@ -16,14 +17,26 @@ use WebNomads\WnAiBridge\Service\ConfigurationService;
  * and a URL that surfaces in several backends accumulates their rank weights, so
  * consensus hits bubble to the top. Duplicate URLs are collapsed.
  *
- * Every hit passes an access check before it is merged. A search index is a
- * snapshot and outlives the page it describes: ke_search and indexed_search keep
- * rows for pages that have since been disabled or put behind a login, and both
- * are queried without the frontend's restrictions. The check is made here, once,
- * rather than in each provider, so a provider added later cannot forget it.
+ * Every hit passes two checks before it is merged. A search index is a snapshot
+ * and outlives the page it describes: ke_search and indexed_search keep rows for
+ * pages that have since been disabled or put behind a login, and both are
+ * queried without the frontend's restrictions — so each hit is checked against
+ * what the asking visitor may actually open. And on an installation serving more
+ * than one site, each hit is checked against the site it was asked on: the index
+ * tables know nothing about sites, so a question put to one website used to be
+ * answered with pages from the other. Both checks are made here, once, rather
+ * than in each provider, so a provider added later cannot forget them.
  */
 final class SearchService
 {
+    /**
+     * How many more hits are requested per provider than are finally shown, on
+     * an installation with several sites. The providers cannot all restrict
+     * themselves to one site, so their results are filtered afterwards — without
+     * the head start, a busy neighbouring site would crowd out the answers.
+     */
+    private const MULTI_SITE_OVERFETCH = 4;
+
     /**
      * @var list<SearchProviderInterface>
      */
@@ -31,23 +44,35 @@ final class SearchService
 
     private readonly ConfigurationService $configurationService;
     private readonly PageAccessService $pageAccessService;
+    private readonly ?SiteFinder $siteFinder;
+
+    /**
+     * Site identifier per page id, resolved at most once per request.
+     *
+     * @var array<int, string>
+     */
+    private array $siteOfPage = [];
 
     /**
      * @param iterable<SearchProviderInterface> $providers Ordered by priority
      *        (dedicated indexes first, plain content search last). Injected via
      *        the "wn_ai_bridge.search_provider" DI tag, so third parties can add
      *        their own search backends.
+     * @param SiteFinder|null $siteFinder Absent only in tests that do not
+     *        exercise the site boundary; without it the boundary is not applied.
      */
     public function __construct(
         iterable $providers,
         ConfigurationService $configurationService,
         PageAccessService $pageAccessService,
+        ?SiteFinder $siteFinder = null,
     ) {
         $this->providers = $providers instanceof \Traversable
             ? iterator_to_array($providers, false)
             : array_values($providers);
         $this->configurationService = $configurationService;
         $this->pageAccessService = $pageAccessService;
+        $this->siteFinder = $siteFinder;
     }
 
     /**
@@ -67,14 +92,19 @@ final class SearchService
 
         $terms = SearchQuery::terms($query);
 
+        // Empty on a single-site installation: there is no other site to keep
+        // out, and nothing about the search changes.
+        $boundary = $this->resolveSiteBoundary();
+        $fetchLimit = $boundary === '' ? $limit : $limit * self::MULTI_SITE_OVERFETCH;
+
         /** @var array<string, array{item: SearchResultItem, weight: float}> $merged */
         $merged = [];
 
         foreach ($activeProviders as $provider) {
-            $results = $provider->search($query, $limit, $languageId, $rootPageId);
+            $results = $provider->search($query, $fetchLimit, $languageId, $rootPageId);
             $count = count($results);
             foreach ($results as $index => $item) {
-                if (!$this->mayBeShown($item)) {
+                if (!$this->mayBeShown($item) || !$this->belongsToSite($item, $boundary)) {
                     continue;
                 }
 
@@ -113,6 +143,67 @@ final class SearchService
     private function mayBeShown(SearchResultItem $item): bool
     {
         return $item->pageId <= 0 || $this->pageAccessService->isAccessible($item->pageId);
+    }
+
+    /**
+     * The site every hit has to belong to, or '' when there is nothing to keep
+     * apart — a single-site installation, or a context with no resolvable site.
+     *
+     * Asking the SiteFinder how many sites there are is what keeps the ordinary
+     * case untouched: one site means one page tree, and no hit can come from
+     * anywhere else.
+     */
+    private function resolveSiteBoundary(): string
+    {
+        if ($this->siteFinder === null) {
+            return '';
+        }
+
+        try {
+            if (count($this->siteFinder->getAllSites()) < 2) {
+                return '';
+            }
+        } catch (\Throwable $e) {
+            return '';
+        }
+
+        return $this->configurationService->getCurrentSiteIdentifier();
+    }
+
+    /**
+     * Whether a hit belongs to the site it was asked on.
+     *
+     * A hit whose site cannot be established is dropped rather than kept. That
+     * is the opposite of the access check above, and deliberately so: "I cannot
+     * tell which website this page belongs to" must not end in showing it to the
+     * visitors of both. It only affects a hit without a page id, which none of
+     * the bundled providers produce.
+     */
+    private function belongsToSite(SearchResultItem $item, string $boundary): bool
+    {
+        if ($boundary === '') {
+            return true;
+        }
+
+        return $this->siteOfPage($item->pageId) === $boundary;
+    }
+
+    private function siteOfPage(int $pageId): string
+    {
+        if ($pageId <= 0 || $this->siteFinder === null) {
+            return '';
+        }
+
+        if (!array_key_exists($pageId, $this->siteOfPage)) {
+            try {
+                $this->siteOfPage[$pageId] = $this->siteFinder->getSiteByPageId($pageId)->getIdentifier();
+            } catch (\Throwable $e) {
+                // A page outside every site (or already gone) belongs to none.
+                $this->siteOfPage[$pageId] = '';
+            }
+        }
+
+        return $this->siteOfPage[$pageId];
     }
 
     /**

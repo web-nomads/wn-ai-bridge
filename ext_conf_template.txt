@@ -37,9 +37,6 @@ assistantEnabled = 0
 # cat=assistant; type=options[Anthropic Claude=anthropic]; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantProvider
 assistantProvider = anthropic
 
-# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantApiKey
-assistantApiKey =
-
 # cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantModel
 assistantModel = claude-haiku-4-5
 
@@ -52,12 +49,6 @@ assistantMaxResults = 5
 # cat=assistant; type=int+; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantMaxTokens
 assistantMaxTokens = 1024
 
-# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantTemperature
-assistantTemperature = 0.2
-
-# cat=assistant; type=text; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantInstructions
-assistantInstructions =
-
 # cat=assistant; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantBotProtection
 assistantBotProtection = 1
 
@@ -67,5 +58,8 @@ assistantLogging = 0
 # cat=assistant; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantLogGeoLookup
 assistantLogGeoLookup = 0
 
-# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantUsdToChfRate
-assistantUsdToChfRate = 0.90
+# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantUsdConversionRate
+assistantUsdConversionRate = 0.90
+
+# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantCurrency
+assistantCurrency = CHF

@@ -7,6 +7,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.0] - 2026-09-04
+
+### Fixed
+- **The assistant did not work on a TYPO3 serving two websites, even with both
+  domains on the licence.** The domains a subscription covers were frozen inside
+  the key at the moment it was issued. Adding the second one to the licence
+  changed nothing here — the site kept being told the key was for another domain,
+  and only a re-issued key pasted into the extension configuration would have
+  helped. The domain list is now published with the daily status check, so a
+  domain added to a licence takes effect within a day and no new key is needed
+- The list is signed separately, over a canonical string of its own. The
+  signature the answer always carried is untouched, so an installation still
+  running 1.28 or earlier verifies the new answers exactly as before — and this
+  version verifies the answers of a server that publishes no domains at all,
+  where the key stays the only word on it
+- A list that does not verify is discarded rather than trusted, and an
+  unreachable server leaves the key's own list standing. A licence can therefore
+  only ever be extended by a signed answer, never by silence or by a manipulated
+  one
+- **The assistant answered with pages of the other website.** `ke_search` and
+  `indexed_search` index the whole installation into one table and know nothing
+  about sites, and the dependency-free `pages`/`tt_content` fallback searched the
+  entire page tree whenever no search root was configured — which was the
+  default. Every hit is now checked against the site the question was asked on.
+  The check is made once, where the results are merged, so a search provider
+  added later cannot forget it
+- On an installation with a single site nothing is filtered and no site is even
+  looked up: there is no second site a hit could come from. Where there are
+  several, the providers are asked for more hits than are shown, so a busy
+  neighbouring site cannot crowd out the answers
+- "Search Root Page" left empty now means this site's root page instead of
+  "no restriction". The subtree walk behind it was widened accordingly, so a deep
+  or large page tree is not cut short
+
+### Changed
+- **The LLM API key, the temperature and the agent instructions moved to the site
+  configuration.** All three were installation-wide, which was wrong in the one
+  place it matters: a TYPO3 serving several websites billed them all to one API
+  key and had them all speak with one voice. They are now on the **AI Assistant**
+  tab of each site. The temperature is a dropdown from 0.0 to 1.0 rather than a
+  free text field that nothing validated, and the instructions are a proper
+  textarea
+- Run the upgrade wizard *"AI Bridge: move the assistant's API key, temperature
+  and instructions into the site configuration"* (Admin Tools → Upgrade). It
+  copies the current values into every site that does not set them itself and
+  then removes them from the extension configuration. A site that has already
+  been given a value of its own keeps it, and the extension configuration is only
+  cleared once every site has been written — a failure halfway through leaves the
+  installation exactly as it was. **Until the wizard has run, the old values keep
+  being used**, so nothing stops working at the moment of updating
+- **`assistantUsdToChfRate` is now `assistantUsdConversionRate`, and the currency
+  is a setting of its own.** The rate was named after one country's money and the
+  log module printed "CHF" whatever it had been set to. Run the upgrade wizard
+  *"AI Bridge: rename the USD conversion rate and record the currency it converts
+  to"*, which carries the rate over and sets the currency to CHF — what the
+  figures said before. Correct it afterwards if that is not what you bill in. The
+  former setting is still read until the wizard has run
+
+### Added
+- **The "Enquiries" and "Answers" modules can be filtered by site.** On an
+  installation serving several websites both were one list of everything, and the
+  question "what are people asking on this site" could not be answered from it.
+  The filter only appears where there is more than one site, and the chosen site
+  survives pagination, the AJAX reload and — in "Answers" — approving or deleting
+  an entry
+- The site an enquiry was asked on is shown on its thread, again only where there
+  is more than one
+
 ## [1.28.1] - 2026-09-02
 
 ### Fixed

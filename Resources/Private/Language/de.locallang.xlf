@@ -55,10 +55,6 @@
 				<source>LLM provider: Provider used to compose answers. Without an API key the assistant answers from search results alone</source>
 				<target>LLM-Provider: Anbieter für die Antwortgenerierung. Ohne API-Key antwortet der Bot rein suchbasiert</target>
 			</trans-unit>
-			<trans-unit id="config.assistantApiKey">
-				<source>LLM API key: API key of the provider. Leave empty for search-only mode (hits and links without a composed answer)</source>
-				<target>LLM API-Key: API-Key des Providers. Leer lassen für den reinen Suchmodus (Treffer und Links ohne KI-Antwort)</target>
-			</trans-unit>
 			<trans-unit id="config.assistantModel">
 				<source>LLM model: Model id used to compose answers, e.g. claude-haiku-4-5 for fast and inexpensive answers or claude-sonnet-5 for harder questions</source>
 				<target>LLM-Modell: Modell-ID für die Antwortgenerierung, z. B. claude-haiku-4-5 für schnelle und günstige Antworten oder claude-sonnet-5 für schwierigere Fragen</target>
@@ -75,14 +71,6 @@
 				<source>Answer token limit: Upper bound for the length of one answer. This is the main lever on the cost per answer</source>
 				<target>Antwort-Token-Limit: Obergrenze für die Länge einer Antwort. Das ist der wichtigste Hebel für die Kosten pro Antwort</target>
 			</trans-unit>
-			<trans-unit id="config.assistantTemperature">
-				<source>Temperature: How much the answer may vary, as a decimal between 0.0 (precise, deterministic) and 1.0 (creative). Keep this low — the assistant should reproduce what is on the site, not invent variations. Example: 0.2</source>
-				<target>Temperatur: Wie stark die Antwort variieren darf, als Dezimalzahl zwischen 0.0 (präzise, deterministisch) und 1.0 (kreativer). Niedrig halten — der Assistent soll wiedergeben, was auf der Website steht, und nicht variieren. Beispiel: 0.2</target>
-			</trans-unit>
-			<trans-unit id="config.assistantInstructions">
-				<source>Agent instructions: Global instructions for the model (persona, tone, rules) applied to every answer. Valid for all sites; each site can add to them in its site configuration</source>
-				<target>Agent-Anweisungen: Globale Anweisungen an das Modell (Persona, Tonalität, Regeln), die bei jeder Antwort berücksichtigt werden. Gelten für alle Sites; pro Site lassen sich diese in den Site-Einstellungen ergänzen</target>
-			</trans-unit>
 			<trans-unit id="config.assistantBotProtection">
 				<source>Bot protection: Blocks requests to the assistant that do not come from a human visitor using the widget (crawlers, scripts, known bots). A deterrent, not authentication</source>
 				<target>Bot-Schutz: Blockiert Anfragen an den Assistenten, die nicht von einem menschlichen Besucher über das Widget stammen (Crawler, Skripte, bekannte Bots). Eine Hürde, keine Authentifizierung</target>
@@ -95,9 +83,13 @@
 				<source>Country lookup in the log module: Resolves the country of an IP address through an external service (ip-api.com) while the log is displayed. Results are cached. Off by default for data protection reasons</source>
 				<target>Geo-/Länder-Lookup im Log-Modul: Ermittelt beim Anzeigen im Backend das Land zu einer IP über einen externen Dienst (ip-api.com). Ergebnisse werden zwischengespeichert. Aus Datenschutzgründen standardmässig aus</target>
 			</trans-unit>
-			<trans-unit id="config.assistantUsdToChfRate">
-				<source>USD to CHF rate: Conversion rate for the estimated LLM cost shown in the log module (model prices are quoted in USD). Example: 0.90</source>
-				<target>USD-zu-CHF-Kurs: Umrechnungskurs für die geschätzten LLM-Kosten im Log-Modul (Modellpreise sind in USD). Beispiel: 0.90</target>
+			<trans-unit id="config.assistantUsdConversionRate">
+				<source>Conversion rate from USD: Rate the estimated LLM cost is converted with before the log module shows it (model prices are quoted in USD). Example: 0.90</source>
+				<target>Umrechnungskurs ab USD: Kurs, mit dem die geschätzten LLM-Kosten umgerechnet werden, bevor das Log-Modul sie anzeigt (Modellpreise sind in USD). Beispiel: 0.90</target>
+			</trans-unit>
+			<trans-unit id="config.assistantCurrency">
+				<source>Currency: Currency the estimated cost is shown in. A label only — it has to match the conversion rate above, which nothing here can check. Example: CHF</source>
+				<target>Währung: Währung, in der die geschätzten Kosten angezeigt werden. Nur eine Beschriftung — sie muss zum Umrechnungskurs oben passen, was hier niemand prüfen kann. Beispiel: CHF</target>
 			</trans-unit>
 		</body>
 	</file>

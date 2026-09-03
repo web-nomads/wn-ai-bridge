@@ -97,6 +97,10 @@
 				<source>Reset</source>
 				<target>Restablecer</target>
 			</trans-unit>
+			<trans-unit id="filter.site">
+				<source>Site</source>
+				<target>Sitio</target>
+			</trans-unit>
 			<trans-unit id="filter.all">
 				<source>All</source>
 				<target>Todos</target>

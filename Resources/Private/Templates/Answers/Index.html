@@ -40,6 +40,23 @@
         </div></div>
     </f:if>
 
+    <f:comment>
+        Site filter, rendered only where there is more than one website — see
+        SiteListService. Plain links rather than a form: the module URL carries
+        its route token, and a GET form would drop it.
+    </f:comment>
+    <f:if condition="{sites}">
+        <div class="btn-group mt-3" role="group" aria-label="{f:translate(key: '{ll}filter.site')}">
+            <a href="{moduleUrl}" class="btn btn-sm {f:if(condition: site, then: 'btn-default', else: 'btn-primary')}">
+                <f:translate key="{ll}filter.allSites"/>
+            </a>
+            <f:for each="{sites}" as="siteLabel" key="siteIdentifier">
+                <a href="{moduleUrl}&amp;site={siteIdentifier}"
+                   class="btn btn-sm {f:if(condition: '{site} == {siteIdentifier}', then: 'btn-primary', else: 'btn-default')}">{siteLabel}</a>
+            </f:for>
+        </div>
+    </f:if>
+
     <f:comment>Pending corrections</f:comment>
     <h2 class="h5 mt-4"><f:translate key="{ll}pending.title"/> ({pending -> f:count()})</h2>
     <f:if condition="{pending}">
@@ -57,12 +74,14 @@
                             <form method="post" action="{moduleUrl}">
                                 <input type="hidden" name="action" value="approve">
                                 <input type="hidden" name="learningUid" value="{c.uid}">
+                                <input type="hidden" name="site" value="{site}">
                                 <button type="submit" class="btn btn-sm btn-success"><f:translate key="{ll}action.approve"/></button>
                             </form>
                             <a href="{moduleUrl}&amp;edit={c.uid}" class="btn btn-sm btn-outline-primary"><f:translate key="{ll}action.edit"/></a>
                             <form method="post" action="{moduleUrl}">
                                 <input type="hidden" name="action" value="reject">
                                 <input type="hidden" name="learningUid" value="{c.uid}">
+                                <input type="hidden" name="site" value="{site}">
                                 <button type="submit" class="btn btn-sm btn-outline-danger"><f:translate key="{ll}action.reject"/></button>
                             </form>
                         </div>
@@ -111,6 +130,7 @@
                                 <form method="post" action="{moduleUrl}" class="d-inline">
                                     <input type="hidden" name="action" value="revoke">
                                     <input type="hidden" name="learningUid" value="{c.uid}">
+                                    <input type="hidden" name="site" value="{site}">
                                     <button type="submit" class="btn btn-sm btn-outline-danger"><f:translate key="{ll}action.revoke"/></button>
                                 </form>
                             </td>

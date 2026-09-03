@@ -158,6 +158,12 @@
 			<trans-unit id="action.delete">
 				<source>Delete</source>
 			</trans-unit>
+			<trans-unit id="filter.site">
+				<source>Site</source>
+			</trans-unit>
+			<trans-unit id="filter.allSites">
+				<source>All sites</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

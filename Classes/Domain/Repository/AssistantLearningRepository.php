@@ -82,21 +82,31 @@ final class AssistantLearningRepository
     }
 
     /**
+     * @param string $siteIdentifier Limit to one site; '' for all of them.
      * @return list<AssistantLearning>
      */
-    public function findByStatus(string $status, int $limit = 100): array
+    public function findByStatus(string $status, int $limit = 100, string $siteIdentifier = ''): array
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $queryBuilder->getRestrictions()->removeAll();
 
-        $rows = $queryBuilder
+        $queryBuilder
             ->select('*')
             ->from(self::TABLE)
             ->where($queryBuilder->expr()->eq('status', $queryBuilder->createNamedParameter($status)))
             ->orderBy('crdate', 'DESC')
-            ->setMaxResults($limit)
-            ->executeQuery()
-            ->fetchAllAssociative();
+            ->setMaxResults($limit);
+
+        if ($siteIdentifier !== '') {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->eq(
+                    'site_identifier',
+                    $queryBuilder->createNamedParameter($siteIdentifier)
+                )
+            );
+        }
+
+        $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
 
         return array_map(static fn(array $row): AssistantLearning => AssistantLearning::fromRow($row), $rows);
     }

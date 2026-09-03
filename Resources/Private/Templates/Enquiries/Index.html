@@ -35,6 +35,23 @@
         <div class="card-header"><f:translate key="{ll}filter.heading"/></div>
         <div class="card-body">
             <div class="row g-3">
+                <f:comment>
+                    Only rendered on an installation serving more than one
+                    website — see SiteListService. With a single site the log
+                    already only holds that one, and the field would just take up
+                    a column saying nothing.
+                </f:comment>
+                <f:if condition="{sites}">
+                    <div class="col-sm-2">
+                        <label class="form-label"><f:translate key="{ll}filter.site"/></label>
+                        <select name="site" class="form-select">
+                            <option value=""><f:translate key="{ll}filter.all"/></option>
+                            <f:for each="{sites}" as="siteLabel" key="siteIdentifier">
+                                <option value="{siteIdentifier}"{f:if(condition: "{filter.site} == {siteIdentifier}", then: ' selected')}>{siteLabel}</option>
+                            </f:for>
+                        </select>
+                    </div>
+                </f:if>
                 <div class="col-sm-2">
                     <label class="form-label"><f:translate key="{ll}filter.dateFrom"/></label>
                     <input type="date" name="dateFrom" value="{filter.dateFrom}" class="form-control">
