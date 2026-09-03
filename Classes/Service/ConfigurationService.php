@@ -339,20 +339,8 @@ class ConfigurationService
         return $provider !== '' ? $provider : 'anthropic';
     }
 
-    /**
-     * The LLM API key this site bills against.
-     *
-     * Maintained in the Site settings. The extension configuration is still read
-     * when a site names none, so an installation that has not run the upgrade
-     * wizard yet keeps working on the key it always used.
-     */
     public function getAssistantApiKey(): string
     {
-        $key = $this->safeSiteConfigurationValue('aiAssistantApiKey');
-        if ($key !== '') {
-            return $key;
-        }
-
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
         return trim((string)($extConf['assistantApiKey'] ?? ''));
     }

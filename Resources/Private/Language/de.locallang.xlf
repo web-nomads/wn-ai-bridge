@@ -3,10 +3,6 @@
 	<file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2026-08-07T00:00:00Z" product-name="wn_ai_bridge">
 		<header/>
 		<body>
-			<trans-unit id="config.subscriptionKey">
-				<source>Subscription key: The licence key issued to you. It is encrypted and signed and carries the domains it is valid for and an expiry date. Without a valid key the chat widget and the backend modules &quot;Enquiries&quot; and &quot;Answers&quot; stay switched off</source>
-				<target>Subscription-Key: Der zugestellte Lizenzschlüssel. Er ist verschlüsselt und signiert und enthält die zulässigen Domains sowie das Ablaufdatum. Ohne gültigen Key sind der Chatbot und die Backend-Module &quot;Anfragen&quot; und &quot;Antworten&quot; deaktiviert</target>
-			</trans-unit>
 			<trans-unit id="config.subscriptionPublicKey">
 				<source>Verification key (optional): Only fill this in when the issuer has rolled over its key pair. Leave empty to use the key bundled with the extension</source>
 				<target>Öffentlicher Prüfschlüssel (optional): Nur ausfüllen, wenn der Aussteller ein neues Schlüsselpaar ausgerollt hat. Leer lassen, um den in der Erweiterung hinterlegten Standardschlüssel zu verwenden</target>
@@ -54,6 +50,10 @@
 			<trans-unit id="config.assistantProvider">
 				<source>LLM provider: Provider used to compose answers. Without an API key the assistant answers from search results alone</source>
 				<target>LLM-Provider: Anbieter für die Antwortgenerierung. Ohne API-Key antwortet der Bot rein suchbasiert</target>
+			</trans-unit>
+			<trans-unit id="config.assistantApiKey">
+				<source>LLM API key: API key of the provider. Leave empty for search-only mode (hits and links without a composed answer)</source>
+				<target>LLM API-Key: API-Key des Providers. Leer lassen für den reinen Suchmodus (Treffer und Links ohne KI-Antwort)</target>
 			</trans-unit>
 			<trans-unit id="config.assistantModel">
 				<source>LLM model: Model id used to compose answers, e.g. claude-haiku-4-5 for fast and inexpensive answers or claude-sonnet-5 for harder questions</source>

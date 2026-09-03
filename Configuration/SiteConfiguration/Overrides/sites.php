@@ -281,19 +281,24 @@ $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantLearning'] = [
     ],
 ];
 
-// The three settings that decide what the assistant costs and how it speaks.
-// They live here rather than in the extension configuration because both of
-// those are answers a site gives, not an installation: two sites in one TYPO3
-// bill to different accounts and address their visitors differently.
-$GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantApiKey'] = [
-    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantApiKey',
-    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantApiKey.description',
+// The licence this site runs on. It lives here rather than in the extension
+// configuration because a licence covers domains, and a domain belongs to a
+// site: two websites in one TYPO3 can be licensed separately, each with the key
+// it was sold. Left empty, the installation-wide key is used.
+$GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantSubscriptionKey'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantSubscriptionKey',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantSubscriptionKey.description',
     'config' => [
-        'type' => 'input',
+        'type' => 'text',
+        'rows' => 4,
         'eval' => 'trim',
-        'placeholder' => 'sk-ant-…',
+        'placeholder' => 'WNAI1.…',
     ],
 ];
+
+// Two settings that decide what the assistant costs and how it speaks. Both are
+// answers a site gives, not an installation: two websites address their
+// visitors differently.
 
 // A select rather than a free text field: the value is a decimal between 0 and
 // 1, and everything outside that range was silently clamped anyway — which left
@@ -361,7 +366,7 @@ $GLOBALS['SiteConfiguration']['site']['types']['0']['showitem'] .= ',
         llmsTxtMaxDepth,
     --div--;LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.tab.assistant,
         aiAssistantEnabled,
-        aiAssistantApiKey,
+        aiAssistantSubscriptionKey,
         aiAssistantTemperature,
         aiAssistantInstructions,
         aiAssistantTitle,

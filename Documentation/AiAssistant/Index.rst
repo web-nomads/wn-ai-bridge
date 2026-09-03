@@ -108,6 +108,40 @@ visitor who is logged in and holds that group, and stays out of everyone else's
     assistant only stops offering links a visitor cannot follow, and stops
     leaking their titles and text passages while doing so.
 
+..  _assistant-several-sites:
+
+Several websites in one installation
+====================================
+
+..  versionadded:: 1.29.0
+
+A question put to one website is only ever answered with that website's pages.
+This needs saying because nothing in the search backends provides it:
+``ke_search`` and ``indexed_search`` index the whole installation into one table
+and know nothing about sites, and the dependency-free ``pages``/``tt_content``
+fallback searched the entire page tree whenever no search root was configured —
+which was the default.
+
+Every hit is therefore checked against the site the question was asked on, in
+the same place as the access check above, so a search backend added later cannot
+forget it. A hit whose site cannot be established is dropped rather than kept:
+"I cannot tell which website this page belongs to" must not end in showing it to
+the visitors of both.
+
+On an installation with a single site nothing is filtered and no site is even
+looked up — there is no second site a hit could come from. Where there are
+several, the backends are asked for more hits than are shown, so a busy
+neighbouring site cannot crowd out the answers.
+
+:confval:`aiAssistantSearchPid` still narrows the search further, to a subtree of
+the site. Left empty, the site's own root page is the boundary.
+
+Each site also has its own :confval:`aiAssistantSubscriptionKey`,
+:confval:`aiAssistantTemperature` and :confval:`aiAssistantInstructions`, so two
+websites can be licensed separately and address their visitors differently. The
+:guilabel:`Enquiries` and :guilabel:`Answers` modules can be filtered by site —
+that filter only appears where there is more than one.
+
 ..  _assistant-configuration:
 
 Configuration
@@ -175,10 +209,11 @@ answers with their provider, model and per-turn plus total token usage.
 Estimated cost
 --------------
 
-The module estimates the LLM cost in CHF from the recorded token usage and
-per-model pricing, shown as a total, per conversation and per turn. Model prices
-are quoted in USD and converted with :confval:`assistantUsdToChfRate`. Prices
-change over time, so treat the figures as budgeting estimates, not accounting.
+The module estimates the LLM cost from the recorded token usage and per-model
+pricing, shown as a total, per conversation and per turn. Model prices are quoted
+in USD and converted with :confval:`assistantUsdConversionRate`; the currency the
+figures are labelled with is :confval:`assistantCurrency`. Prices change over
+time, so treat the figures as budgeting estimates, not accounting.
 
 Visitor origin
 --------------

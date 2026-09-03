@@ -124,7 +124,8 @@ Tab "assistant"
     :Default: (empty)
 
     The provider API key. Leave it empty to run the assistant in search-only
-    mode.
+    mode. Installation-wide: it is the account the provider bills, not something
+    a website answers for.
 
 ..  confval:: assistantModel
     :type: string
@@ -155,23 +156,6 @@ Tab "assistant"
 
     Upper bound on the length of one generated answer. This is the main lever on
     the cost per answer; raising it makes answers longer, not better.
-
-..  confval:: assistantTemperature
-    :type: string
-    :Default: 0.2
-
-    Sampling temperature between ``0.0`` (deterministic) and ``1.0`` (more
-    creative). Low on purpose: the assistant should reproduce what is on the
-    site, not invent variations. Invalid values fall back to ``0.2``,
-    out-of-range values are clamped. Do not raise it above ``0.5``.
-
-..  confval:: assistantInstructions
-    :type: text
-    :Default: (empty)
-
-    Global agent instructions — persona, tone, what to refuse — added to the
-    system prompt on every answer. Applies to all sites and combines with the
-    per-site :confval:`aiAssistantSystemPrompt`.
 
 ..  confval:: assistantBotProtection
     :type: boolean
@@ -204,13 +188,27 @@ Tab "assistant"
         enable it only if that is compatible with your data-protection
         requirements.
 
-..  confval:: assistantUsdToChfRate
+..  confval:: assistantUsdConversionRate
     :type: string
     :Default: 0.90
 
-    Conversion rate used to express the estimated LLM cost in CHF. Model prices
-    are quoted in USD. The result is a rough estimate for budgeting, not
-    accounting.
+    Rate the estimated LLM cost is converted with before the log module shows
+    it. Model prices are quoted in USD. The result is a rough estimate for
+    budgeting, not accounting.
+
+    ..  versionchanged:: 1.29.0
+
+        Formerly ``assistantUsdToChfRate``. The upgrade wizard *"AI Bridge:
+        rename the USD conversion rate and record the currency it converts to"*
+        carries the configured rate over; until it has run, the former setting
+        is still read.
+
+..  confval:: assistantCurrency
+    :type: string
+    :Default: CHF
+
+    The currency the estimated cost is shown in. A label only — it has to match
+    the conversion rate above, which nothing here can check.
 
 ..  _configuration-subscription:
 
@@ -351,17 +349,87 @@ Tab "AI Search Assistant"
 
     Placeholder text in the input field.
 
+..  confval:: aiAssistantSubscriptionKey
+    :type: text
+
+    The licence key issued for this website. It is encrypted and signed and
+    carries the domains it is valid for and an expiry date.
+
+    Two websites in one TYPO3 can be licensed separately, each with the key it
+    was sold. Left empty, the installation-wide key is used — so an installation
+    with one licence for everything simply leaves this alone.
+
+    ..  versionchanged:: 1.29.0
+
+        Formerly the installation-wide ``subscriptionKey``. See
+        :ref:`configuration-site-settings-migration`.
+
+..  confval:: aiAssistantTemperature
+    :type: select
+    :Default: 0.2
+
+    Sampling temperature between ``0.0`` (deterministic) and ``1.0`` (more
+    creative). Low on purpose: the assistant should reproduce what is on the
+    site, not invent variations. Do not raise it above ``0.5``.
+
+    ..  versionchanged:: 1.29.0
+
+        Formerly the installation-wide ``assistantTemperature``, and a free
+        text field. See :ref:`configuration-site-settings-migration`.
+
+..  confval:: aiAssistantInstructions
+    :type: text
+
+    Agent instructions — persona, tone, what to refuse — added to the system
+    prompt of every answer on this site. Only has an effect with an API key
+    configured.
+
+    ..  versionchanged:: 1.29.0
+
+        Formerly the installation-wide ``assistantInstructions``. See
+        :ref:`configuration-site-settings-migration`.
+
 ..  confval:: aiAssistantSystemPrompt
     :type: text
 
-    Site-specific instructions for the model, added to the global
-    :confval:`assistantInstructions`. Only has an effect with an API key
-    configured.
+    Further notes for the model, added after :confval:`aiAssistantInstructions`.
+    Unlike those, this one can additionally be maintained per site language.
 
 ..  confval:: aiAssistantSearchPid
     :type: int
 
-    Restricts the search to a page subtree.
+    Restricts the search to a page subtree. Left empty, the site's own root page
+    is the boundary.
+
+    The assistant never answers with pages of another site of the same
+    installation, whatever is set here — the boundary is applied to the results,
+    not left to this setting.
+
+    ..  versionchanged:: 1.29.0
+
+        ``0`` used to mean "no restriction", which on an installation serving
+        several sites meant the whole page tree.
+
+..  _configuration-site-settings-migration:
+
+Moving the assistant settings into the site configuration
+---------------------------------------------------------
+
+Up to and including 1.28 the subscription key, the temperature and the agent
+instructions were set once for the whole installation. All three are now
+answered per site: two websites in one TYPO3 can be licensed separately and
+address their visitors differently.
+
+Run the upgrade wizard *"AI Bridge: move the subscription key, temperature and
+instructions into the site configuration"* under
+:guilabel:`Admin Tools > Upgrade`. It copies the current values into every site
+that does not set them itself and then removes them from the extension
+configuration. A site that already has a value of its own keeps it, and the
+extension configuration is only cleared once every site has been written — a
+failure halfway through leaves the installation exactly as it was.
+
+**Until the wizard has run, the former values keep being used**, so nothing
+stops working at the moment of updating.
 
 ..  confval:: aiAssistantOnePager
     :type: boolean

@@ -281,11 +281,11 @@
 			<trans-unit id="site.aiAssistantLearning.description">
 				<source>When enabled, a correction a visitor makes to an answer is captured for review in the "Answers" backend module. Only corrections you approve are used in future answers (and only when a question thematically matches). Off by default.</source>
 			</trans-unit>
-			<trans-unit id="site.aiAssistantApiKey">
-				<source>LLM API key</source>
+			<trans-unit id="site.aiAssistantSubscriptionKey">
+				<source>Subscription key</source>
 			</trans-unit>
-			<trans-unit id="site.aiAssistantApiKey.description">
-				<source>API key of the provider, for this site. Every site bills against its own key. Leave empty for search-only mode (hits and links without a composed answer).</source>
+			<trans-unit id="site.aiAssistantSubscriptionKey.description">
+				<source>The licence key issued for this website. It is encrypted and signed and carries the domains it is valid for and an expiry date. Two websites in one TYPO3 can be licensed separately, each with the key it was sold. Leave empty to use the installation-wide key. Without a valid key the chat widget and the backend modules "Enquiries" and "Answers" stay switched off.</source>
 			</trans-unit>
 			<trans-unit id="site.aiAssistantTemperature">
 				<source>Temperature</source>
@@ -307,9 +307,6 @@
 			</trans-unit>
 			<trans-unit id="site.aiAssistantSearchPid.description">
 				<source>Optional page id to restrict the search to a subtree. 0 = search this whole site. The search never leaves this site, whatever is set here.</source>
-			</trans-unit>
-			<trans-unit id="config.subscriptionKey">
-				<source>Subscription key: The licence key issued to you. It is encrypted and signed and carries the domains it is valid for and an expiry date. Without a valid key the chat widget and the backend modules &quot;Enquiries&quot; and &quot;Answers&quot; stay switched off</source>
 			</trans-unit>
 			<trans-unit id="config.subscriptionPublicKey">
 				<source>Verification key (optional): Only fill this in when the issuer has rolled over its key pair. Leave empty to use the key bundled with the extension</source>
@@ -346,6 +343,9 @@
 			</trans-unit>
 			<trans-unit id="config.assistantProvider">
 				<source>LLM provider: Provider used to compose answers. Without an API key the assistant answers from search results alone</source>
+			</trans-unit>
+			<trans-unit id="config.assistantApiKey">
+				<source>LLM API key: API key of the provider. Leave empty for search-only mode (hits and links without a composed answer)</source>
 			</trans-unit>
 			<trans-unit id="config.assistantModel">
 				<source>LLM model: Model id used to compose answers, e.g. claude-haiku-4-5 for fast and inexpensive answers or claude-sonnet-5 for harder questions</source>

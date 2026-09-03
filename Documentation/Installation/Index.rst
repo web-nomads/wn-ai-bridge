@@ -310,12 +310,12 @@ Tuning the answers
     * - :confval:`assistantMaxTokens` (1024)
       - Upper bound for one answer. This is the main lever on cost per answer.
         Raising it does not make answers better, only longer
-    * - :confval:`assistantTemperature` (0.2)
+    * - :confval:`aiAssistantTemperature` (0.2, per site)
       - Low on purpose. The assistant should reproduce what is on the site, not
         invent variations. Do not raise this above 0.5
-    * - :confval:`assistantInstructions`
-      - Global persona and rules, e.g. tone, language, what to refuse. Applies
-        to every site; the site configuration adds to it
+    * - :confval:`aiAssistantInstructions` (per site)
+      - Persona and rules for this site, e.g. tone, language, what to refuse.
+        :confval:`aiAssistantSystemPrompt` adds to it, per language
     * - :confval:`assistantMaxResults`
       - How many search hits go to the model as context. More context costs
         more and, past a handful, tends to dilute the answer
@@ -364,7 +364,8 @@ Step 8: Logging and cost tracking
 ..  code-block:: none
 
     assistantLogging      = 1
-    assistantUsdToChfRate = 0.90
+    assistantUsdConversionRate = 0.90
+    assistantCurrency          = CHF
 
 Every question, answer, provider, model and token count is then recorded and
 shown in the :guilabel:`Enquiries` module, together with an estimated cost. The
