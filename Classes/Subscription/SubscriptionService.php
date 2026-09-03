@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace WebNomads\WnAiBridge\Subscription;
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Single point of truth for "is this installation licensed, and for what?".
  *
- * Reads the subscription key from the extension configuration, verifies it
- * against the current host and caches the outcome for the request. Everything is
+ * Reads the subscription key of the site this request belongs to — falling back
+ * to the installation-wide one, see {@see resolveKey()} — verifies it against the
+ * current host and caches the outcome for the request. Everything is
  * fail-closed: any unexpected problem yields an invalid status rather than an
  * exception, so a broken key can never take a site down — it only switches the
  * subscription features off.
@@ -55,6 +59,12 @@ final class SubscriptionService implements SingletonInterface
     public function __construct(
         private readonly SubscriptionOnlineCheck $onlineCheck,
         private readonly TamperReporter $tamperReporter,
+        /**
+         * Only for finding the keys of the other sites — see {@see resolveKey()}.
+         * Absent in tests that do not exercise per-site keys; without it only
+         * the current request's site and the extension configuration are read.
+         */
+        private readonly ?SiteFinder $siteFinder = null,
     ) {}
 
     public function getStatus(): SubscriptionStatus
@@ -142,7 +152,7 @@ final class SubscriptionService implements SingletonInterface
 
         try {
             $token = SubscriptionKeyCodec::decode(
-                $this->configValue('subscriptionKey'),
+                $this->resolveKey($host),
                 $this->configValue('subscriptionPublicKey'),
             );
         } catch (SubscriptionKeyException $e) {
@@ -278,6 +288,100 @@ final class SubscriptionService implements SingletonInterface
     public function getCurrentHost(): string
     {
         return $this->currentHost();
+    }
+
+    /**
+     * The subscription key this request goes by.
+     *
+     * A licence covers domains, and a domain belongs to a site, so the key is
+     * maintained per site — two websites in one TYPO3 can be licensed
+     * separately. Which one applies is decided in this order:
+     *
+     * 1. the key of the site this request belongs to,
+     * 2. the installation-wide key from the extension configuration,
+     * 3. the key of any other site that covers this host.
+     *
+     * The third step is what keeps the backend modules working. A backend
+     * request belongs to no site, so without it an installation that keeps its
+     * keys on the sites would look unlicensed the moment anyone opened the
+     * backend — and the modules would simply be gone.
+     *
+     * When nothing covers the host, the first key found is returned anyway: it
+     * produces "not valid for this domain" and names the domains it is for,
+     * which is the message that helps. Returning nothing would say "no key
+     * configured", which is not true.
+     */
+    private function resolveKey(string $host): string
+    {
+        $fromSite = $this->siteValue($this->currentSite());
+        if ($fromSite !== '') {
+            return $fromSite;
+        }
+
+        $configured = $this->configValue('subscriptionKey');
+        if ($configured !== '') {
+            return $configured;
+        }
+
+        $first = '';
+        foreach ($this->allSites() as $site) {
+            $key = $this->siteValue($site);
+            if ($key === '') {
+                continue;
+            }
+            if ($host !== '' && $this->covers($key, $host)) {
+                return $key;
+            }
+            $first = $first !== '' ? $first : $key;
+        }
+
+        return $first;
+    }
+
+    /**
+     * Whether a key covers this host. Never throws: an unreadable key simply
+     * covers nothing, and the caller moves on to the next one.
+     */
+    private function covers(string $key, string $host): bool
+    {
+        try {
+            return SubscriptionKeyCodec::decode($key, $this->configValue('subscriptionPublicKey'))
+                ->matchesHost($host);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    private function siteValue(?Site $site): string
+    {
+        return $site instanceof Site
+            ? trim((string)($site->getConfiguration()['aiAssistantSubscriptionKey'] ?? ''))
+            : '';
+    }
+
+    private function currentSite(): ?Site
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+        if (!$request instanceof ServerRequestInterface) {
+            return null;
+        }
+
+        $site = $request->getAttribute('site');
+
+        return $site instanceof Site ? $site : null;
+    }
+
+    /**
+     * @return list<Site>
+     */
+    private function allSites(): array
+    {
+        try {
+            return $this->siteFinder !== null ? array_values($this->siteFinder->getAllSites()) : [];
+        } catch (\Throwable $e) {
+            // A broken site configuration must not take the licence check down.
+            return [];
+        }
     }
 
     private function currentHost(): string

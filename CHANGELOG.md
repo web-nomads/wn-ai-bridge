@@ -42,15 +42,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   or large page tree is not cut short
 
 ### Changed
-- **The LLM API key, the temperature and the agent instructions moved to the site
-  configuration.** All three were installation-wide, which was wrong in the one
-  place it matters: a TYPO3 serving several websites billed them all to one API
-  key and had them all speak with one voice. They are now on the **AI Assistant**
-  tab of each site. The temperature is a dropdown from 0.0 to 1.0 rather than a
-  free text field that nothing validated, and the instructions are a proper
-  textarea
-- Run the upgrade wizard *"AI Bridge: move the assistant's API key, temperature
-  and instructions into the site configuration"* (Admin Tools → Upgrade). It
+- **The subscription key, the temperature and the agent instructions moved to the
+  site configuration.** All three were installation-wide, which was wrong in the
+  one place it matters: a TYPO3 serving several websites licensed them all
+  through one key and had them all speak with one voice. They are now on the
+  **AI Assistant** tab of each site, so two websites can be licensed separately,
+  each with the key it was sold. The temperature is a dropdown from 0.0 to 1.0
+  rather than a free text field that nothing validated, and the instructions are
+  a proper textarea
+- A site that names no key of its own keeps running on the installation-wide one,
+  and a backend request — which belongs to no site — finds the key whose licence
+  covers the backend's own host. Without that, an installation that moved its
+  keys onto the sites would have lost the two modules the moment anyone opened
+  the backend
+- Run the upgrade wizard *"AI Bridge: move the subscription key, temperature and
+  instructions into the site configuration"* (Admin Tools → Upgrade). It
   copies the current values into every site that does not set them itself and
   then removes them from the extension configuration. A site that has already
   been given a value of its own keeps it, and the extension configuration is only

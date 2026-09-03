@@ -17,14 +17,16 @@ use WebNomads\WnAiBridge\Subscription\SubscriptionService;
 use WebNomads\WnAiBridge\Subscription\TamperReporter;
 
 /**
- * The three settings that moved from the extension configuration into the site
- * configuration: the API key, the temperature and the agent instructions.
+ * The settings that moved from the extension configuration into the site
+ * configuration: the temperature and the agent instructions.
  *
- * Each is now answered per site, because each is an answer a website gives and
- * not an installation — two sites in one TYPO3 bill to different accounts and
- * address their visitors differently. The extension configuration is still read
- * where a site names none, so an installation that has not run the upgrade
+ * Both are answers a website gives and not an installation — two sites in one
+ * TYPO3 address their visitors differently. The extension configuration is still
+ * read where a site names none, so an installation that has not run the upgrade
  * wizard yet keeps working on exactly what it had.
+ *
+ * The subscription key moved the same way; it is exercised in
+ * SiteSubscriptionKeyTest, which needs a signed key to say anything at all.
  */
 final class AssistantSiteSettingsTest extends TestCase
 {
@@ -35,28 +37,21 @@ final class AssistantSiteSettingsTest extends TestCase
         parent::tearDown();
     }
 
+    /**
+     * The LLM API key stays installation-wide: it is the account the provider
+     * bills, not something a website answers for.
+     */
     #[Test]
-    public function theSiteDecidesWhichApiKeyItBillsAgainst(): void
-    {
-        $configuration = $this->service(
-            ['aiAssistantApiKey' => 'sk-site'],
-            ['assistantApiKey' => 'sk-installation'],
-        );
-
-        self::assertSame('sk-site', $configuration->getAssistantApiKey());
-        self::assertTrue($configuration->isAssistantLlmConfigured());
-    }
-
-    #[Test]
-    public function withoutOneOfItsOwnTheInstallationKeyStillWorks(): void
+    public function theApiKeyIsReadFromTheExtensionConfiguration(): void
     {
         $configuration = $this->service([], ['assistantApiKey' => 'sk-installation']);
 
         self::assertSame('sk-installation', $configuration->getAssistantApiKey());
+        self::assertTrue($configuration->isAssistantLlmConfigured());
     }
 
     #[Test]
-    public function noKeyAnywhereMeansSearchOnly(): void
+    public function noApiKeyMeansSearchOnly(): void
     {
         $configuration = $this->service([], []);
 
@@ -140,14 +135,12 @@ final class AssistantSiteSettingsTest extends TestCase
     public function withoutARequestNothingBreaksAndTheInstallationValuesStand(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] = [
-            'assistantApiKey' => 'sk-installation',
             'assistantTemperature' => '0.3',
             'assistantInstructions' => 'Be brief.',
         ];
 
         $configuration = $this->configurationService();
 
-        self::assertSame('sk-installation', $configuration->getAssistantApiKey());
         self::assertSame(0.3, $configuration->getAssistantTemperature());
         self::assertSame('Be brief.', $configuration->getAssistantInstructions());
     }

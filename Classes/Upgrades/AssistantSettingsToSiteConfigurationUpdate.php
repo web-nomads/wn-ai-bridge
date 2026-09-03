@@ -12,12 +12,12 @@ use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
 
 /**
- * Moves the API key, the temperature and the agent instructions out of the
- * extension configuration and into every site's own configuration.
+ * Moves the subscription key, the temperature and the agent instructions out of
+ * the extension configuration and into every site's own configuration.
  *
  * They were installation-wide, which was wrong in the one place it matters: a
- * TYPO3 serving several websites billed them all to one API key and had them all
- * speak with one voice. Each is now answered per site.
+ * TYPO3 serving several websites licensed them all through one key and had them
+ * all speak with one voice. Each is now answered per site.
  *
  * Nothing is taken away by running this. A site that already sets a value keeps
  * it — the wizard fills in the blanks, it does not overwrite decisions. And the
@@ -38,7 +38,7 @@ final class AssistantSettingsToSiteConfigurationUpdate implements UpgradeWizardI
      * @var array<string, string>
      */
     private const FIELDS = [
-        'assistantApiKey' => 'aiAssistantApiKey',
+        'subscriptionKey' => 'aiAssistantSubscriptionKey',
         'assistantTemperature' => 'aiAssistantTemperature',
         'assistantInstructions' => 'aiAssistantInstructions',
     ];
@@ -51,14 +51,14 @@ final class AssistantSettingsToSiteConfigurationUpdate implements UpgradeWizardI
 
     public function getTitle(): string
     {
-        return 'AI Bridge: move the assistant\'s API key, temperature and instructions into the site configuration';
+        return 'AI Bridge: move the subscription key, temperature and instructions into the site configuration';
     }
 
     public function getDescription(): string
     {
-        return 'The LLM API key, the temperature and the agent instructions used to be set once for the whole '
+        return 'The subscription key, the temperature and the agent instructions used to be set once for the whole '
             . 'installation. They are now maintained per site, under Site Management > Sites > "AI Assistant" — so '
-            . 'two websites in one TYPO3 can bill to different accounts and address their visitors differently. '
+            . 'two websites in one TYPO3 can be licensed separately and address their visitors differently. '
             . 'This copies the current values into every site that does not set them itself and then removes them '
             . 'from the extension configuration. A temperature is rounded to one decimal, which is what the new '
             . 'field offers. Until this has run, the old values keep being used.';

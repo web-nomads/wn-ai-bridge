@@ -124,6 +124,28 @@ with, so after a renewal it would be out of date. When a verified answer is
 available its date is authoritative; without one, the date inside the key
 stands.
 
+How a domain is added
+---------------------
+
+..  versionadded:: 1.29.0
+
+The answer carries the domains the subscription covers as well, and they follow
+the same rule. A licence can therefore grow: ask the issuer to add a domain, and
+the site running on it works within a day — the key in your configuration keeps
+the list it was issued with and does not have to be replaced. This is what makes
+a second website in the same TYPO3 possible without a second key.
+
+The list is signed separately, over a canonical string of its own that repeats
+the subscription, the status, the dates and the nonce. It is therefore bound to
+the one answer it came with and cannot be lifted out of another. A list that does
+not verify is discarded, not trusted, and a server that stays silent leaves the
+key's own list standing — so a licence can only ever be extended by a signed
+answer.
+
+Because the signature the answer always carried is untouched, an installation
+running 1.28 or earlier verifies these answers exactly as before and simply
+ignores the domains. It then keeps to the list inside its key, as it always did.
+
 An unreachable server can therefore never extend a subscription — but a
 subscription that lapsed on the issuing server is switched off even if its key
 would still be good for a while.

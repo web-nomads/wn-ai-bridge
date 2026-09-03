@@ -1,6 +1,3 @@
-# cat=subscription; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.subscriptionKey
-subscriptionKey =
-
 # cat=subscription; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.subscriptionPublicKey
 subscriptionPublicKey =
 
@@ -36,6 +33,9 @@ assistantEnabled = 0
 
 # cat=assistant; type=options[Anthropic Claude=anthropic]; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantProvider
 assistantProvider = anthropic
+
+# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantApiKey
+assistantApiKey =
 
 # cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantModel
 assistantModel = claude-haiku-4-5
