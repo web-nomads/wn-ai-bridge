@@ -12,6 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use WebNomads\WnAiBridge\Subscription\OnlineCheckResult;
 use WebNomads\WnAiBridge\Subscription\SubscriptionService;
 use WebNomads\WnAiBridge\Subscription\SubscriptionStatus;
+use WebNomads\WnAiBridge\Subscription\SubscriptionToken;
 
 /**
  * Reports the subscription state and refreshes it with the issuing server.
@@ -54,26 +55,25 @@ final class CheckSubscriptionCommand extends Command
         }
 
         $host = trim((string)$input->getOption('host'));
-        if ($host !== '' && !$token->matchesHost($host)) {
-            $io->error(sprintf(
-                'The key is not valid for "%s", but for: %s.',
-                $host,
-                $token->getDomainList()
-            ));
-            return Command::FAILURE;
-        }
 
+        // Asked before the host is judged: the domains a licence covers are
+        // maintained on the server, so the key's own list may well be behind.
         $verdict = $this->subscriptionService->getOnlineCheck()->refreshNow(
             $token,
             $this->subscriptionService->getVerificationKey(),
             $host !== '' ? $host : $this->subscriptionService->getCurrentHost(),
         );
 
+        $domains = SubscriptionService::effectiveDomains($token, $verdict);
+
         $io->definitionList(
             ['Subscription' => $token->id],
             ['Type' => $token->trial ? 'trial (does not renew)' : 'subscription'],
             ['Customer' => $token->customer !== '' ? $token->customer : '—'],
-            ['Domains' => $token->getDomainList()],
+            ['Domains (key)' => $token->getDomainList()],
+            ['Domains (effective)' => $verdict->domains !== []
+                ? implode(', ', $verdict->domains) . ' (published by the server)'
+                : 'as stated in the key (the server named none)'],
             ['Valid until (key)' => $token->getExpiresAt()?->format('Y-m-d') ?? 'unlimited'],
             ['Valid until (effective)' => $verdict->isVerified() && $verdict->validUntil > 0
                 ? date('Y-m-d', $verdict->validUntil) . ' (confirmed by the server)'
@@ -82,6 +82,15 @@ final class CheckSubscriptionCommand extends Command
             ['Server status' => $this->describeVerdict($verdict)],
             ['Issuing server' => $this->subscriptionService->getServerUrl()],
         );
+
+        if ($host !== '' && !SubscriptionToken::hostCoveredBy($host, $domains)) {
+            $io->error(sprintf(
+                'The subscription is not valid for "%s", but for: %s.',
+                $host,
+                implode(', ', $domains)
+            ));
+            return Command::FAILURE;
+        }
 
         if ($verdict->isRevoked()) {
             $io->error('The subscription was revoked and is no longer active.');

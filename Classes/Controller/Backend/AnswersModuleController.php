@@ -16,6 +16,7 @@ use WebNomads\WnAiBridge\Domain\Model\AssistantLogEntry;
 use WebNomads\WnAiBridge\Domain\Repository\AssistantLearningRepository;
 use WebNomads\WnAiBridge\Domain\Repository\AssistantLogRepository;
 use WebNomads\WnAiBridge\Service\LearningService;
+use WebNomads\WnAiBridge\Service\SiteListService;
 use WebNomads\WnAiBridge\Subscription\SubscriptionService;
 
 /**
@@ -42,6 +43,7 @@ final class AnswersModuleController
         private readonly AssistantLearningRepository $repository,
         private readonly AssistantLogRepository $logRepository,
         private readonly SubscriptionService $subscriptionService,
+        private readonly SiteListService $siteListService,
     ) {}
 
     /**
@@ -107,7 +109,10 @@ final class AnswersModuleController
             };
         }
 
-        return $this->redirectToList($action === 'approve' ? 'approved' : ($action !== '' ? 'deleted' : ''));
+        return $this->redirectToList(
+            $action === 'approve' ? 'approved' : ($action !== '' ? 'deleted' : ''),
+            (string)($params['site'] ?? ''),
+        );
     }
 
     /**
@@ -157,7 +162,9 @@ final class AnswersModuleController
             ]);
         }
 
-        return $this->redirectToList('saved');
+        // Back to the list of the site the answer was written for, so it is
+        // visible where it landed.
+        return $this->redirectToList('saved', (string)$data['site_identifier']);
     }
 
     /**
@@ -165,12 +172,22 @@ final class AnswersModuleController
      */
     private function renderList(ServerRequestInterface $request, array $params): ResponseInterface
     {
+        $sites = $this->siteListService->getFilterOptions();
+
+        // Anything that is not a site of this installation is treated as "all",
+        // so a hand-written URL cannot narrow the list to something that does
+        // not exist and make it look empty.
+        $site = trim((string)($params['site'] ?? ''));
+        if (!$this->siteListService->isKnownIdentifier($site)) {
+            $site = '';
+        }
+
         $tableError = false;
         $pending = [];
         $approved = [];
         try {
-            $pending = $this->repository->findByStatus(AssistantLearning::STATUS_PENDING, self::LIST_LIMIT);
-            $approved = $this->repository->findByStatus(AssistantLearning::STATUS_APPROVED, self::LIST_LIMIT);
+            $pending = $this->repository->findByStatus(AssistantLearning::STATUS_PENDING, self::LIST_LIMIT, $site);
+            $approved = $this->repository->findByStatus(AssistantLearning::STATUS_APPROVED, self::LIST_LIMIT, $site);
         } catch (\Throwable $e) {
             $tableError = true;
         }
@@ -182,6 +199,10 @@ final class AnswersModuleController
             'approved' => $approved,
             'notice' => (string)($params['notice'] ?? ''),
             'subscription' => $this->subscriptionService->getStatus(),
+            // Empty on a single-site installation — the template renders the
+            // site filter only when there is a choice to make.
+            'sites' => $sites,
+            'site' => $site,
             'moduleUrl' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME),
             'newUrl' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME, ['new' => 1]),
         ]);
@@ -279,9 +300,20 @@ final class AnswersModuleController
         return $moduleTemplate;
     }
 
-    private function redirectToList(string $notice = ''): ResponseInterface
+    /**
+     * @param string $site Kept across the redirect so an editor working through
+     *        one website's answers is not thrown back to the full list after
+     *        every approval.
+     */
+    private function redirectToList(string $notice = '', string $site = ''): ResponseInterface
     {
-        $parameters = $notice !== '' ? ['notice' => $notice] : [];
+        $parameters = [];
+        if ($notice !== '') {
+            $parameters['notice'] = $notice;
+        }
+        if ($this->siteListService->isKnownIdentifier($site)) {
+            $parameters['site'] = $site;
+        }
 
         return new RedirectResponse(
             (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME, $parameters)

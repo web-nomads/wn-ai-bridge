@@ -18,6 +18,13 @@ final class LogFilter
         public readonly string $search = '',
         public readonly int $page = 1,
         public readonly int $perPage = 25,
+        /**
+         * The site whose enquiries are shown, '' for all of them. On an
+         * installation serving several websites the log is one list of
+         * everything, and the question "what are people asking on this site"
+         * cannot be answered from it without this.
+         */
+        public readonly string $site = '',
     ) {}
 
     /**
@@ -39,6 +46,7 @@ final class LogFilter
             trim((string)($params['search'] ?? '')),
             max(1, (int)($params['page'] ?? 1)),
             25,
+            trim((string)($params['site'] ?? '')),
         );
     }
 
@@ -81,6 +89,7 @@ final class LogFilter
             'provider' => $this->provider,
             'mode' => $this->mode,
             'search' => $this->search,
+            'site' => $this->site,
         ];
     }
 }

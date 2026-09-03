@@ -77,14 +77,24 @@ A floating chat widget. Switch it on in the extension configuration
 **Search-only** (no API key) returns ranked matching pages as suggestions with
 links. Fast, free, and nothing leaves your server.
 
-**Hybrid** (with an LLM API key in `assistantApiKey`) additionally lets the
-model compose a short answer from the retrieved pages and cite them. Any
-failure — quota, timeout, malformed response — falls back to search-only rather
-than showing an error.
+**Hybrid** (with an LLM API key) additionally lets the model compose a short
+answer from the retrieved pages and cite them. Any failure — quota, timeout,
+malformed response — falls back to search-only rather than showing an error.
+
+The API key, the temperature and the agent instructions are set **per site**, on
+the **AI Assistant** tab of the site configuration: they are answers a website
+gives, not an installation, so two sites in one TYPO3 can bill to different
+accounts and address their visitors differently. Installations upgrading from
+1.28 or earlier find them in the extension configuration; the upgrade wizard
+*"AI Bridge: move the assistant's API key, temperature and instructions into the
+site configuration"* copies them into every site. Until it has run, the old
+values keep being used.
 
 The assistant reads `ke_search` and `indexed_search` when they are installed,
 and always keeps a dependency-free `pages`/`tt_content` fallback so it returns
-something even without a search index.
+something even without a search index. It only ever answers with pages of the
+site the question was asked on — the search indexes hold the whole installation
+and know nothing about sites, so the boundary is drawn on the results.
 
 ### Backend modules
 
@@ -136,8 +146,15 @@ page content. The signed answer is what carries a renewal to the installation,
 so a renewed subscription takes effect without anyone pasting a new key, and a
 revoked one stops working without waiting for its expiry date.
 
-An unreachable server changes nothing: the date inside the key decides, and only
-an explicitly signed "revoked" switches the features off.
+The same answer carries the domains the subscription currently covers. A licence
+can therefore grow: ask the issuer to add a domain, and the site running on it
+works within a day — the key in your configuration keeps the list it was issued
+with and does not have to be replaced. This is what makes a second website in
+the same TYPO3 possible without a second key.
+
+An unreachable server changes nothing: the date and the domains inside the key
+decide, and only an explicitly signed "revoked" switches the features off. A
+server that stays silent can therefore never extend a licence either.
 
 Leave `subscriptionKey` empty and nothing is ever sent.
 

@@ -15,6 +15,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * fail-closed: any unexpected problem yields an invalid status rather than an
  * exception, so a broken key can never take a site down — it only switches the
  * subscription features off.
+ *
+ * Two things the key states are not the last word on. Its end date is overruled
+ * by a renewal the issuing server confirms, and its domain list by the current
+ * one that server publishes — so a licence can be extended and can grow without
+ * a new key ever being pasted into a configuration. Both only ever come from a
+ * signed answer; a server that stays silent changes nothing.
  */
 final class SubscriptionService implements SingletonInterface
 {
@@ -145,31 +151,39 @@ final class SubscriptionService implements SingletonInterface
             return SubscriptionStatus::invalid(SubscriptionStatus::REASON_MALFORMED, null, $host);
         }
 
-        // The domain is checked first: it is decided by the key alone, so a key
-        // belonging to someone else never causes a request to the server.
-        // Without a resolvable host (CLI: scheduler, upgrade wizards, commands)
-        // the domain cannot be checked. Skipping it there keeps maintenance tasks
-        // working; every web request is checked.
-        if ($host !== '' && !$token->matchesHost($host)) {
-            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_DOMAIN, $token, $host);
-        }
+        // Whether the key alone already covers this host. It decides nothing on
+        // its own any more — see below — but it is what tells this installation
+        // that asking the server is worth the wait even in a visitor request.
+        $coveredByKey = $host === '' || $token->matchesHost($host);
 
-        // The daily status check with the issuing server. It runs before the
-        // expiry decision, because a renewal moves the end date on the server
-        // while the key in the configuration keeps the old one.
+        // The daily status check with the issuing server. It runs before every
+        // decision below, because both the end date and the domain list can have
+        // moved on the server while the key in the configuration kept the old
+        // ones: that is how a renewal and an added domain reach an installation
+        // without anyone pasting a new key.
         $verdict = $this->onlineCheck->verdict(
             $token,
             $this->getVerificationKey(),
             $host,
-            $token->isExpiringWithin(self::FRONTEND_REFRESH_WINDOW),
+            $token->isExpiringWithin(self::FRONTEND_REFRESH_WINDOW) || !$coveredByKey,
         );
 
         // "Unknown" with no failure means nobody asked. Worth another attempt
         // later in the request, when the context may allow one.
         $this->awaitingOnlineCheck = !$verdict->isVerified() && !$verdict->hasFailed();
 
+        // The domains this installation goes by. Without a resolvable host (CLI:
+        // scheduler, upgrade wizards, commands) there is nothing to check them
+        // against; skipping it there keeps maintenance tasks working, every web
+        // request is checked.
+        $domains = self::effectiveDomains($token, $verdict);
+
+        if ($host !== '' && !SubscriptionToken::hostCoveredBy($host, $domains)) {
+            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_DOMAIN, $token, $host, 0, $verdict, $domains);
+        }
+
         if ($verdict->isRevoked()) {
-            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_REVOKED, $token, $host, 0, $verdict);
+            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_REVOKED, $token, $host, 0, $verdict, $domains);
         }
 
         // A verified answer is authoritative for the end date — that is how a
@@ -179,10 +193,31 @@ final class SubscriptionService implements SingletonInterface
         $validUntil = self::effectiveValidUntil($token, $verdict);
 
         if (self::isExpired($token, $verdict)) {
-            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_EXPIRED, $token, $host, $validUntil, $verdict);
+            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_EXPIRED, $token, $host, $validUntil, $verdict, $domains);
         }
 
-        return SubscriptionStatus::valid($token, $host, $validUntil, $verdict);
+        return SubscriptionStatus::valid($token, $host, $validUntil, $verdict, $domains);
+    }
+
+    /**
+     * The domain list this installation goes by: the issuing server's when it
+     * answered and the answer verified, otherwise the one inside the key.
+     *
+     * This is what lets a licence grow. Domains are maintained on the server,
+     * where a customer's second or fifth site can simply be added; the key keeps
+     * the list it was issued with and no longer has to be re-delivered for it.
+     *
+     * An unreachable server can therefore never extend a licence either — its
+     * silence leaves the key's own list standing, which is the same list that
+     * was checked before any of this existed.
+     *
+     * Public and static so the rule can be exercised without a network.
+     *
+     * @return list<string>
+     */
+    public static function effectiveDomains(SubscriptionToken $token, OnlineCheckResult $verdict): array
+    {
+        return $verdict->isVerified() && $verdict->domains !== [] ? $verdict->domains : $token->domains;
     }
 
     /**

@@ -31,7 +31,7 @@
     </div>
     <div class="col">
         <div class="card h-100 border-primary"><div class="card-body">
-            <div class="h4 mb-0 text-primary">{totalCostChf}</div>
+            <div class="h4 mb-0 text-primary">{totalCost}</div>
             <div class="text-body-secondary"><f:translate key="{ll}stats.cost"/></div>
         </div></div>
     </div>
@@ -71,10 +71,18 @@
                     </span>
                     <span class="wn-ai-thread__question">{thread.first.question}</span>
                     <span class="wn-ai-thread__badges ms-auto">
+                        <f:comment>
+                            Which website this was asked on. Shown only where
+                            there is more than one, so a single-site log is not
+                            padded with the same badge on every row.
+                        </f:comment>
+                        <f:if condition="{sites} && {thread.first.siteIdentifier}">
+                            <span class="badge bg-light text-dark" title="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf:filter.site')}">{thread.first.siteIdentifier}</span>
+                        </f:if>
                         <span class="badge bg-secondary">{thread.turnCount} <f:translate key="{ll}thread.turns"/></span>
                         <f:if condition="{thread.totalTokens} > 0">
                             <span class="badge bg-primary">{thread.totalTokens} <f:translate key="{ll}table.tokens"/></span>
-                            <span class="badge bg-success" title="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf:stats.cost')}">{thread.costChf}</span>
+                            <span class="badge bg-success" title="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf:stats.cost')}">{thread.cost}</span>
                         </f:if>
                     </span>
                 </summary>
@@ -91,7 +99,7 @@
                                     <f:if condition="{turn.entry.provider}"><span class="badge bg-info">{turn.entry.provider} {turn.entry.model}</span></f:if>
                                     <f:if condition="{turn.entry.totalTokens} > 0">
                                         <span class="badge bg-primary">{turn.entry.inputTokens} / {turn.entry.outputTokens} / {turn.entry.totalTokens} <f:translate key="{ll}table.tokens"/></span>
-                                        <span class="badge bg-success">{turn.costChf}</span>
+                                        <span class="badge bg-success">{turn.cost}</span>
                                     </f:if>
                                 </span>
                             </div>

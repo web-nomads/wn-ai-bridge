@@ -75,6 +75,9 @@
 			<trans-unit id="filter.reset">
 				<source>Reset</source>
 			</trans-unit>
+			<trans-unit id="filter.site">
+				<source>Site</source>
+			</trans-unit>
 			<trans-unit id="filter.all">
 				<source>All</source>
 			</trans-unit>

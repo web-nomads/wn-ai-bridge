@@ -7,11 +7,13 @@ namespace WebNomads\WnAiBridge\Service;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Estimates the (approximate) cost of logged LLM usage in CHF.
+ * Estimates the (approximate) cost of logged LLM usage.
  *
- * Model prices are quoted per 1M tokens in USD and converted to CHF with a
- * configurable rate. Costs are estimates: prices change over time and this
- * table is a snapshot, so the figures are meant for rough budgeting only.
+ * Model prices are quoted per 1M tokens in USD and converted with a rate and a
+ * currency label taken from the extension configuration — both of which say
+ * "whatever this installation bills in" rather than naming one country's money.
+ * Costs are estimates: prices change over time and this table is a snapshot, so
+ * the figures are meant for rough budgeting only.
  */
 final class CostCalculator
 {
@@ -50,39 +52,40 @@ final class CostCalculator
     }
 
     /**
-     * Estimated cost in CHF for one interaction.
+     * Estimated cost of one interaction, in the configured currency.
      */
-    public function costChf(string $model, int $inputTokens, int $outputTokens): float
+    public function cost(string $model, int $inputTokens, int $outputTokens): float
     {
         [$inputPrice, $outputPrice] = $this->priceFor($model);
 
         $usd = ($inputTokens / 1_000_000) * $inputPrice
             + ($outputTokens / 1_000_000) * $outputPrice;
 
-        return $usd * $this->configurationService->getAssistantUsdToChfRate();
+        return $usd * $this->configurationService->getAssistantUsdConversionRate();
     }
 
     /**
-     * Sum estimated cost in CHF for per-model token totals.
+     * Sum the estimated cost for per-model token totals.
      *
      * @param list<array{model: string, inputTokens: int, outputTokens: int}> $modelTotals
      */
-    public function totalCostChf(array $modelTotals): float
+    public function totalCost(array $modelTotals): float
     {
         $total = 0.0;
         foreach ($modelTotals as $row) {
-            $total += $this->costChf($row['model'], $row['inputTokens'], $row['outputTokens']);
+            $total += $this->cost($row['model'], $row['inputTokens'], $row['outputTokens']);
         }
         return $total;
     }
 
     /**
-     * Format a CHF amount for display (Swiss thousands separator, 4 decimals so
-     * small per-turn amounts stay meaningful).
+     * Format an amount for display: the configured currency, and 4 decimals so
+     * small per-turn amounts stay meaningful.
      */
-    public function format(float $chf): string
+    public function format(float $amount): string
     {
-        return 'CHF ' . number_format($chf, 4, '.', "'");
+        return $this->configurationService->getAssistantCurrency()
+            . ' ' . number_format($amount, 4, '.', "'");
     }
 
     /**

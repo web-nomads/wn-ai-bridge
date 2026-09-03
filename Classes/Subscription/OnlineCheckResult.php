@@ -35,11 +35,22 @@ final class OnlineCheckResult
         public readonly string $failureReason = self::FAILURE_NONE,
         /** The server that was asked — shown with the failure, so it can be corrected. */
         public readonly string $serverUrl = '',
+        /**
+         * The domains the subscription covers according to the server, empty
+         * when it named none. This is how a domain added to a licence reaches an
+         * installation without anyone pasting a new key.
+         *
+         * @var list<string>
+         */
+        public readonly array $domains = [],
     ) {}
 
-    public static function active(int $validUntil, ?int $checkedAt = null): self
+    /**
+     * @param list<string> $domains
+     */
+    public static function active(int $validUntil, ?int $checkedAt = null, array $domains = []): self
     {
-        return new self(self::STATUS_ACTIVE, $validUntil, $checkedAt ?? time());
+        return new self(self::STATUS_ACTIVE, $validUntil, $checkedAt ?? time(), self::FAILURE_NONE, '', $domains);
     }
 
     public static function revoked(?int $checkedAt = null): self
@@ -94,7 +105,7 @@ final class OnlineCheckResult
     }
 
     /**
-     * @return array{status: string, validUntil: int, checkedAt: int, failureReason: string, serverUrl: string}
+     * @return array{status: string, validUntil: int, checkedAt: int, failureReason: string, serverUrl: string, domains: list<string>}
      */
     public function toArray(): array
     {
@@ -104,6 +115,7 @@ final class OnlineCheckResult
             'checkedAt' => $this->checkedAt,
             'failureReason' => $this->failureReason,
             'serverUrl' => $this->serverUrl,
+            'domains' => $this->domains,
         ];
     }
 
@@ -128,6 +140,30 @@ final class OnlineCheckResult
             (int)($data['checkedAt'] ?? 0),
             $status === self::STATUS_UNKNOWN ? $failureReason : self::FAILURE_NONE,
             (string)($data['serverUrl'] ?? ''),
+            // Only an "active" verdict carries a domain list. A cache entry
+            // written before this existed simply has none, which reads as "the
+            // server said nothing about domains" — the key then stands, exactly
+            // as it did before.
+            $status === self::STATUS_ACTIVE ? self::stringList($data['domains'] ?? []) : [],
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function stringList(mixed $value): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $list = [];
+        foreach ($value as $item) {
+            if (is_string($item) && $item !== '') {
+                $list[] = $item;
+            }
+        }
+
+        return $list;
     }
 }

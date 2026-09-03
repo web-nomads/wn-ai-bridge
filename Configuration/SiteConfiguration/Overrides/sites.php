@@ -281,6 +281,58 @@ $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantLearning'] = [
     ],
 ];
 
+// The three settings that decide what the assistant costs and how it speaks.
+// They live here rather than in the extension configuration because both of
+// those are answers a site gives, not an installation: two sites in one TYPO3
+// bill to different accounts and address their visitors differently.
+$GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantApiKey'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantApiKey',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantApiKey.description',
+    'config' => [
+        'type' => 'input',
+        'eval' => 'trim',
+        'placeholder' => 'sk-ant-…',
+    ],
+];
+
+// A select rather than a free text field: the value is a decimal between 0 and
+// 1, and everything outside that range was silently clamped anyway — which left
+// a number in the configuration that had nothing to do with what was in effect.
+$aiAssistantTemperatureItems = [
+    [
+        'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantTemperature.default',
+        'value' => '',
+    ],
+];
+for ($aiAssistantTemperature = 0; $aiAssistantTemperature <= 10; $aiAssistantTemperature++) {
+    $aiAssistantTemperatureValue = number_format($aiAssistantTemperature / 10, 1, '.', '');
+    $aiAssistantTemperatureItems[] = [
+        'label' => $aiAssistantTemperatureValue,
+        'value' => $aiAssistantTemperatureValue,
+    ];
+}
+
+$GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantTemperature'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantTemperature',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantTemperature.description',
+    'config' => [
+        'type' => 'select',
+        'renderType' => 'selectSingle',
+        'default' => '',
+        'items' => $aiAssistantTemperatureItems,
+    ],
+];
+
+$GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantInstructions'] = [
+    'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantInstructions',
+    'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantInstructions.description',
+    'config' => [
+        'type' => 'text',
+        'rows' => 12,
+        'eval' => 'trim',
+    ],
+];
+
 $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantSearchPid'] = [
     'label' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantSearchPid',
     'description' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.aiAssistantSearchPid.description',
@@ -309,6 +361,9 @@ $GLOBALS['SiteConfiguration']['site']['types']['0']['showitem'] .= ',
         llmsTxtMaxDepth,
     --div--;LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.tab.assistant,
         aiAssistantEnabled,
+        aiAssistantApiKey,
+        aiAssistantTemperature,
+        aiAssistantInstructions,
         aiAssistantTitle,
         aiAssistantWelcome,
         aiAssistantPlaceholder,

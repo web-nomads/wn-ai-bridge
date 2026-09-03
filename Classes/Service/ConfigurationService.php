@@ -339,8 +339,20 @@ class ConfigurationService
         return $provider !== '' ? $provider : 'anthropic';
     }
 
+    /**
+     * The LLM API key this site bills against.
+     *
+     * Maintained in the Site settings. The extension configuration is still read
+     * when a site names none, so an installation that has not run the upgrade
+     * wizard yet keeps working on the key it always used.
+     */
     public function getAssistantApiKey(): string
     {
+        $key = $this->safeSiteConfigurationValue('aiAssistantApiKey');
+        if ($key !== '') {
+            return $key;
+        }
+
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
         return trim((string)($extConf['assistantApiKey'] ?? ''));
     }
@@ -383,28 +395,57 @@ class ConfigurationService
         return max(256, (int)($extConf['assistantMaxTokens'] ?? 1024));
     }
 
+    /** The temperature used when a site names none. */
+    public const DEFAULT_TEMPERATURE = 0.2;
+
     /**
      * Sampling temperature for the LLM answer: a decimal between 0.0
-     * (deterministic/precise) and 1.0 (more creative). Non-numeric input falls
-     * back to 0.2; values outside the range are clamped.
+     * (deterministic/precise) and 1.0 (more creative). Maintained in the Site
+     * settings, with the extension configuration as the legacy fallback.
+     * Non-numeric input falls back to the default; values outside the range are
+     * clamped.
      */
     public function getAssistantTemperature(): float
     {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
-        $raw = str_replace(',', '.', trim((string)($extConf['assistantTemperature'] ?? '0.2')));
-        if (!is_numeric($raw)) {
-            return 0.2;
+        $raw = $this->safeSiteConfigurationValue('aiAssistantTemperature');
+        if ($raw === '') {
+            $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+            $raw = trim((string)($extConf['assistantTemperature'] ?? ''));
         }
+
+        return self::normaliseTemperature($raw);
+    }
+
+    /**
+     * Read a temperature as it may be written by hand: with a comma, with
+     * padding, or not as a number at all.
+     *
+     * Public and static so the upgrade wizard can put the same value into a site
+     * configuration that this would read back out of it.
+     */
+    public static function normaliseTemperature(string $raw): float
+    {
+        $raw = str_replace(',', '.', trim($raw));
+        if ($raw === '' || !is_numeric($raw)) {
+            return self::DEFAULT_TEMPERATURE;
+        }
+
         return max(0.0, min(1.0, (float)$raw));
     }
 
     /**
-     * Global agent instructions (persona, tone, rules) configured in the
-     * extension configuration and applied to every site's assistant answers.
-     * Per-site instructions can additionally be set via getAssistantSystemPrompt().
+     * Agent instructions (persona, tone, rules) applied to this site's assistant
+     * answers. Maintained in the Site settings, with the extension configuration
+     * as the legacy fallback. Further per-site notes can be added through
+     * getAssistantSystemPrompt(), which is also maintained per language.
      */
     public function getAssistantInstructions(): string
     {
+        $instructions = $this->safeSiteConfigurationValue('aiAssistantInstructions');
+        if ($instructions !== '') {
+            return $instructions;
+        }
+
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
         return trim((string)($extConf['assistantInstructions'] ?? ''));
     }
@@ -462,14 +503,37 @@ class ConfigurationService
     }
 
     /**
-     * USD-to-CHF conversion rate used to estimate LLM cost in the log module.
-     * Model prices are quoted in USD; this converts them to CHF.
+     * Rate the USD model prices are converted with before the log module shows
+     * them. Named after what it does rather than after one currency, so an
+     * installation that bills in euros no longer has to read "CHF" everywhere.
+     *
+     * The former "assistantUsdToChfRate" is still read when the new setting is
+     * absent, so an installation that has not run the upgrade wizard yet keeps
+     * the rate it had.
      */
-    public function getAssistantUsdToChfRate(): float
+    public function getAssistantUsdConversionRate(): float
     {
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
-        $rate = (float)str_replace(',', '.', (string)($extConf['assistantUsdToChfRate'] ?? '0.90'));
+        $raw = trim((string)($extConf['assistantUsdConversionRate'] ?? ''));
+        if ($raw === '') {
+            $raw = trim((string)($extConf['assistantUsdToChfRate'] ?? ''));
+        }
+
+        $rate = (float)str_replace(',', '.', $raw);
+
         return $rate > 0 ? $rate : 0.90;
+    }
+
+    /**
+     * The currency the converted cost is quoted in — a label, not a conversion:
+     * it has to match the rate above, which nothing here can check.
+     */
+    public function getAssistantCurrency(): string
+    {
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
+        $currency = trim((string)($extConf['assistantCurrency'] ?? ''));
+
+        return $currency !== '' ? $currency : 'CHF';
     }
 
     /**
@@ -511,7 +575,13 @@ class ConfigurationService
     }
 
     /**
-     * Optional per-site page id that limits the search to a subtree (0 = whole site).
+     * The page the assistant searches below.
+     *
+     * A site can narrow this to a subtree of its own ("aiAssistantSearchPid");
+     * left unset, it is the site's own root page. It used to be 0 there, which
+     * the providers read as "no restriction" — and on an installation serving
+     * more than one site that meant the whole page tree. A visitor asking the
+     * assistant on one site was answered with pages from the other.
      */
     public function getAssistantSearchRootPageId(): int
     {
@@ -519,7 +589,40 @@ class ConfigurationService
         if (!$site instanceof Site) {
             return 0;
         }
-        return max(0, (int)($site->getConfiguration()['aiAssistantSearchPid'] ?? 0));
+
+        $configured = max(0, (int)($site->getConfiguration()['aiAssistantSearchPid'] ?? 0));
+
+        return $configured > 0 ? $configured : max(0, $site->getRootPageId());
+    }
+
+    /**
+     * The root page of the site the current request belongs to, 0 when it cannot
+     * be resolved. The boundary every search hit has to fall inside.
+     */
+    public function getCurrentSiteRootPageId(): int
+    {
+        try {
+            $site = $this->getCurrentSite();
+
+            return $site instanceof Site ? max(0, $site->getRootPageId()) : 0;
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * The identifier of the site the current request belongs to, '' when it
+     * cannot be resolved.
+     */
+    public function getCurrentSiteIdentifier(): string
+    {
+        try {
+            $site = $this->getCurrentSite();
+
+            return $site instanceof Site ? $site->getIdentifier() : '';
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     public function getAssistantTitle(): string
@@ -654,6 +757,23 @@ class ConfigurationService
     {
         $site = $this->getCurrentSite();
         return $site instanceof Site ? trim((string)($site->getConfiguration()[$key] ?? '')) : '';
+    }
+
+    /**
+     * The same, but never throwing.
+     *
+     * The settings read through this one are also asked for outside a frontend
+     * request — from the command line, from a backend module — where there is no
+     * site to resolve. An exception there would take down whatever was running;
+     * an empty value falls through to the extension configuration instead.
+     */
+    private function safeSiteConfigurationValue(string $key): string
+    {
+        try {
+            return $this->getSiteConfigurationValue($key);
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     /**

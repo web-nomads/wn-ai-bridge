@@ -102,13 +102,28 @@ final class SubscriptionToken
      */
     public function matchesHost(string $host): bool
     {
-        $host = $this->normaliseHost($host);
-        if ($host === '' || $this->domains === []) {
+        return self::hostCoveredBy($host, $this->domains);
+    }
+
+    /**
+     * The same rule against any domain list, not just the one inside the key.
+     *
+     * Needed because the list an installation goes by is no longer necessarily
+     * the key's: the issuing server publishes the current one with its daily
+     * answer, which is how a domain added to a licence takes effect without a
+     * new key being pasted anywhere.
+     *
+     * @param list<string> $domains
+     */
+    public static function hostCoveredBy(string $host, array $domains): bool
+    {
+        $host = self::normaliseHost($host);
+        if ($host === '' || $domains === []) {
             return false;
         }
 
-        foreach ($this->domains as $pattern) {
-            $pattern = $this->normaliseHost($pattern);
+        foreach ($domains as $pattern) {
+            $pattern = self::normaliseHost($pattern);
             if ($pattern === '') {
                 continue;
             }
@@ -160,7 +175,7 @@ final class SubscriptionToken
         return implode(', ', $this->domains);
     }
 
-    private function normaliseHost(string $host): string
+    private static function normaliseHost(string $host): string
     {
         $host = trim(mb_strtolower($host));
         // Strip an optional scheme, path and port so a pasted URL also works.
