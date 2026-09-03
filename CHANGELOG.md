@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.1] - 2026-09-04
+
+### Fixed
+- **1.29.0 moved the wrong key into the site configuration.** It put the LLM API
+  key there and left the subscription key installation-wide. It is the other way
+  round: a licence covers domains and a domain belongs to a site, so the
+  subscription key is what a website answers for — two websites in one TYPO3 can
+  be licensed separately, each with the key it was sold. The API key is the
+  account the provider bills and stays in the extension configuration
+- A site that names no key of its own keeps running on the installation-wide one.
+  A backend request belongs to no site, so it finds the key whose licence covers
+  the backend's own host — without that, an installation that had moved its keys
+  onto the sites would have lost the two subscription modules the moment anyone
+  opened the backend
+- The upgrade wizard is now *"AI Bridge: move the subscription key, temperature
+  and instructions into the site configuration"* and moves those three
+
+### Note
+- **Do not use 1.29.0.** It was published with the wrong field and is superseded
+  by this release. An installation that already has it only needs to update; no
+  site configuration written by it is read any more
+
 ## [1.29.0] - 2026-09-04
 
 ### Fixed
