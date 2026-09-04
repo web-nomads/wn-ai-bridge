@@ -133,9 +133,17 @@ final class AnswersModuleController
             return $this->renderForm($request, $params, 'answerRequired');
         }
 
+        // Only a site this installation actually serves, or "every site". An
+        // identifier that belongs to nothing would make the answer apply
+        // nowhere, and the form gives no way of noticing that.
+        $site = trim((string)($params['siteIdentifier'] ?? ''));
+        if (!$this->siteListService->isKnownIdentifier($site)) {
+            $site = AssistantLearning::ALL_SITES;
+        }
+
         $data = [
             'tstamp' => time(),
-            'site_identifier' => trim((string)($params['siteIdentifier'] ?? '')),
+            'site_identifier' => $site,
             'language_uid' => max(0, (int)($params['languageUid'] ?? 0)),
             'status' => ($params['status'] ?? '') === AssistantLearning::STATUS_PENDING
                 ? AssistantLearning::STATUS_PENDING
@@ -233,7 +241,7 @@ final class AnswersModuleController
             $formValues = [
                 'uid' => $uid,
                 'status' => (string)($params['status'] ?? AssistantLearning::STATUS_APPROVED),
-                'siteIdentifier' => (string)($params['siteIdentifier'] ?? ''),
+                'siteIdentifier' => (string)($params['siteIdentifier'] ?? AssistantLearning::ALL_SITES),
                 'languageUid' => (int)($params['languageUid'] ?? 0),
                 'topic' => (string)($params['topic'] ?? ''),
                 'correction' => (string)($params['correction'] ?? ''),
@@ -255,7 +263,10 @@ final class AnswersModuleController
             $formValues = [
                 'uid' => 0,
                 'status' => AssistantLearning::STATUS_APPROVED,
-                'siteIdentifier' => $logEntry?->siteIdentifier ?? '',
+                // A new answer applies to every site until someone narrows it —
+                // even one taken over from a logged answer, which was asked on
+                // one site but is rarely only true there.
+                'siteIdentifier' => AssistantLearning::ALL_SITES,
                 'languageUid' => $logEntry?->languageUid ?? 0,
                 'topic' => $logEntry?->question ?? '',
                 // Left empty on purpose: the answer from the log is what is being
@@ -264,6 +275,10 @@ final class AnswersModuleController
                 'keywords' => '',
             ];
         }
+
+        // Lets the language field follow the site the editor picks.
+        GeneralUtility::makeInstance(PageRenderer::class)
+            ->loadJavaScriptModule('@webnomads/wn-ai-bridge/answers-form.js');
 
         $moduleTemplate = $this->createModuleTemplate($request);
         $moduleTemplate->assignMultiple([
@@ -274,7 +289,11 @@ final class AnswersModuleController
             // the log — shown so it is clear what is being replaced.
             'previousAnswer' => $entry === null ? ($this->findLogEntry($params)?->answer ?? '') : '',
             'logUid' => $entry === null ? max(0, (int)($params['logUid'] ?? 0)) : 0,
-            'siteIdentifiers' => $this->safeSiteIdentifiers(),
+            'sites' => $this->siteListService->getAll(),
+            // Language ids per site, for the field that follows the site
+            // selection. Handed to the browser as JSON — see answers-form.js.
+            'languagesPerSite' => $this->siteListService->getLanguagesPerSite(),
+            'languagesJson' => $this->languagesJson(),
             'moduleUrl' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME),
         ]);
 
@@ -321,14 +340,20 @@ final class AnswersModuleController
     }
 
     /**
-     * @return list<string>
+     * The languages of every site as JSON, so the language field can follow the
+     * site the editor picks without another request.
      */
-    private function safeSiteIdentifiers(): array
+    private function languagesJson(): string
     {
         try {
-            return $this->repository->findDistinctSiteIdentifiers();
+            return (string)json_encode(
+                $this->siteListService->getLanguagesPerSite(),
+                JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
+            );
         } catch (\Throwable $e) {
-            return [];
+            // Without the map the field simply keeps the options it was
+            // rendered with, which are the ones for the stored site.
+            return '{}';
         }
     }
 

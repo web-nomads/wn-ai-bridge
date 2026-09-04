@@ -213,6 +213,14 @@
 				<source>Delete all log entries? This cannot be undone.</source>
 				<target>Alle Protokolleinträge löschen? Das lässt sich nicht rückgängig machen.</target>
 			</trans-unit>
+			<trans-unit id="action.deleteThread">
+				<source>Delete conversation</source>
+				<target>Unterhaltung löschen</target>
+			</trans-unit>
+			<trans-unit id="action.deleteThreadConfirm">
+				<source>Delete this conversation with all of its turns? This cannot be undone.</source>
+				<target>Diese Unterhaltung mit allen Beiträgen löschen? Das lässt sich nicht rückgängig machen.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

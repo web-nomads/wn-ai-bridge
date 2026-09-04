@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.29.3] - 2026-09-04
 
+### Fixed
+- **The two upgrade wizards of 1.29.0 were never registered on TYPO3 13.4.** The
+  `#[UpgradeWizard]` attribute lives in a different namespace on each version —
+  `TYPO3\CMS\Install\Attribute` on v13, `TYPO3\CMS\Core\Attribute` on v14 — and
+  an attribute PHP cannot resolve is not an error, it is simply ignored. So on
+  13.4 both wizards were absent from the Install Tool, with nothing to say why.
+  They are tagged in `Services.php` now, which is the same on both versions
+- **An answer saved without a site was never played back.** An empty
+  "site identifier" looked like "applies everywhere" and meant the opposite: the
+  lookup asked for the current site's identifier and nothing else, so the entry
+  matched no site at all. It now means every site, which is also what a new
+  answer starts as
+
 ### Added
 - **The "Bot Access Log" can be filtered by site**, the same way "Enquiries" and
   "Answers" already could. On an installation serving several websites the log
@@ -18,6 +31,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The list gains a site column, and the chosen site survives pagination and the
   AJAX reload. Both the filter and the column appear only where there is more
   than one site, so a single-site installation is unchanged
+- **"Answers": the site is a dropdown, and it starts at "All sites".** An answer
+  applies to every website of the installation unless someone narrows it to one
+- **"Answers": the language is a dropdown that follows the site.** A language id
+  is a site setting, not a global one — language 1 is French on one website and
+  Italian on the next. Offering every id regardless of the chosen site invited
+  exactly the combination that never matches anything: an answer filed under a
+  language its site does not have. Choosing "All sites" offers the languages all
+  of them share
+- **A single conversation can be deleted in "Enquiries".** Removing one visitor's
+  question used to mean emptying the whole log. The filter and the page survive
+  the deletion, so the list comes back as it was being read
+- "Clear log" finally asks before it empties the log. The confirmation text had
+  been translated all along; nothing ever showed it
+
+### Changed
+- The backend modules use the standard TYPO3 icons for their record actions —
+  `actions-open` to edit, `actions-delete` to remove — as icon-only buttons with
+  the label in the tooltip. "Clear log" keeps its wording: it is not a record
+  action but empties everything, and an unlabelled bin at the foot of the page
+  is a trap
+- The confirmation is bound from the module's JavaScript rather than an inline
+  `onsubmit`, which a Content Security Policy drops — and it is delegated from
+  the document, because the results list is replaced on every filter request and
+  a listener bound to the form would go with it
 
 ## [1.29.2] - 2026-09-04
 

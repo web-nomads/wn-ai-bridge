@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace WebNomads\WnAiBridge\Upgrades;
 
-use TYPO3\CMS\Core\Attribute\UpgradeWizard;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Configuration\SiteConfiguration;
 use TYPO3\CMS\Core\Configuration\SiteWriter;
@@ -25,7 +24,6 @@ use WebNomads\WnAiBridge\Service\ConfigurationService;
  * failure halfway through leaves the installation exactly as it was, still
  * reading the old values through the fallback in {@see ConfigurationService}.
  */
-#[UpgradeWizard(self::IDENTIFIER)]
 final class AssistantSettingsToSiteConfigurationUpdate implements UpgradeWizardInterface
 {
     public const IDENTIFIER = 'wnAiBridgeAssistantSettingsToSiteConfiguration';

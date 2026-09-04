@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace WebNomads\WnAiBridge\Domain\Repository;
 
+use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WebNomads\WnAiBridge\Domain\Model\AssistantLearning;
 
@@ -98,12 +100,7 @@ final class AssistantLearningRepository
             ->setMaxResults($limit);
 
         if ($siteIdentifier !== '') {
-            $queryBuilder->andWhere(
-                $queryBuilder->expr()->eq(
-                    'site_identifier',
-                    $queryBuilder->createNamedParameter($siteIdentifier)
-                )
-            );
+            $queryBuilder->andWhere($this->appliesToSite($queryBuilder, $siteIdentifier));
         }
 
         $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
@@ -143,10 +140,7 @@ final class AssistantLearningRepository
                     'status',
                     $queryBuilder->createNamedParameter(AssistantLearning::STATUS_APPROVED)
                 ),
-                $queryBuilder->expr()->eq(
-                    'site_identifier',
-                    $queryBuilder->createNamedParameter($siteIdentifier)
-                ),
+                $this->appliesToSite($queryBuilder, $siteIdentifier),
                 $queryBuilder->expr()->eq(
                     'language_uid',
                     $queryBuilder->createNamedParameter($languageUid, Connection::PARAM_INT)
@@ -158,6 +152,25 @@ final class AssistantLearningRepository
             ->fetchAllAssociative();
 
         return array_map(static fn(array $row): AssistantLearning => AssistantLearning::fromRow($row), $rows);
+    }
+
+    /**
+     * The SQL behind {@see AssistantLearning::appliesToSite()}: an entry counts
+     * for a site when it names that site, or when it names none at all and
+     * therefore applies to every one of them.
+     */
+    private function appliesToSite(QueryBuilder $queryBuilder, string $siteIdentifier): CompositeExpression
+    {
+        return $queryBuilder->expr()->or(
+            $queryBuilder->expr()->eq(
+                'site_identifier',
+                $queryBuilder->createNamedParameter(AssistantLearning::ALL_SITES)
+            ),
+            $queryBuilder->expr()->eq(
+                'site_identifier',
+                $queryBuilder->createNamedParameter($siteIdentifier)
+            ),
+        );
     }
 
     /**

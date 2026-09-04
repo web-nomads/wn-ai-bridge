@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace WebNomads\WnAiBridge\Upgrades;
 
-use TYPO3\CMS\Core\Attribute\UpgradeWizard;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 
@@ -22,7 +21,6 @@ use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
  * to euros all along gets the same wrong label it already had, and can correct
  * it in one place. A fresh installation starts from the same default.
  */
-#[UpgradeWizard(self::IDENTIFIER)]
 final class AssistantCostSettingsUpdate implements UpgradeWizardInterface
 {
     public const IDENTIFIER = 'wnAiBridgeAssistantCostSettings';

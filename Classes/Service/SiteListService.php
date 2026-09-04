@@ -7,6 +7,7 @@ namespace WebNomads\WnAiBridge\Service;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WebNomads\WnAiBridge\Domain\Model\AssistantLearning;
 
 /**
  * The sites of this installation, as the backend modules need to offer them.
@@ -50,6 +51,66 @@ final class SiteListService
     }
 
     /**
+     * Identifier => label for every site, whether there is one or many.
+     *
+     * Used where the site is a field rather than a filter: an answer is written
+     * for a particular website, and that has to be answerable on a single-site
+     * installation too.
+     *
+     * @return array<string, string>
+     */
+    public function getAll(): array
+    {
+        $options = [];
+        foreach ($this->allSites() as $site) {
+            $options[$site->getIdentifier()] = self::label($site);
+        }
+
+        asort($options);
+
+        return $options;
+    }
+
+    /**
+     * The languages of every site, as language id => label.
+     *
+     * Keyed by site identifier, with {@see AssistantLearning::ALL_SITES} holding
+     * the union of them all — an entry that applies to every site has to be able
+     * to name a language whichever site it ends up answering on.
+     *
+     * A language id means different things on different sites, so the union is
+     * by id and the label names every title found under it. That is honest about
+     * what the number is: a site setting, not a global one.
+     *
+     * @return array<string, array<int, string>>
+     */
+    public function getLanguagesPerSite(): array
+    {
+        $perSite = [];
+        $shared = [];
+
+        foreach ($this->allSites() as $site) {
+            $languages = [];
+            foreach ($this->languagesOf($site) as $languageId => $title) {
+                $languages[$languageId] = $title;
+                $shared[$languageId][$title] = $title;
+            }
+            ksort($languages);
+            $perSite[$site->getIdentifier()] = $languages;
+        }
+
+        $union = [];
+        foreach ($shared as $languageId => $titles) {
+            $union[$languageId] = implode(' / ', $titles);
+        }
+        ksort($union);
+
+        $perSite[AssistantLearning::ALL_SITES] = $union;
+
+        return $perSite;
+    }
+
+    /**
      * Whether the given identifier belongs to a site of this installation.
      * Everything else is refused rather than searched for, so a hand-written URL
      * cannot turn the filter into a way of probing the log.
@@ -67,6 +128,31 @@ final class SiteListService
         }
 
         return false;
+    }
+
+    /**
+     * Language id => title for one site, in the order the site declares them.
+     *
+     * @return array<int, string>
+     */
+    private function languagesOf(Site $site): array
+    {
+        $languages = [];
+
+        try {
+            foreach ($site->getAllLanguages() as $language) {
+                $title = trim($language->getTitle());
+                $languages[$language->getLanguageId()] = $title !== ''
+                    ? sprintf('%d – %s', $language->getLanguageId(), $title)
+                    : (string)$language->getLanguageId();
+            }
+        } catch (\Throwable $e) {
+            // A site without readable languages contributes none; the field
+            // then offers only what the other sites have.
+            return [];
+        }
+
+        return $languages;
     }
 
     /**

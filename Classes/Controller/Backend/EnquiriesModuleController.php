@@ -61,10 +61,28 @@ final class EnquiriesModuleController
         $parsedBody = $request->getParsedBody();
         $params = array_merge($request->getQueryParams(), is_array($parsedBody) ? $parsedBody : []);
 
-        // Destructive "clear log" action (POST only).
-        if ($request->getMethod() === 'POST' && ($params['action'] ?? '') === 'deleteAll') {
-            $this->repository->deleteAll();
-            return new RedirectResponse((string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME));
+        // Destructive actions (POST only).
+        if ($request->getMethod() === 'POST') {
+            if (($params['action'] ?? '') === 'deleteAll') {
+                $this->repository->deleteAll();
+                return new RedirectResponse((string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME));
+            }
+
+            if (($params['action'] ?? '') === 'deleteThread') {
+                $this->repository->deleteByConversation(
+                    $this->sanitiseConversationId($params['conversationId'] ?? '')
+                );
+
+                // Back to the list as it was being read, so removing one thread
+                // does not also drop the filter and the page.
+                return new RedirectResponse((string)$this->uriBuilder->buildUriFromRoute(
+                    self::MODULE_NAME,
+                    array_filter(
+                        LogFilter::fromQueryParams($params)->toFormValues(),
+                        static fn(string $value): bool => $value !== ''
+                    )
+                ));
+            }
         }
 
         $filter = LogFilter::fromQueryParams($params);
@@ -311,6 +329,19 @@ final class EnquiriesModuleController
             'perPage' => $filter->perPage,
             'pages' => $pages,
         ];
+    }
+
+    /**
+     * Keep a submitted conversation id to the shape the widget generates, so
+     * nothing else can be handed to the delete.
+     */
+    private function sanitiseConversationId(mixed $value): string
+    {
+        if (!is_string($value)) {
+            return '';
+        }
+
+        return substr(preg_replace('/[^A-Za-z0-9._-]/', '', $value) ?? '', 0, 40);
     }
 
     /**

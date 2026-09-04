@@ -321,6 +321,25 @@ final class AssistantLogRepository
     }
 
     /**
+     * Delete one conversation, all of its turns. Returns the number of removed
+     * rows.
+     *
+     * A thread is what the module shows and what an editor recognises, so it is
+     * also what they get to remove — a single wrong question asked by a visitor
+     * should not have to be dealt with by emptying the whole log.
+     */
+    public function deleteByConversation(string $conversationId): int
+    {
+        if ($conversationId === '') {
+            return 0;
+        }
+
+        return $this->connectionPool
+            ->getConnectionForTable(self::TABLE)
+            ->delete(self::TABLE, ['conversation_id' => $conversationId]);
+    }
+
+    /**
      * Delete all log entries. Returns the number of removed rows.
      */
     public function deleteAll(): int

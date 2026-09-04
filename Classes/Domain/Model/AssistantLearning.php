@@ -21,6 +21,17 @@ final class AssistantLearning
     /** Created or last edited by an editor in the backend module. */
     public const SOURCE_MANUAL = 'manual';
 
+    /**
+     * What "site_identifier" holds for an entry that applies to every site of
+     * the installation — the default for anything written by hand.
+     *
+     * An empty column used to mean the opposite: it matched no site at all,
+     * because the lookup asked for the current site's identifier and nothing
+     * else. An entry saved without a site was therefore never played back, and
+     * nothing said so.
+     */
+    public const ALL_SITES = '';
+
     public function __construct(
         public readonly int $uid,
         public readonly int $crdate,
@@ -55,6 +66,30 @@ final class AssistantLearning
             (string)($row['keywords'] ?? ''),
             (string)($row['ip_address'] ?? ''),
         );
+    }
+
+    /**
+     * Whether this entry applies to the given site.
+     *
+     * The rule the SQL in {@see \WebNomads\WnAiBridge\Domain\Repository\AssistantLearningRepository}
+     * expresses, kept here as well so it can be read and exercised without a
+     * database — and so both sides can be checked against each other.
+     */
+    public function appliesToSite(string $siteIdentifier): bool
+    {
+        return $this->siteIdentifier === self::ALL_SITES
+            || $this->siteIdentifier === $siteIdentifier;
+    }
+
+    /**
+     * Whether this entry is meant for every site rather than one of them.
+     *
+     * Named so Fluid can reach it: a template asks for "forAllSites", and Fluid
+     * resolves object properties only through get…(), is…() and has…().
+     */
+    public function isForAllSites(): bool
+    {
+        return $this->siteIdentifier === self::ALL_SITES;
     }
 
     public function getCreatedAt(): \DateTimeImmutable

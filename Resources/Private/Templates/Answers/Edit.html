@@ -55,20 +55,32 @@
         </div>
 
         <div class="row">
+            <f:comment>
+                The site an answer is written for, and the language within it.
+                The two belong together: a language id means different things on
+                different sites, so the second field follows the first — see
+                answers-form.js, which reads the map below.
+            </f:comment>
             <div class="col-md-4 mb-3">
                 <label class="form-label" for="wn-ai-site"><f:translate key="{ll}field.site"/></label>
-                <input type="text" class="form-control" id="wn-ai-site" name="siteIdentifier" value="{form.siteIdentifier}" list="wn-ai-sites" maxlength="128">
-                <datalist id="wn-ai-sites">
-                    <f:for each="{siteIdentifiers}" as="identifier">
-                        <option value="{identifier}"></option>
+                <select class="form-select" id="wn-ai-site" name="siteIdentifier"
+                        data-wn-ai-site-field
+                        data-wn-ai-languages="{languagesJson}">
+                    <option value=""><f:translate key="{ll}field.site.all"/></option>
+                    <f:for each="{sites}" as="siteLabel" key="siteIdentifier">
+                        <option value="{siteIdentifier}"{f:if(condition: "{form.siteIdentifier} == {siteIdentifier}", then: ' selected')}>{siteLabel}</option>
                     </f:for>
-                </datalist>
+                </select>
                 <div class="form-text"><f:translate key="{ll}field.site.description"/></div>
             </div>
 
             <div class="col-md-4 mb-3">
                 <label class="form-label" for="wn-ai-language"><f:translate key="{ll}field.language"/></label>
-                <input type="number" class="form-control" id="wn-ai-language" name="languageUid" value="{form.languageUid}" min="0" step="1">
+                <select class="form-select" id="wn-ai-language" name="languageUid" data-wn-ai-language-field>
+                    <f:for each="{languagesPerSite.{form.siteIdentifier}}" as="languageLabel" key="languageUid">
+                        <option value="{languageUid}"{f:if(condition: "{form.languageUid} == {languageUid}", then: ' selected')}>{languageLabel}</option>
+                    </f:for>
+                </select>
                 <div class="form-text"><f:translate key="{ll}field.language.description"/></div>
             </div>
 

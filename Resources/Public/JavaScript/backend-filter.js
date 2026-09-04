@@ -123,3 +123,19 @@ class AjaxFilter {
 }
 
 document.querySelectorAll('.wn-ai-log').forEach((root) => new AjaxFilter(root));
+
+/**
+ * Ask before a form that cannot be undone is submitted.
+ *
+ * Delegated from the document, because the results fragment is replaced on
+ * every filter request — a listener bound to the forms themselves would be
+ * thrown away with the markup that carried it. The message travels in
+ * "data-wn-ai-confirm" rather than an inline onsubmit, which a Content
+ * Security Policy drops.
+ */
+document.addEventListener('submit', (event) => {
+  const form = event.target.closest('[data-wn-ai-confirm]');
+  if (form !== null && !window.confirm(form.dataset.wnAiConfirm)) {
+    event.preventDefault();
+  }
+});

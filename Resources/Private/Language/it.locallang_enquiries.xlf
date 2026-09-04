@@ -213,6 +213,14 @@
 				<source>Delete all log entries? This cannot be undone.</source>
 				<target>Eliminare tutte le voci del registro? L'operazione non può essere annullata.</target>
 			</trans-unit>
+			<trans-unit id="action.deleteThread">
+				<source>Delete conversation</source>
+				<target>Elimina conversazione</target>
+			</trans-unit>
+			<trans-unit id="action.deleteThreadConfirm">
+				<source>Delete this conversation with all of its turns? This cannot be undone.</source>
+				<target>Eliminare questa conversazione con tutti i suoi turni? L'operazione è irreversibile.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
