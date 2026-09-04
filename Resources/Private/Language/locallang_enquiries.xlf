@@ -162,6 +162,12 @@
 			<trans-unit id="action.clearConfirm">
 				<source>Delete all log entries? This cannot be undone.</source>
 			</trans-unit>
+			<trans-unit id="action.deleteThread">
+				<source>Delete conversation</source>
+			</trans-unit>
+			<trans-unit id="action.deleteThreadConfirm">
+				<source>Delete this conversation with all of its turns? This cannot be undone.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

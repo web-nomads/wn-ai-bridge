@@ -213,6 +213,14 @@
 				<source>Delete all log entries? This cannot be undone.</source>
 				<target>Supprimer toutes les entrées du journal ? Cette action est irréversible.</target>
 			</trans-unit>
+			<trans-unit id="action.deleteThread">
+				<source>Delete conversation</source>
+				<target>Supprimer la conversation</target>
+			</trans-unit>
+			<trans-unit id="action.deleteThreadConfirm">
+				<source>Delete this conversation with all of its turns? This cannot be undone.</source>
+				<target>Supprimer cette conversation et tous ses échanges ? Cette action est irréversible.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

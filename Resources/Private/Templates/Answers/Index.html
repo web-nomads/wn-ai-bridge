@@ -1,4 +1,5 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <f:layout name="Module"/>
@@ -6,6 +7,10 @@
 <f:section name="Content">
 
     <f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_answers.xlf:</f:variable>
+    <f:variable name="titleApprove"><f:translate key="{ll}action.approve"/></f:variable>
+    <f:variable name="titleEdit"><f:translate key="{ll}action.edit"/></f:variable>
+    <f:variable name="titleReject"><f:translate key="{ll}action.reject"/></f:variable>
+    <f:variable name="titleRevoke"><f:translate key="{ll}action.revoke"/></f:variable>
 
     <div class="wn-ai-log">
 
@@ -64,7 +69,10 @@
             <f:for each="{pending}" as="c">
                 <div class="card border-warning mb-3">
                     <div class="card-body">
-                        <div class="mb-1"><span class="text-body-secondary text-uppercase small"><f:translate key="{ll}field.date"/>:</span> <f:format.date date="{c.createdAt}" format="d.m.Y H:i"/> &middot; <span class="badge bg-secondary">{c.siteIdentifier}</span></div>
+                        <div class="mb-1"><span class="text-body-secondary text-uppercase small"><f:translate key="{ll}field.date"/>:</span> <f:format.date date="{c.createdAt}" format="d.m.Y H:i"/> &middot; <f:if condition="{c.forAllSites}">
+                                <f:then><span class="badge bg-secondary"><f:translate key="{ll}field.site.all"/></span></f:then>
+                                <f:else><span class="badge bg-secondary">{c.siteIdentifier}</span></f:else>
+                            </f:if></div>
                         <div class="mb-1"><span class="text-body-secondary text-uppercase small"><f:translate key="{ll}field.topic"/>:</span> {c.topic}</div>
                         <f:if condition="{c.wrongAnswer}">
                             <div class="mb-1"><span class="text-body-secondary text-uppercase small"><f:translate key="{ll}field.wrongAnswer"/>:</span> <span class="text-body-secondary">{c.wrongAnswer}</span></div>
@@ -75,14 +83,20 @@
                                 <input type="hidden" name="action" value="approve">
                                 <input type="hidden" name="learningUid" value="{c.uid}">
                                 <input type="hidden" name="site" value="{site}">
-                                <button type="submit" class="btn btn-sm btn-success"><f:translate key="{ll}action.approve"/></button>
+                                <button type="submit" class="btn btn-sm btn-success" title="{titleApprove}" aria-label="{titleApprove}">
+                                    <core:icon identifier="actions-check" size="small"/>
+                                </button>
                             </form>
-                            <a href="{moduleUrl}&amp;edit={c.uid}" class="btn btn-sm btn-outline-primary"><f:translate key="{ll}action.edit"/></a>
+                            <a href="{moduleUrl}&amp;edit={c.uid}" class="btn btn-sm btn-default" title="{titleEdit}" aria-label="{titleEdit}">
+                                <core:icon identifier="actions-open" size="small"/>
+                            </a>
                             <form method="post" action="{moduleUrl}">
                                 <input type="hidden" name="action" value="reject">
                                 <input type="hidden" name="learningUid" value="{c.uid}">
                                 <input type="hidden" name="site" value="{site}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger"><f:translate key="{ll}action.reject"/></button>
+                                <button type="submit" class="btn btn-sm btn-danger" title="{titleReject}" aria-label="{titleReject}">
+                                    <core:icon identifier="actions-delete" size="small"/>
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -118,7 +132,12 @@
                             <td>{c.topic}</td>
                             <td>{c.correction}</td>
                             <td><code class="small">{c.keywords}</code></td>
-                            <td>{c.siteIdentifier}</td>
+                            <td>
+                                <f:if condition="{c.forAllSites}">
+                                    <f:then><em class="text-body-secondary"><f:translate key="{ll}field.site.all"/></em></f:then>
+                                    <f:else>{c.siteIdentifier}</f:else>
+                                </f:if>
+                            </td>
                             <td>
                                 <f:if condition="{c.manual}">
                                     <f:then><span class="badge bg-primary"><f:translate key="{ll}source.manual"/></span></f:then>
@@ -126,12 +145,16 @@
                                 </f:if>
                             </td>
                             <td class="text-end text-nowrap">
-                                <a href="{moduleUrl}&amp;edit={c.uid}" class="btn btn-sm btn-outline-primary"><f:translate key="{ll}action.edit"/></a>
+                                <a href="{moduleUrl}&amp;edit={c.uid}" class="btn btn-sm btn-default" title="{titleEdit}" aria-label="{titleEdit}">
+                                <core:icon identifier="actions-open" size="small"/>
+                            </a>
                                 <form method="post" action="{moduleUrl}" class="d-inline">
                                     <input type="hidden" name="action" value="revoke">
                                     <input type="hidden" name="learningUid" value="{c.uid}">
                                     <input type="hidden" name="site" value="{site}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger"><f:translate key="{ll}action.revoke"/></button>
+                                    <button type="submit" class="btn btn-sm btn-danger" title="{titleRevoke}" aria-label="{titleRevoke}">
+                                        <core:icon identifier="actions-delete" size="small"/>
+                                    </button>
                                 </form>
                             </td>
                         </tr>

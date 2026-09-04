@@ -129,8 +129,12 @@
 				<source>Site</source>
 				<target>Site</target>
 			</trans-unit>
+			<trans-unit id="field.site.all">
+				<source>All sites</source>
+				<target>Todos os sites</target>
+			</trans-unit>
 			<trans-unit id="field.site.description">
-				<source>Site identifier the entry applies to. Must match the site, otherwise the answer is never used.</source>
+				<source>The website this answer applies to. "All sites" is the default and covers every website of this installation.</source>
 				<target>Identificador do site a que a entrada se aplica. Tem de corresponder ao site, caso contrário a resposta nunca é usada.</target>
 			</trans-unit>
 			<trans-unit id="field.language">
@@ -138,7 +142,7 @@
 				<target>ID do idioma</target>
 			</trans-unit>
 			<trans-unit id="field.language.description">
-				<source>Language of the site the entry applies to (0 = default language).</source>
+				<source>The language within that site. The list follows the site chosen beside it, because a language id means different things on different sites.</source>
 				<target>Idioma do site a que a entrada se aplica (0 = idioma predefinido).</target>
 			</trans-unit>
 			<trans-unit id="field.status">

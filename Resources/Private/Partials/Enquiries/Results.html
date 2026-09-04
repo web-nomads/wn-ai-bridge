@@ -1,4 +1,5 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <f:comment>
@@ -8,6 +9,8 @@
 </f:comment>
 
 <f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf:</f:variable>
+<f:variable name="titleOverride"><f:translate key="{ll}thread.overrideAnswer"/></f:variable>
+<f:variable name="titleDeleteThread"><f:translate key="{ll}action.deleteThread"/></f:variable>
 
 <f:comment>Statistics overview</f:comment>
 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-3 mb-4">
@@ -116,8 +119,9 @@
                                     is played back whenever a question matches it.
                                 </f:comment>
                                 <f:if condition="{answersModuleUrl}">
-                                    <a class="btn btn-sm btn-default mt-2" href="{turn.overrideUrl}">
-                                        <f:translate key="{ll}thread.overrideAnswer"/>
+                                    <a class="btn btn-sm btn-default mt-2" href="{turn.overrideUrl}"
+                                       title="{titleOverride}" aria-label="{titleOverride}">
+                                        <core:icon identifier="actions-open" size="small"/>
                                     </a>
                                 </f:if>
                             </div>
@@ -133,6 +137,23 @@
                             </f:if>
                         </div>
                     </f:for>
+
+                    <f:comment>
+                        Removing one conversation. The filter travels with it so
+                        the list comes back as it was being read.
+                    </f:comment>
+                    <form method="post" action="{moduleUrl}" class="mt-3 pt-3 border-top"
+                          data-wn-ai-confirm="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf:action.deleteThreadConfirm')}">
+                        <input type="hidden" name="action" value="deleteThread">
+                        <input type="hidden" name="conversationId" value="{thread.conversationId}">
+                        <f:for each="{filter}" as="filterValue" key="filterName">
+                            <input type="hidden" name="{filterName}" value="{filterValue}">
+                        </f:for>
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                title="{titleDeleteThread}" aria-label="{titleDeleteThread}">
+                            <core:icon identifier="actions-delete" size="small"/>
+                        </button>
+                    </form>
                 </div>
             </details>
         </f:for>
@@ -160,9 +181,13 @@
 
 <f:comment>Clear log</f:comment>
 <f:if condition="{total} > 0">
-    <form method="post" action="{moduleUrl}" class="mt-4">
+    <form method="post" action="{moduleUrl}" class="mt-4"
+          data-wn-ai-confirm="{f:translate(key: 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_enquiries.xlf:action.clearConfirm')}">
         <input type="hidden" name="action" value="deleteAll">
-        <button type="submit" class="btn btn-danger"><f:translate key="{ll}action.clear"/></button>
+        <button type="submit" class="btn btn-danger">
+            <core:icon identifier="actions-delete" size="small"/>
+            <f:translate key="{ll}action.clear"/>
+        </button>
     </form>
 </f:if>
 

@@ -103,14 +103,17 @@
 			<trans-unit id="field.site">
 				<source>Site</source>
 			</trans-unit>
+			<trans-unit id="field.site.all">
+				<source>All sites</source>
+			</trans-unit>
 			<trans-unit id="field.site.description">
-				<source>Site identifier the entry applies to. Must match the site, otherwise the answer is never used.</source>
+				<source>The website this answer applies to. "All sites" is the default and covers every website of this installation.</source>
 			</trans-unit>
 			<trans-unit id="field.language">
 				<source>Language ID</source>
 			</trans-unit>
 			<trans-unit id="field.language.description">
-				<source>Language of the site the entry applies to (0 = default language).</source>
+				<source>The language within that site. The list follows the site chosen beside it, because a language id means different things on different sites.</source>
 			</trans-unit>
 			<trans-unit id="field.status">
 				<source>Status</source>
