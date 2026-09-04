@@ -155,6 +155,9 @@ final class BotAccessRepository
         if ($filter->aiOnly) {
             $conditions[] = $queryBuilder->expr()->eq('is_ai_bot', $queryBuilder->createNamedParameter(1, Connection::PARAM_INT));
         }
+        if ($filter->site !== '') {
+            $conditions[] = $queryBuilder->expr()->eq('site_identifier', $queryBuilder->createNamedParameter($filter->site));
+        }
         if ($filter->search !== '') {
             $like = $queryBuilder->createNamedParameter('%' . $queryBuilder->escapeLikeWildcards($filter->search) . '%');
             $conditions[] = $queryBuilder->expr()->or(

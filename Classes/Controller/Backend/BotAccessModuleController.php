@@ -17,6 +17,7 @@ use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use WebNomads\WnAiBridge\Domain\Model\BotAccessFilter;
 use WebNomads\WnAiBridge\Domain\Repository\BotAccessRepository;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
+use WebNomads\WnAiBridge\Service\SiteListService;
 
 /**
  * Backend module: a filterable list of bot/crawler accesses to llms.txt, the
@@ -32,6 +33,7 @@ final class BotAccessModuleController
         private readonly ConfigurationService $configurationService,
         private readonly BackendUriBuilder $uriBuilder,
         private readonly ViewFactoryInterface $viewFactory,
+        private readonly SiteListService $siteListService,
     ) {}
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
@@ -74,6 +76,9 @@ final class BotAccessModuleController
             'total' => $total,
             'stats' => $stats,
             'botNames' => $botNames,
+            // Empty on a single-site installation — the template renders the
+            // site filter only when there is a choice to make.
+            'sites' => $this->siteListService->getFilterOptions(),
             'filter' => $filter->toFormValues(),
             'pagination' => $this->buildPagination($filter, $total),
             'moduleUrl' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME),

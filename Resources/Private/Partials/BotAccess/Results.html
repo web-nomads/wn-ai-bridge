@@ -49,6 +49,7 @@
                 <thead>
                     <tr>
                         <th><f:translate key="{ll}col.date"/></th>
+                        <f:if condition="{sites}"><th><f:translate key="{ll}filter.site"/></th></f:if>
                         <th><f:translate key="{ll}col.type"/></th>
                         <th><f:translate key="{ll}col.bot"/></th>
                         <th><f:translate key="{ll}col.status"/></th>
@@ -61,6 +62,9 @@
                     <f:for each="{entries}" as="e">
                         <tr>
                             <td class="text-nowrap small"><f:format.date date="{e.createdAt}" format="d.m.Y H:i:s"/></td>
+                            <f:if condition="{sites}">
+                                <td class="text-nowrap small">{e.siteIdentifier}</td>
+                            </f:if>
                             <td>
                                 <f:switch expression="{e.requestType}">
                                     <f:case value="llmstxt"><span class="badge bg-primary">llms.txt</span></f:case>
