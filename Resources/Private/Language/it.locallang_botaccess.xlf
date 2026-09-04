@@ -57,6 +57,10 @@
 				<source>Type</source>
 				<target>Tipo</target>
 			</trans-unit>
+			<trans-unit id="filter.site">
+				<source>Site</source>
+				<target>Sito</target>
+			</trans-unit>
 			<trans-unit id="filter.all">
 				<source>All</source>
 				<target>Tutti</target>

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.3] - 2026-09-04
+
+### Added
+- **The "Bot Access Log" can be filtered by site**, the same way "Enquiries" and
+  "Answers" already could. On an installation serving several websites the log
+  was one list of everything, so "which crawlers visit this site" could not be
+  answered from it — the accesses were recorded per site all along, only nothing
+  read that column
+- The list gains a site column, and the chosen site survives pagination and the
+  AJAX reload. Both the filter and the column appear only where there is more
+  than one site, so a single-site installation is unchanged
+
 ## [1.29.2] - 2026-09-04
 
 ### Fixed

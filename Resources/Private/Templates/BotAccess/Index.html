@@ -30,6 +30,22 @@
         attributes); the GET action is the no-JS fallback.
     </f:comment>
     <form method="get" action="{moduleUrl}" class="row g-2 align-items-end mb-3" data-wn-ai-filter-form>
+        <f:comment>
+            Only rendered on an installation serving more than one website —
+            see SiteListService. With a single site the log already only holds
+            that one, and the field would just say the same thing twice.
+        </f:comment>
+        <f:if condition="{sites}">
+            <div class="col-auto">
+                <label class="form-label"><f:translate key="{ll}filter.site"/></label>
+                <select name="site" class="form-select form-select-sm">
+                    <option value=""><f:translate key="{ll}filter.all"/></option>
+                    <f:for each="{sites}" as="siteLabel" key="siteIdentifier">
+                        <option value="{siteIdentifier}"{f:if(condition: "{filter.site} == {siteIdentifier}", then: ' selected')}>{siteLabel}</option>
+                    </f:for>
+                </select>
+            </div>
+        </f:if>
         <div class="col-auto">
             <label class="form-label"><f:translate key="{ll}filter.dateFrom"/></label>
             <input type="date" name="dateFrom" value="{filter.dateFrom}" class="form-control form-control-sm">

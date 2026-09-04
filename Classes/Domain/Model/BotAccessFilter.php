@@ -19,6 +19,13 @@ final class BotAccessFilter
         public readonly bool $aiOnly = false,
         public readonly int $page = 1,
         public readonly int $perPage = 50,
+        /**
+         * The site whose accesses are shown, '' for all of them. On an
+         * installation serving several websites the log is one list of
+         * everything, and "which crawlers visit this site" cannot be answered
+         * from it without this.
+         */
+        public readonly string $site = '',
     ) {}
 
     /**
@@ -36,6 +43,7 @@ final class BotAccessFilter
             !empty($params['aiOnly']),
             max(1, (int)($params['page'] ?? 1)),
             50,
+            trim((string)($params['site'] ?? '')),
         );
     }
 
@@ -73,6 +81,7 @@ final class BotAccessFilter
             'ip' => $this->ip,
             'search' => $this->search,
             'aiOnly' => $this->aiOnly ? '1' : '',
+            'site' => $this->site,
         ];
     }
 }
