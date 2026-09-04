@@ -13,9 +13,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Single point of truth for "is this installation licensed, and for what?".
  *
- * Reads the subscription key of the site this request belongs to — falling back
- * to the installation-wide one, see {@see resolveKey()} — verifies it against the
- * current host and caches the outcome for the request. Everything is
+ * An installation may hold several licences — one per site — so this tries every
+ * key it has and answers with the first that comes out valid; see
+ * {@see candidateKeys()} and {@see acceptableHosts()}. Everything is
  * fail-closed: any unexpected problem yields an invalid status rather than an
  * exception, so a broken key can never take a site down — it only switches the
  * subscription features off.
@@ -146,25 +146,66 @@ final class SubscriptionService implements SingletonInterface
         $this->awaitingOnlineCheck = false;
     }
 
+    /**
+     * The subscription state of this request.
+     *
+     * An installation may hold more than one licence — one per site — so this is
+     * a search rather than a lookup: every key it has is tried, and the first
+     * one that comes out valid is the answer. Only when none does is the first
+     * finding reported, because that is the message worth showing.
+     */
     private function resolve(): SubscriptionStatus
     {
         $host = $this->currentHost();
+        $keys = $this->candidateKeys();
 
+        if ($keys === []) {
+            return SubscriptionStatus::invalid(SubscriptionStatus::REASON_MISSING, null, $host);
+        }
+
+        $acceptableHosts = $this->acceptableHosts($host);
+
+        $firstFinding = null;
+        foreach ($keys as $key) {
+            $status = $this->resolveWithKey($key, $host, $acceptableHosts);
+            if ($status->valid) {
+                return $status;
+            }
+            $firstFinding ??= $status;
+        }
+
+        // The list was not empty, so the loop has been through at least once.
+        return $firstFinding;
+    }
+
+    /**
+     * The state one particular key produces.
+     *
+     * @param list<string> $acceptableHosts The hosts this key may cover to count
+     *        — see {@see acceptableHosts()}.
+     */
+    private function resolveWithKey(string $key, string $host, array $acceptableHosts): SubscriptionStatus
+    {
         try {
-            $token = SubscriptionKeyCodec::decode(
-                $this->resolveKey($host),
-                $this->configValue('subscriptionPublicKey'),
-            );
+            $token = SubscriptionKeyCodec::decode($key, $this->configValue('subscriptionPublicKey'));
         } catch (SubscriptionKeyException $e) {
             return SubscriptionStatus::invalid($e->getReason(), null, $host);
         } catch (\Throwable $e) {
             return SubscriptionStatus::invalid(SubscriptionStatus::REASON_MALFORMED, null, $host);
         }
 
-        // Whether the key alone already covers this host. It decides nothing on
-        // its own any more — see below — but it is what tells this installation
-        // that asking the server is worth the wait even in a visitor request.
-        $coveredByKey = $host === '' || $token->matchesHost($host);
+        // The host reported to the issuing server: one this licence actually
+        // covers, rather than whatever address the backend happens to be open
+        // on. Otherwise every backend visit would look to that server like a key
+        // in use on a domain it was not issued for.
+        $covered = $this->firstCovered($acceptableHosts, $token->domains);
+        $checkHost = $covered ?? $host;
+
+        // Whether the key alone already covers one of them. It decides nothing
+        // on its own any more — see below — but it is what tells this
+        // installation that asking the server is worth the wait even in a
+        // visitor request.
+        $coveredByKey = $acceptableHosts === [] || $covered !== null;
 
         // The daily status check with the issuing server. It runs before every
         // decision below, because both the end date and the domain list can have
@@ -174,7 +215,7 @@ final class SubscriptionService implements SingletonInterface
         $verdict = $this->onlineCheck->verdict(
             $token,
             $this->getVerificationKey(),
-            $host,
+            $checkHost,
             $token->isExpiringWithin(self::FRONTEND_REFRESH_WINDOW) || !$coveredByKey,
         );
 
@@ -188,7 +229,7 @@ final class SubscriptionService implements SingletonInterface
         // request is checked.
         $domains = self::effectiveDomains($token, $verdict);
 
-        if ($host !== '' && !SubscriptionToken::hostCoveredBy($host, $domains)) {
+        if ($acceptableHosts !== [] && $this->firstCovered($acceptableHosts, $domains) === null) {
             return SubscriptionStatus::invalid(SubscriptionStatus::REASON_DOMAIN, $token, $host, 0, $verdict, $domains);
         }
 
@@ -291,65 +332,94 @@ final class SubscriptionService implements SingletonInterface
     }
 
     /**
-     * The subscription key this request goes by.
+     * Every subscription key this installation holds, most specific first.
      *
-     * A licence covers domains, and a domain belongs to a site, so the key is
+     * A licence covers domains, and a domain belongs to a site, so keys are
      * maintained per site — two websites in one TYPO3 can be licensed
-     * separately. Which one applies is decided in this order:
+     * separately. The site of the current request comes first, then the
+     * installation-wide key from the extension configuration, then the keys of
+     * the other sites.
      *
-     * 1. the key of the site this request belongs to,
-     * 2. the installation-wide key from the extension configuration,
-     * 3. the key of any other site that covers this host.
-     *
-     * The third step is what keeps the backend modules working. A backend
-     * request belongs to no site, so without it an installation that keeps its
-     * keys on the sites would look unlicensed the moment anyone opened the
-     * backend — and the modules would simply be gone.
-     *
-     * When nothing covers the host, the first key found is returned anyway: it
-     * produces "not valid for this domain" and names the domains it is for,
-     * which is the message that helps. Returning nothing would say "no key
-     * configured", which is not true.
+     * @return list<string>
      */
-    private function resolveKey(string $host): string
+    private function candidateKeys(): array
     {
-        $fromSite = $this->siteValue($this->currentSite());
-        if ($fromSite !== '') {
-            return $fromSite;
-        }
+        $keys = [$this->siteValue($this->currentSite()), $this->configValue('subscriptionKey')];
 
-        $configured = $this->configValue('subscriptionKey');
-        if ($configured !== '') {
-            return $configured;
-        }
-
-        $first = '';
         foreach ($this->allSites() as $site) {
-            $key = $this->siteValue($site);
-            if ($key === '') {
-                continue;
-            }
-            if ($host !== '' && $this->covers($key, $host)) {
-                return $key;
-            }
-            $first = $first !== '' ? $first : $key;
+            $keys[] = $this->siteValue($site);
         }
 
-        return $first;
+        return array_values(array_unique(array_filter($keys, static fn(string $key): bool => $key !== '')));
     }
 
     /**
-     * Whether a key covers this host. Never throws: an unreadable key simply
-     * covers nothing, and the caller moves on to the next one.
+     * The hosts a licence may cover to count for this request.
+     *
+     * In a visitor request that is the one host being served: a website is
+     * licensed or it is not, and no other site's licence can speak for it.
+     *
+     * In the backend and on the command line there is no site to speak for, and
+     * the question is a different one — does this installation hold a valid
+     * licence at all? Tying that to the address the backend happens to be open
+     * on was wrong: an editor reaching it through a staging domain, a dedicated
+     * admin domain, or simply the second of two websites would find the
+     * subscription modules gone, although the installation is licensed. So every
+     * domain this installation serves counts, plus the address in the browser.
+     *
+     * An empty list means "do not check the domain at all" — that is the command
+     * line without any site configuration, where a domain cannot be established
+     * and maintenance tasks have to keep working.
+     *
+     * @return list<string>
      */
-    private function covers(string $key, string $host): bool
+    private function acceptableHosts(string $host): array
     {
-        try {
-            return SubscriptionKeyCodec::decode($key, $this->configValue('subscriptionPublicKey'))
-                ->matchesHost($host);
-        } catch (\Throwable $e) {
-            return false;
+        if ($this->belongsToOneSite()) {
+            return $host !== '' ? [$host] : [];
         }
+
+        $hosts = $host !== '' ? [$host] : [];
+        foreach ($this->allSites() as $site) {
+            try {
+                $siteHost = $site->getBase()->getHost();
+            } catch (\Throwable $e) {
+                continue;
+            }
+            if ($siteHost !== '') {
+                $hosts[] = $siteHost;
+            }
+        }
+
+        return array_values(array_unique($hosts));
+    }
+
+    /**
+     * Whether this request speaks for one particular site — a frontend request
+     * with a site resolved on it. Everything else (the backend, the command
+     * line, a request the site resolver has not reached yet) speaks for the
+     * installation.
+     */
+    private function belongsToOneSite(): bool
+    {
+        return $this->currentSite() !== null;
+    }
+
+    /**
+     * The first of the given hosts that the domain list covers, or null.
+     *
+     * @param list<string> $hosts
+     * @param list<string> $domains
+     */
+    private function firstCovered(array $hosts, array $domains): ?string
+    {
+        foreach ($hosts as $host) {
+            if (SubscriptionToken::hostCoveredBy($host, $domains)) {
+                return $host;
+            }
+        }
+
+        return null;
     }
 
     private function siteValue(?Site $site): string

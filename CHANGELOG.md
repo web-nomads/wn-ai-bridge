@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.2] - 2026-09-04
+
+### Fixed
+- **"Enquiries" and "Answers" disappeared from the backend although a valid
+  licence was configured.** Since the key can be maintained per site, and a
+  backend request belongs to no site, the licence was judged against the address
+  the backend happened to be open on. Reaching it through a staging domain, a
+  dedicated admin domain, or simply the second of two websites was enough to
+  lose both modules
+- The backend and the command line now ask the question they actually mean: does
+  this installation hold a valid licence at all? Every key it has is tried — the
+  sites' own and the installation-wide one — and any domain the installation
+  serves counts, not just the one in the address bar. One valid licence is enough
+  for the modules to be there
+- A visitor request is unchanged and deliberately strict: it speaks for one
+  website, and no other site's licence can speak for it. Otherwise a single
+  licence in a multi-site installation would quietly cover every website in it
+- The daily status check now reports a host the licence actually covers instead
+  of the backend's address. Every backend visit used to look to the issuing
+  server like a key in use on a domain it was not issued for, and was recorded
+  as a finding
+
 ## [1.29.1] - 2026-09-04
 
 ### Fixed
