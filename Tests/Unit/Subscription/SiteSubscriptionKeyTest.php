@@ -117,35 +117,58 @@ final class SiteSubscriptionKeyTest extends TestCase
     }
 
     /**
-     * The backend: no site on the request, and no installation-wide key either.
-     * The key of the site whose licence covers the backend's own host is used,
-     * or the modules would be gone the moment the keys moved to the sites.
+     * The backend belongs to no site, so the question it asks is a different
+     * one: does this installation hold a valid licence at all?
+     *
+     * Tying that to the address the backend happens to be open on was wrong. An
+     * editor reaching it through a staging domain, a dedicated admin domain, or
+     * simply the second of two websites would find the two subscription modules
+     * gone, although the installation is perfectly licensed.
      */
     #[Test]
-    public function theBackendFindsTheKeyThatCoversItsHost(): void
+    public function theBackendIsLicensedWhenAnySiteIs(): void
     {
         $sites = [
             'ours' => $this->site('ours', 1, 'https://a.example/', $this->key('sub_a', ['a.example'])),
-            'theirs' => $this->site('theirs', 2, 'https://b.example/', $this->key('sub_b', ['b.example'])),
+            'theirs' => $this->site('theirs', 2, 'https://b.example/', ''),
         ];
 
-        $status = $this->resolveStatus('b.example', $sites, null);
+        // Opened on an address no licence names at all.
+        $status = $this->resolveStatus('typo3.admin.example', $sites, null);
 
         self::assertTrue($status->valid, $status->getMessage());
-        self::assertSame('sub_b', $status->token?->id);
+        self::assertTrue($status->hasFeature(SubscriptionService::FEATURE_LOG));
+        self::assertTrue($status->hasFeature(SubscriptionService::FEATURE_CORRECTIONS));
+    }
+
+    #[Test]
+    public function theBackendIsUnlicensedOnlyWhenNoSiteIs(): void
+    {
+        $sites = [
+            'ours' => $this->site('ours', 1, 'https://a.example/', $this->key('sub_a', ['a.example'], expired: true)),
+            'theirs' => $this->site('theirs', 2, 'https://b.example/', ''),
+        ];
+
+        $status = $this->resolveStatus('typo3.admin.example', $sites, null);
+
+        self::assertFalse($status->valid);
+        self::assertSame(SubscriptionStatus::REASON_EXPIRED, $status->reason);
     }
 
     /**
-     * When no key covers the host, one is still reported — "not valid for this
-     * domain" names the domains it is for, which is the message that helps.
-     * "No key configured" would not be true.
+     * A visitor request is the opposite case: it speaks for one website, and no
+     * other site's licence can speak for it. Otherwise one licence in a
+     * multi-site installation would quietly cover every website in it.
      */
     #[Test]
-    public function aHostNoKeyCoversIsToldWhichDomainsAreLicensed(): void
+    public function aVisitorRequestCannotBorrowAnotherSitesLicence(): void
     {
-        $sites = ['ours' => $this->site('ours', 1, 'https://a.example/', $this->key('sub_a', ['a.example']))];
+        $sites = [
+            'ours' => $this->site('ours', 1, 'https://a.example/', $this->key('sub_a', ['a.example'])),
+            'theirs' => $this->site('theirs', 2, 'https://b.example/', ''),
+        ];
 
-        $status = $this->resolveStatus('unlicensed.example', $sites, null);
+        $status = $this->resolveStatus('b.example', $sites, $sites['theirs']);
 
         self::assertFalse($status->valid);
         self::assertSame(SubscriptionStatus::REASON_DOMAIN, $status->reason);
@@ -210,15 +233,15 @@ final class SiteSubscriptionKeyTest extends TestCase
     /**
      * @param list<string> $domains
      */
-    private function key(string $id, array $domains): string
+    private function key(string $id, array $domains, bool $expired = false): string
     {
         $payload = (string)json_encode([
             'id' => $id,
             'customer' => 'Acme AG',
             'email' => 'info@example.com',
             'domains' => $domains,
-            'iat' => time() - 86400,
-            'exp' => time() + (365 * 86400),
+            'iat' => time() - (400 * 86400),
+            'exp' => $expired ? time() - 86400 : time() + (365 * 86400),
             'features' => [],
             'chk' => '',
         ]);
