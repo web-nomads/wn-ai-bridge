@@ -41,9 +41,9 @@ Feature overview
     * - Feature
       - Description
     * - llms.txt generation
-      - Served at :file:`/llms.txt` and :file:`/.well-known/llms.txt`, with the
-        site title, description, topics, contact address and the navigation
-        structure down to a configurable depth
+      - Served at :file:`/llms.txt` and :file:`/.well-known/llms.txt` in the v2
+        format, with the site title, description, topics, contact address and
+        the navigation structure down to a configurable depth
     * - llms-full.txt generation
       - Optional companion document at :file:`/llms-full.txt`: the readable
         content of every page in one file rather than a list of links. Off by
@@ -51,6 +51,9 @@ Feature overview
     * - Markdown export
       - Any page URL with ``.md`` appended returns the page as Markdown,
         rendered through TYPO3's own content pipeline
+    * - Link relations
+      - Every page points at its Markdown version and at the llms.txt covering
+        it, as ``<link>`` elements and as an HTTP ``Link:`` header
     * - AI search assistant
       - Chat widget with search-only or LLM-backed answers, themeable per site
     * - Search backend aggregation
@@ -114,18 +117,52 @@ submodules:
 What is llms.txt?
 =================
 
-``llms.txt`` is an emerging convention for telling language models what a
-website is about and where its content lives, in the same spirit as
-:file:`robots.txt` for search engine crawlers. It is a plain Markdown file that
-carries:
+``llms.txt`` is a convention for telling language models what a website is about
+and where its content lives, in the same spirit as :file:`robots.txt` for search
+engine crawlers. It is a plain Markdown file whose sections come in a fixed
+order:
 
-*   a title and a short description of the site,
-*   topics and contact information,
-*   a curated list of links into the site's content,
-*   pointers to machine-readable versions of that content.
+*   an H1 with the name of the site — the one section the specification
+    requires,
+*   a blockquote with a short description,
+*   heading-free text carrying topics, contact information and whatever else an
+    agent needs in order to read the rest,
+*   sections delimited by H2 headings, each a list of links into the site's
+    content.
 
-Because it is both human-readable and trivially parseable, it gives a model a
-reliable entry point instead of leaving it to guess from rendered HTML.
+Nothing may come between them, and nothing after the first H2 heading counts as
+being about the site any more — a parser reads it as part of that link list.
+Because the format is both human-readable and trivially parseable, it gives a
+model a reliable entry point instead of leaving it to guess from rendered HTML.
+
+This extension follows the v2 revision of August 2026. Next to the file itself,
+v2 defines how an agent finds it: see :ref:`what-is-llmstxt-link-relations`.
+
+..  _what-is-llmstxt-link-relations:
+
+Link relations
+--------------
+
+An agent that already holds a page should not have to guess where its
+machine-readable companions are. Two standard link relations answer that, and
+the extension serves both without any configuration:
+
+``rel="alternate" type="text/markdown"``
+    The Markdown version of this page.
+
+``rel="describedby"``
+    The ``llms.txt`` covering this page — the one of the page's own language, so
+    a page below :file:`/en/` is described by :file:`/en/llms.txt`.
+
+They are rendered as ``<link>`` elements into the page head and sent as an HTTP
+``Link:`` response header:
+
+..  code-block:: text
+
+    Link: </about.md>; rel="alternate"; type="text/markdown", </llms.txt>; rel="describedby"
+
+The header is not a duplicate of the head: it is what reaches the ``.md``
+documents, which have no head, and what a plain ``HEAD`` request sees.
 
 ..  _use-cases:
 

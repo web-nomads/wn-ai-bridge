@@ -1,7 +1,12 @@
+# llms.txt v2 link relations: "alternate" to the Markdown version of this page,
+# "describedby" to the llms.txt covering it. Rendered per page, so both know the
+# page's own URL and the base of its language.
 page {
     headerData {
-        1761744920 = TEXT
-        1761744920.value = <link rel="alternate" type="text/plain" href="/llms.txt" />
+        1761744920 = USER
+        1761744920 {
+            userFunc = WebNomads\WnAiBridge\Controller\LlmsTxtController->renderLinkRelations
+        }
     }
 }
 

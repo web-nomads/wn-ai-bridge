@@ -73,6 +73,9 @@ services:
   WebNomads\WnAiBridge\Middleware\BotAccessLogMiddleware:
     public: true
 
+  WebNomads\WnAiBridge\Middleware\LinkRelationMiddleware:
+    public: true
+
   # Bind the LLM abstraction to the Anthropic implementation. Swap this alias to
   # add another provider without touching the assistant service.
   WebNomads\WnAiBridge\Llm\LlmClientInterface:

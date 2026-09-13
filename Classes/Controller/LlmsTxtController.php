@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use WebNomads\WnAiBridge\Repository\PageRepository;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
+use WebNomads\WnAiBridge\Service\LinkRelationService;
 use WebNomads\WnAiBridge\Service\LlmsFullTxtGeneratorService;
 use WebNomads\WnAiBridge\Service\LlmsTxtGeneratorService;
 use WebNomads\WnAiBridge\Service\MarkdownConverterService;
@@ -33,7 +34,7 @@ class LlmsTxtController
      *
      * @see Configuration/Routes/RouterEnhancer.yaml
      */
-    public const MARKDOWN_SUFFIX = '.md';
+    public const MARKDOWN_SUFFIX = LinkRelationService::MARKDOWN_SUFFIX;
 
     public ?ContentObjectRenderer $cObj = null;
 
@@ -44,6 +45,7 @@ class LlmsTxtController
     private readonly PageContentRenderer $pageContentRenderer;
     private readonly PageRepository $pageRepository;
     private readonly UrlGeneratorService $urlGenerator;
+    private readonly LinkRelationService $linkRelationService;
     private readonly CacheManager $cacheManager;
 
     public function __construct(
@@ -54,6 +56,7 @@ class LlmsTxtController
         ?PageContentRenderer $pageContentRenderer = null,
         ?PageRepository $pageRepository = null,
         ?UrlGeneratorService $urlGenerator = null,
+        ?LinkRelationService $linkRelationService = null,
         ?CacheManager $cacheManager = null
     ) {
         $this->llmsTxtGenerator = $llmsTxtGenerator ?? GeneralUtility::makeInstance(LlmsTxtGeneratorService::class);
@@ -63,6 +66,7 @@ class LlmsTxtController
         $this->pageContentRenderer = $pageContentRenderer ?? GeneralUtility::makeInstance(PageContentRenderer::class);
         $this->pageRepository = $pageRepository ?? GeneralUtility::makeInstance(PageRepository::class);
         $this->urlGenerator = $urlGenerator ?? GeneralUtility::makeInstance(UrlGeneratorService::class);
+        $this->linkRelationService = $linkRelationService ?? GeneralUtility::makeInstance(LinkRelationService::class);
         $this->cacheManager = $cacheManager ?? GeneralUtility::makeInstance(CacheManager::class);
     }
 
@@ -77,8 +81,43 @@ class LlmsTxtController
             $languageUid = $this->getLanguageUid();
             return $this->llmsTxtGenerator->generateLlmsTxt($currentPageId, $languageUid);
         } catch (\Exception $e) {
-            // Return error message in llms.txt format
-            return "llmstxt: 1.0\nsite: " . $this->configurationService->getSiteUrl() . "\nerror: Failed to generate content\n";
+            // Still a valid llms.txt: an H1 and a summary saying what went wrong.
+            return '# ' . $this->siteTitleForFallback() . "\n\n> This llms.txt could not be generated.\n";
+        }
+    }
+
+    /**
+     * Render the llms.txt v2 link relations for the page head: the Markdown
+     * version of the current page and the llms.txt covering it.
+     *
+     * @param array<string, mixed> $conf
+     */
+    #[AsAllowedCallable]
+    public function renderLinkRelations(string $content, array $conf): string
+    {
+        try {
+            $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+            if (!$request instanceof ServerRequestInterface || !$this->configurationService->isEnabled()) {
+                return '';
+            }
+
+            return $this->linkRelationService->linkTags($request);
+        } catch (\Throwable $e) {
+            // A head that renders without the hints beats a head that fails.
+            return '';
+        }
+    }
+
+    /**
+     * A name for the H1 of the fallback document. The site identifier is the
+     * last thing left when the configured title cannot be read either.
+     */
+    private function siteTitleForFallback(): string
+    {
+        try {
+            return $this->configurationService->getTitleOverride() ?: $this->configurationService->getSiteName();
+        } catch (\Throwable $e) {
+            return 'llms.txt';
         }
     }
 

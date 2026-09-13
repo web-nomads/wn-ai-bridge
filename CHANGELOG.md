@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.30.0] - 2026-09-13
+
+### Added
+- **llms.txt follows the v2 revision of the specification** (10 August 2026).
+  The headline of v2 is discoverability: an agent that already holds a page
+  should not have to guess where its machine-readable companions are. Two
+  standard link relations answer that, and both are now served without any
+  configuration — `rel="alternate" type="text/markdown"` for the Markdown
+  version of the page, `rel="describedby"` for the llms.txt covering it
+- They go out twice: as `<link>` elements in the page head, and as an HTTP
+  `Link:` response header. The header is not a duplicate. It is the only form
+  the `.md` documents can carry, since they have no head, and the only one a
+  plain `HEAD` request sees
+- `describedby` points at the llms.txt of the page's own language. A file
+  describes the pages under its path and the most specific one wins, so a page
+  below `/en/` is described by `/en/llms.txt`, not by the root file
+- The document now says where the Markdown versions are, in the free-text block
+  the format reserves for telling an agent how to read the rest
+
+### Fixed
+- **The home page of a site — or of a language — had a broken Markdown link.**
+  Its URL was built by appending the suffix to the page URL, and
+  `https://example.com/` has no file name to append to, so the result was
+  `https://example.com.md`. Markdown URLs are asked of the router now, which
+  produces `https://example.com/index.md`: the form v2 prescribes for a URL
+  without a file name, and the one TYPO3's PageType enhancer routes there
+  anyway. Links inside a rendered page follow the same rule
+- Where a site has no PageType enhancer at all, the router falls back to
+  `?type=1701` instead of a hand-built suffix that would have 404'd
+- A page description carrying a line break no longer ends its list item early
+
+### Changed
+- **The `llmstxt: 1.0` / `site:` preamble is gone.** It was never part of the
+  specification — not in v1 either — and it sat in front of the H1, which is the
+  one section the format requires and has to come first. The reference files the
+  spec names, llmstxt.org's own included, open with their H1
+- **The editor's free-form text moved up, above the first `##` heading.** The
+  format is an ordered one: heading-free detail about the site, then the
+  H2-delimited link lists. Written after a list, as it was, a parser reads it as
+  part of that list. A heading inside that text is demoted to bold for the same
+  reason, and the `---` rule that used to separate it is gone with it
+- Every entry of the link list carries its description now, not only the nested
+  ones. The notes after the colon are what an agent reads to decide which link
+  is worth fetching, and the top-level pages are the ones it looks at first
+- A site that configured no title still gets an H1: the home page's title stands
+  in, and the site identifier after that. The same goes for the document served
+  when generation fails — it is a valid llms.txt saying so, rather than an
+  `error:` line
+- The head no longer carries `<link rel="alternate" type="text/plain"
+  href="/llms.txt">`. That declared llms.txt to be an alternate representation
+  of the page, which it is not; `describedby` is the relation that says what it
+  actually is
+
 ## [1.29.3] - 2026-09-04
 
 ### Fixed
@@ -954,7 +1007,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive documentation following TYPO3 standards
 - Support for TYPO3 v12, v13, and v14 LTS
 
-[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.11.1...HEAD
+[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.30.0...HEAD
+[1.30.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.29.3...v1.30.0
 [1.11.1]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.10.2...v1.11.0
 [1.10.2]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.10.1...v1.10.2

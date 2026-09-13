@@ -10,9 +10,10 @@ assistant that answers from the site's own content.
 Two halves that work independently:
 
 - **Machine-readable content** — an `llms.txt` file following the
-  [llmstxt.org specification](https://llmstxt.org/), an optional `llms-full.txt`
-  carrying the content of every page in one document, and a Markdown
-  representation of every page. Free, no key needed.
+  [llmstxt.org specification](https://llmstxt.org/) in its v2 revision of
+  August 2026, an optional `llms-full.txt` carrying the content of every page in
+  one document, and a Markdown representation of every page that agents find
+  through the v2 link relations. Free, no key needed.
 - **AI search assistant** — a chat widget that answers visitor questions from
   your search index, with links to the pages it used. Requires a subscription
   key.
@@ -55,7 +56,9 @@ imports:
 `llms-full.txt` is off by default; switch on `llmsFullTxt` in the extension
 configuration to serve it.
 
-So `https://example.com/about` also exists as `https://example.com/about.md`.
+So `https://example.com/about` also exists as `https://example.com/about.md`. A
+URL without a file name — a home page, a language root — gets the index one:
+`https://example.com/` becomes `https://example.com/index.md`.
 
 ## What llms.txt is for
 
@@ -68,6 +71,21 @@ maintaining it by hand.
 
 Configure the metadata (topics, contact, description) per site on the
 **AI Bridge** tab of the site configuration.
+
+### Link relations
+
+An agent that holds a page should not have to guess where its machine-readable
+companions are, so v2 asks for two standard link relations. Both are served
+without any configuration, as `<link>` elements in the page head and as an HTTP
+`Link:` response header — the header form also reaches the `.md` documents and
+answers a plain `HEAD` request:
+
+```
+Link: </about.md>; rel="alternate"; type="text/markdown", </llms.txt>; rel="describedby"
+```
+
+`describedby` points at the `llms.txt` of the page's own language, so a page
+below `/en/` is described by `/en/llms.txt` rather than the root file.
 
 ## AI search assistant
 

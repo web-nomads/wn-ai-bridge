@@ -10,6 +10,14 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 
 class UrlGeneratorService
 {
+    /**
+     * Page type the Markdown rendering is served under.
+     *
+     * @see Configuration/TypoScript/markdown.typoscript
+     * @see Configuration/Routes/RouterEnhancer.yaml
+     */
+    public const MARKDOWN_PAGE_TYPE = 1701;
+
     private readonly SiteFinder $siteFinder;
     private readonly ConfigurationService $configurationService;
     private readonly ConnectionPool $connectionPool;
@@ -27,6 +35,13 @@ class UrlGeneratorService
     /**
      * Generate absolute URL for a markdown page.
      * This ALWAYS returns a path-based URL with .md extension, never an anchor.
+     *
+     * The URL is asked of the router rather than assembled by appending the
+     * suffix: the router knows the site's PageType enhancer, so it produces the
+     * "/index.md" form the spec wants for a URL without a file name — the home
+     * page of a site or of a language — where appending would have produced
+     * "https://example.com.md". Where the enhancer is absent it falls back to
+     * "?type=1701", which still resolves; a hand-built suffix would not.
      */
     public function generatePageUrl(array $page): string
     {
@@ -41,7 +56,7 @@ class UrlGeneratorService
 
         $uri = (string)$site->getRouter()->generateUri(
             $page['uid'],
-            ['_language' => $siteLanguage],
+            ['_language' => $siteLanguage, 'type' => self::MARKDOWN_PAGE_TYPE],
             '',
             \TYPO3\CMS\Core\Routing\RouterInterface::ABSOLUTE_URL
         );
@@ -53,7 +68,7 @@ class UrlGeneratorService
             $uri = explode('#', $uri)[0];
         }
 
-        return rtrim($uri, '/') . '.md';
+        return $uri;
     }
 
     /**

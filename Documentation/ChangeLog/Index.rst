@@ -29,6 +29,17 @@ Upgrading
 
 ..  note::
 
+    Version 1.30.0 moved :file:`llms.txt` to v2 of the specification, which
+    changes the document itself: the ``llmstxt: 1.0`` / ``site:`` preamble is
+    gone — it was never part of the format — and the free-form text from the
+    site configuration moved from the end of the document into the block above
+    the first link list, where an ordered format requires it. Nothing has to be
+    reconfigured and a cache flush is enough, but anything that parsed the old
+    preamble has to be adjusted. See :ref:`what-is-llmstxt-link-relations` for
+    the link relations v2 adds.
+
+..  note::
+
     Version 1.27.0 added the page type 1702 and two suffixes to the shipped
     route enhancer. A site that imports
     :file:`EXT:wn_ai_bridge/Configuration/Routes/RouterEnhancer.yaml` by

@@ -61,7 +61,12 @@ class NavigationBuilder
             $item = [
                 'uid' => $page['uid'],
                 'title' => preg_replace('/\s+/', ' ', trim($page['nav_title'] ?: $page['title'])),
-                'description' => $page['description'] ?: $page['abstract'] ?: '',
+                // Collapsed onto one line: a break inside a list item ends it.
+                'description' => trim((string)preg_replace(
+                    '/\s+/',
+                    ' ',
+                    trim((string)($page['description'] ?: $page['abstract'] ?: ''))
+                )),
                 'url' => $this->urlGenerator->generatePageUrl($page),
                 'language' => $this->getLanguageTitle($page),
                 'pages' => $this->buildRecursive($page['uid'], $siteLanguage, $maxDepth, $currentDepth + 1),
@@ -87,6 +92,10 @@ class NavigationBuilder
 
     /**
      * Format navigation structure as markdown lines
+     *
+     * Every entry carries its description, at every level: the notes after the
+     * colon are what an agent reads to decide which link is worth fetching, and
+     * the top-level pages are the ones it looks at first.
      */
     public function formatAsMarkdown(array $navigationStructure, int $currentLanguageUid = 0, int $level = 0): array
     {
@@ -96,7 +105,7 @@ class NavigationBuilder
         foreach ($navigationStructure as $item) {
             if (!empty($item['url'])) {
                 $line = $indent . "- [{$item['title']}]({$item['url']})";
-                if (!empty($item['description']) && $level > 0) {
+                if (!empty($item['description'])) {
                     $line .= ": {$item['description']}";
                 }
                 $lines[] = $line;
