@@ -77,6 +77,7 @@ zip -r -q "$ARCHIVE" . \
        '.github/*' \
        'composer.lock' \
        'phpunit.xml' \
+       'phpunit.functional.xml' \
        'phpstan.neon' \
        'phpstan-baseline.neon' \
        '.php-cs-fixer.cache' \
@@ -96,7 +97,7 @@ grep -qx 'ext_emconf.php' <<<"$CONTENTS" \
     || fail 'ext_emconf.php is not at the root of the archive — TER rejects that.'
 ok 'ext_emconf.php is at the root'
 
-JUNK=$(grep -E '^(\.Build|Build|Tests|var|\.git|\.github)/|^(composer\.lock|phpunit\.xml|phpstan.*|\.php-cs-fixer.*|\.gitattributes|\.gitignore)$' <<<"$CONTENTS" || true)
+JUNK=$(grep -E '^(\.Build|Build|Tests|var|\.git|\.github)/|^(composer\.lock|phpunit.*\.xml|phpstan.*|\.php-cs-fixer.*|\.gitattributes|\.gitignore)$' <<<"$CONTENTS" || true)
 if [ -n "$JUNK" ]; then
     printf '%s\n' "$JUNK" >&2
     fail 'The archive contains files that must not be published.'

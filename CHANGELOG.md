@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.30.1] - 2026-09-13
+
+Nothing in the shipped package changed — the TER archive of 1.30.0 and 1.30.1
+hold the same code. This release exists because 1.30.0 went out verified against
+TYPO3 14.3 only.
+
+### Added
+- **A functional test suite covering the llms.txt endpoints as they are served**,
+  through the whole frontend stack. It reaches the three places no unit test
+  can: that the middleware is wired into the frontend stack and sets its `Link:`
+  header, that the TypoScript USER object in the page head is called, and that
+  the route enhancer resolves the URLs the link relations hand out — including
+  `/index.md` for the home page. Those are exactly the places where 13.4 and
+  14.x could have differed. They do not: all seven pass on both
+- Functional tests need a database, so they sit in their own
+  `phpunit.functional.xml` and are not part of `composer ci`. Run them with
+  `composer test:functional` where a database is reachable; the file documents
+  the DDEV invocation
+
+### Fixed
+- `Build/Scripts/release.sh` would have packed `phpunit.functional.xml` into the
+  TER archive. It excludes every `phpunit*.xml` now, and the check that runs
+  afterwards was widened to match, so a new one cannot slip through either
+
 ## [1.30.0] - 2026-09-13
 
 ### Added
@@ -1007,7 +1031,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive documentation following TYPO3 standards
 - Support for TYPO3 v12, v13, and v14 LTS
 
-[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.30.0...HEAD
+[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.30.1...HEAD
+[1.30.1]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.30.0...v1.30.1
 [1.30.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.29.3...v1.30.0
 [1.11.1]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.10.2...v1.11.0
