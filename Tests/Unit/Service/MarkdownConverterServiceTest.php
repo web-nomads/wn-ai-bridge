@@ -193,12 +193,21 @@ class MarkdownConverterServiceTest extends TestCase
     }
 
     #[Test]
-    public function processMarkdownUrlDoesNotModifyRootPath(): void
+    public function processMarkdownUrlGivesTheRootPathTheIndexFileName(): void
     {
         $result = $this->invokeProcessMarkdownUrl('/', 'https://example.com');
 
-        // Root path "/" becomes "https://example.com/" — no .md appended
-        self::assertSame('https://example.com/', $result);
+        // A URL without a file name gets one, as llms.txt v2 requires — plain
+        // appending would have produced "https://example.com.md".
+        self::assertSame('https://example.com/index.md', $result);
+    }
+
+    #[Test]
+    public function processMarkdownUrlGivesTheEntryPointTheIndexFileName(): void
+    {
+        $result = $this->invokeProcessMarkdownUrl('/camino/', 'https://example.com/camino', 'https://example.com');
+
+        self::assertSame('https://example.com/camino/index.md', $result);
     }
 
     #[Test]

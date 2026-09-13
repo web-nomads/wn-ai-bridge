@@ -145,10 +145,10 @@ class MarkdownConverterService
             $parts = parse_url($url);
             $path = $parts['path'] ?? '';
 
-            if ($path !== '' && $path !== '/') {
+            if ($path !== '') {
                 $extension = pathinfo($path, PATHINFO_EXTENSION);
                 if (empty($extension)) {
-                    $newPath = rtrim($path, '/') . '.md';
+                    $newPath = self::markdownPath($path, $siteUrl);
 
                     $url = ($parts['scheme'] ?? 'https') . '://' . ($parts['host'] ?? '');
                     if (isset($parts['port'])) {
@@ -166,5 +166,28 @@ class MarkdownConverterService
         }
 
         return $url;
+    }
+
+    /**
+     * The Markdown path for an internal page path.
+     *
+     * A link to the site's own entry point has no file name to put the suffix
+     * on, and appending it anyway produced "https://example.com.md". The spec
+     * answers with the index file name, which is also what TYPO3's PageType
+     * enhancer routes there.
+     *
+     * @param string $siteUrl Site base including the entry point path, so a link
+     *        to the entry point itself is told apart from a link to a page.
+     */
+    private static function markdownPath(string $path, string $siteUrl): string
+    {
+        $basePath = rtrim((string)(parse_url($siteUrl, PHP_URL_PATH) ?: ''), '/');
+        $withinSite = trim(substr($path, strlen($basePath)), '/');
+
+        if ($withinSite === '') {
+            return rtrim($path, '/') . '/' . LinkRelationService::INDEX_SEGMENT . LinkRelationService::MARKDOWN_SUFFIX;
+        }
+
+        return rtrim($path, '/') . LinkRelationService::MARKDOWN_SUFFIX;
     }
 }
