@@ -1,0 +1,5 @@
+"pages"
+,"uid","pid","sys_language_uid","l10n_parent","title","nav_title","subtitle","description","abstract","slug","doktype","is_siteroot","hidden","deleted","nav_hide","sorting"
+,1,0,0,0,"Example Site","","","A site about examples.","","/",1,1,0,0,0,256
+,2,1,0,0,"About","","","What we do.","","/about",1,0,0,0,0,256
+,3,1,0,0,"Contact","","","Where to find us.","","/contact",1,0,0,0,0,512
