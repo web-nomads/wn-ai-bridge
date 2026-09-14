@@ -99,6 +99,53 @@ class NavigationBuilder
     }
 
     /**
+     * Drop section headings that nothing follows.
+     *
+     * Under a strict language every page of a section can be untranslated while
+     * the separator itself survives, and a heading with no list under it says
+     * nothing — it only suggests something went missing.
+     *
+     * @param array<int, array<string, mixed>> $structure
+     * @return array<int, array<string, mixed>>
+     */
+    private static function withoutEmptySections(array $structure): array
+    {
+        $kept = [];
+
+        foreach ($structure as $index => $item) {
+            if (!empty($item['section']) && !self::sectionHasPages($structure, $index)) {
+                continue;
+            }
+
+            $kept[] = $item;
+        }
+
+        return $kept;
+    }
+
+    /**
+     * Whether any linkable page follows a section heading before the next one.
+     *
+     * @param array<int, array<string, mixed>> $structure
+     */
+    private static function sectionHasPages(array $structure, int $sectionIndex): bool
+    {
+        $following = array_slice($structure, $sectionIndex + 1);
+
+        foreach ($following as $item) {
+            if (!empty($item['section'])) {
+                return false;
+            }
+
+            if (!empty($item['url'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Whether a separator's title reads as a heading rather than as decoration.
      *
      * Separators are widely used purely visually, titled "---" or "•" or nothing
@@ -132,18 +179,21 @@ class NavigationBuilder
      */
     public function formatAsMarkdown(array $navigationStructure, int $currentLanguageUid = 0, int $level = 0): array
     {
+        if ($level === 0) {
+            $navigationStructure = self::withoutEmptySections($navigationStructure);
+        }
+
         $lines = [];
         $indent = str_repeat('    ', $level);
 
         foreach ($navigationStructure as $item) {
             if (!empty($item['section'])) {
-                // One blank line before the heading, one after — a list that
-                // touches the heading above it is still a list, but only just.
+                // A blank line above the heading, none below it: the list that
+                // follows belongs to the heading and is written against it.
                 if ($lines !== []) {
                     $lines[] = '';
                 }
                 $lines[] = '## ' . $item['title'];
-                $lines[] = '';
                 continue;
             }
 

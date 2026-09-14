@@ -29,14 +29,14 @@ final class SectionHeadingTest extends TestCase
             self::page('Imprint', 'Who runs this.'),
         ]);
 
+        // A blank line above each heading, none below it — the list belongs to
+        // the heading it follows.
         self::assertSame([
             '## Services',
-            '',
             '- [Consulting](https://example.com/consulting.md): What we advise on.',
             '- [Development](https://example.com/development.md): What we build.',
             '',
             '## Legal',
-            '',
             '- [Imprint](https://example.com/imprint.md): Who runs this.',
         ], $lines);
     }
@@ -44,9 +44,32 @@ final class SectionHeadingTest extends TestCase
     #[Test]
     public function theHeadingIsNotAlsoALink(): void
     {
-        $lines = $this->subject()->formatAsMarkdown([self::section('Services')]);
+        $lines = $this->subject()->formatAsMarkdown([
+            self::section('Services'),
+            self::page('Consulting', 'What we advise on.'),
+        ]);
 
-        self::assertSame(['## Services', ''], $lines);
+        self::assertSame([
+            '## Services',
+            '- [Consulting](https://example.com/consulting.md): What we advise on.',
+        ], $lines);
+    }
+
+    #[Test]
+    public function aHeadingWithNothingUnderItIsLeftOut(): void
+    {
+        // Under a strict language every page of a section can be untranslated
+        // while the separator survives.
+        $lines = $this->subject()->formatAsMarkdown([
+            self::section('Empty'),
+            self::section('Legal'),
+            self::page('Imprint', 'Who runs this.'),
+        ]);
+
+        self::assertSame([
+            '## Legal',
+            '- [Imprint](https://example.com/imprint.md): Who runs this.',
+        ], $lines);
     }
 
     #[Test]
@@ -59,7 +82,6 @@ final class SectionHeadingTest extends TestCase
 
         self::assertSame([
             '## Shop',
-            '',
             '- [Products](https://example.com/products.md): What we sell.',
             '    - [Chairs](https://example.com/chairs.md): Four legs.',
         ], $lines);

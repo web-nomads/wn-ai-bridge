@@ -177,7 +177,6 @@ class LlmsTxtGeneratorService
 
         if (!str_starts_with((string)($navigation[0] ?? ''), '## ')) {
             $lines[] = '## ' . self::NAVIGATION_SECTION;
-            $lines[] = '';
         }
 
         foreach ($navigation as $line) {
@@ -199,7 +198,6 @@ class LlmsTxtGeneratorService
 
         $lines[] = '';
         $lines[] = '## ' . self::OPTIONAL_SECTION;
-        $lines[] = '';
         $lines[] = '- [Full site content](' . $this->configurationService->getSiteUrl()
             . '/' . LinkRelationService::LLMS_FULL_TXT_FILE
             . '): The readable content of every page in one document';
