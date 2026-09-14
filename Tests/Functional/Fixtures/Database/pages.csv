@@ -1,5 +1,9 @@
 "pages"
 ,"uid","pid","sys_language_uid","l10n_parent","title","nav_title","subtitle","description","abstract","slug","doktype","is_siteroot","hidden","deleted","nav_hide","sorting"
 ,1,0,0,0,"Example Site","","","A site about examples.","","/",1,1,0,0,0,256
+,4,1,0,0,"Services","","","","","/services",199,0,0,0,0,128
 ,2,1,0,0,"About","","","What we do.","","/about",1,0,0,0,0,256
+,5,1,0,0,"Legal","","","","","/legal",199,0,0,0,1,384
 ,3,1,0,0,"Contact","","","Where to find us.","","/contact",1,0,0,0,0,512
+,6,1,0,0,"---","","","","","/decorative",199,0,0,0,0,640
+,7,1,0,0,"Internal","","","Not in the menu.","","/internal",1,0,0,0,1,768

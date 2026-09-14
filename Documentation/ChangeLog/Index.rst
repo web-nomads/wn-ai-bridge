@@ -29,6 +29,15 @@ Upgrading
 
 ..  note::
 
+    Version 1.31.0 turns :guilabel:`Menu separator` pages into headings in
+    :file:`llms.txt`. A site that already uses separators directly below its
+    site root will find its link list split into sections after a cache flush —
+    which is usually what those separators meant all along. Separators titled
+    with decoration only (``---``, ``•``, empty) are skipped. See
+    :ref:`editor-llmstxt-sections`.
+
+..  note::
+
     Version 1.30.0 moved :file:`llms.txt` to v2 of the specification, which
     changes the document itself: the ``llmstxt: 1.0`` / ``site:`` preamble is
     gone — it was never part of the format — and the free-form text from the

@@ -72,6 +72,40 @@ maintaining it by hand.
 Configure the metadata (topics, contact, description) per site on the
 **AI Bridge** tab of the site configuration.
 
+### Structuring the link list
+
+A long list of links tells an agent little about which one it wants. To group
+them, put a **Menu separator** into the page tree — the page type TYPO3 already
+ships for exactly this purpose. Its title becomes an `## H2` heading, and every
+page after it belongs to that section until the next separator:
+
+```
+Page tree                    llms.txt
+─────────────                ────────────────────────────────
+▸ Services      (separator)  ## Services
+  About                      - [About](/about.md): What we do.
+  Pricing                    - [Pricing](/pricing.md): What it costs.
+▸ Legal         (separator)  ## Legal
+  Imprint                    - [Imprint](/imprint.md): Who runs this.
+```
+
+Pages standing above the first separator keep the default
+`## Main Page Structure` heading. A separator whose title is decoration rather
+than words — `---`, `•`, empty — is skipped, so separators already used purely
+visually in a menu do not turn into headings.
+
+Separators are translated like any other page, so each language gets its
+headings in its own words. Only separators at the top level of the navigation
+become headings; deeper down an H2 would cut the list in two.
+
+Whether a separator shows up in the rendered menu is up to your templates, not
+to this extension — TYPO3 leaves them out unless an `HMENU` sets `SPC` or a
+`MenuProcessor` sets `includeSpacer = 1`. Where your menu does render them and
+this one should not appear, tick **Hide in menu** on the separator: it keeps its
+heading in `llms.txt`. That setting hides the divider, not the group it opens.
+A *page* marked the same way does stay out, because the file follows the
+navigation.
+
 ### Link relations
 
 An agent that holds a page should not have to guess where its machine-readable

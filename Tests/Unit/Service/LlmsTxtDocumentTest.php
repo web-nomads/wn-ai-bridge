@@ -130,6 +130,39 @@ final class LlmsTxtDocumentTest extends TestCase
     }
 
     #[Test]
+    public function theDefaultHeadingStandsAsideWhereTheEditorWroteTheirOwn(): void
+    {
+        $document = $this->subject($this->sectionedNavigationBuilder())->generateLlmsTxt(1);
+
+        self::assertStringNotContainsString(
+            '## Main Page Structure',
+            $document,
+            'An empty default section in front of the editor\'s first one.'
+        );
+        self::assertStringContainsString("\n## Services\n", $document);
+        self::assertStringContainsString("\n## Legal\n", $document);
+
+        // The detail block still has to end before the first heading.
+        $firstHeading = strpos($document, "\n## ");
+        self::assertIsInt($firstHeading);
+        self::assertStringContainsString('Run by two people in Winterthur.', substr($document, 0, $firstHeading));
+    }
+
+    #[Test]
+    public function pagesAboveTheFirstSeparatorKeepASectionOfTheirOwn(): void
+    {
+        $document = $this->subject($this->sectionedNavigationBuilder(withLeadingPage: true))->generateLlmsTxt(1);
+
+        self::assertStringContainsString('## Main Page Structure', $document);
+        self::assertStringContainsString('- [Home](https://example.com/home.md)', $document);
+        self::assertLessThan(
+            strpos($document, '## Services'),
+            strpos($document, '## Main Page Structure'),
+            'The default section comes first — it holds the pages above the separator.'
+        );
+    }
+
+    #[Test]
     public function theOptionalSectionOnlyAppearsWhileTheFullDocumentIsServed(): void
     {
         self::assertStringNotContainsString('## Optional', $this->subject()->generateLlmsTxt(1));
@@ -141,7 +174,7 @@ final class LlmsTxtDocumentTest extends TestCase
         self::assertStringContainsString('(https://example.com/llms-full.txt)', $document);
     }
 
-    private function subject(): LlmsTxtGeneratorService
+    private function subject(?NavigationBuilder $navigationBuilder = null): LlmsTxtGeneratorService
     {
         $site = new Site('test', 1, $this->siteConfiguration);
 
@@ -149,7 +182,7 @@ final class LlmsTxtDocumentTest extends TestCase
             $site,
             $this->configurationService($site),
             $this->pageRepository(),
-            $this->navigationBuilder()
+            $navigationBuilder ?? $this->navigationBuilder()
         ) extends LlmsTxtGeneratorService {
             public function __construct(
                 private readonly Site $site,
@@ -208,6 +241,57 @@ final class LlmsTxtDocumentTest extends TestCase
                     'abstract' => '',
                     'sys_language_uid' => 0,
                 ];
+            }
+        };
+    }
+
+    /**
+     * A tree an editor split with menu separators, optionally with one page
+     * standing above the first of them.
+     */
+    private function sectionedNavigationBuilder(bool $withLeadingPage = false): NavigationBuilder
+    {
+        return new class ($withLeadingPage) extends NavigationBuilder {
+            public function __construct(private readonly bool $withLeadingPage) {}
+
+            /**
+             * @return list<array<string, mixed>>
+             */
+            public function build(int $rootPageUid, int $maxDepth = 2, int $languageUid = 0): array
+            {
+                $structure = [];
+
+                if ($this->withLeadingPage) {
+                    $structure[] = [
+                        'uid' => 5,
+                        'title' => 'Home',
+                        'description' => '',
+                        'url' => 'https://example.com/home.md',
+                        'language' => 'English',
+                        'pages' => [],
+                    ];
+                }
+
+                $structure[] = ['uid' => 90, 'title' => 'Services', 'section' => true];
+                $structure[] = [
+                    'uid' => 2,
+                    'title' => 'Consulting',
+                    'description' => 'What we advise on.',
+                    'url' => 'https://example.com/consulting.md',
+                    'language' => 'English',
+                    'pages' => [],
+                ];
+                $structure[] = ['uid' => 91, 'title' => 'Legal', 'section' => true];
+                $structure[] = [
+                    'uid' => 3,
+                    'title' => 'Imprint',
+                    'description' => 'Who runs this.',
+                    'url' => 'https://example.com/imprint.md',
+                    'language' => 'English',
+                    'pages' => [],
+                ];
+
+                return $structure;
             }
         };
     }

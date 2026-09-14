@@ -82,6 +82,52 @@ final class LlmsTxtEndpointTest extends FunctionalTestCase
         self::assertStringContainsString('- [Contact](http://localhost/contact.md): Where to find us.', $body);
     }
 
+    /**
+     * The page tree carries menu separators, and each of them opens a section of
+     * the link list. Proven here rather than only in the unit tests, because it
+     * depends on the separator surviving the page lookup — which drops folders,
+     * shortcuts and, everywhere else, separators too.
+     */
+    #[Test]
+    public function menuSeparatorsSplitTheListIntoSections(): void
+    {
+        $body = $this->body('http://localhost/llms.txt');
+
+        self::assertStringContainsString(
+            "## Services\n\n- [About](http://localhost/about.md): What we do.",
+            $body
+        );
+        self::assertStringContainsString(
+            "## Legal\n\n- [Contact](http://localhost/contact.md): Where to find us.",
+            $body
+        );
+
+        self::assertStringNotContainsString(
+            '## Main Page Structure',
+            $body,
+            'Nothing stands above the first separator, so the default section would be empty.'
+        );
+        self::assertStringNotContainsString('## ---', $body, 'A decorative separator is not a heading.');
+        self::assertStringNotContainsString('services.md', $body, 'A separator is not a page and has no link.');
+    }
+
+    /**
+     * "Legal" is a separator marked "hide in menu", and it still opens a section.
+     *
+     * On a site whose menu renders separators, that setting is the only way to
+     * structure llms.txt without also putting a divider into the menu. It hides
+     * the divider; it does not say the group stopped existing. A page marked the
+     * same way stays out, as it always has.
+     */
+    #[Test]
+    public function aSeparatorHiddenFromTheMenuStillOpensASection(): void
+    {
+        $body = $this->body('http://localhost/llms.txt');
+
+        self::assertStringContainsString('## Legal', $body);
+        self::assertStringNotContainsString('internal.md', $body, 'A page hidden from the menu stays out.');
+    }
+
     #[Test]
     public function aPageHeadCarriesBothLinkRelations(): void
     {

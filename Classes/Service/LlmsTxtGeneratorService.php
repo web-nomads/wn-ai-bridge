@@ -154,24 +154,33 @@ class LlmsTxtGeneratorService
     }
 
     /**
-     * Append the "## Main Page Structure" file list: the navigation tree for the
-     * requested language.
+     * Append the navigation tree for the requested language as file lists.
+     *
+     * The editor splits it by putting menu separators into the page tree, each of
+     * which becomes an H2 of its own. The default heading is only written when
+     * the list does not already open with one — otherwise it would be an empty
+     * section standing in front of the editor's first.
      *
      * @param list<string> $lines
      */
     private function appendNavigation(array &$lines, int $rootPageId, int $languageUid): void
     {
-        $lines[] = '';
-        $lines[] = '## ' . self::NAVIGATION_SECTION;
-        $lines[] = '';
-
         $navigationStructure = $this->navigationBuilder->build(
             $rootPageId,
             $this->configurationService->getMaxDepth(),
             $languageUid
         );
 
-        foreach ($this->navigationBuilder->formatAsMarkdown($navigationStructure, $languageUid) as $line) {
+        $navigation = $this->navigationBuilder->formatAsMarkdown($navigationStructure, $languageUid);
+
+        $lines[] = '';
+
+        if (!str_starts_with((string)($navigation[0] ?? ''), '## ')) {
+            $lines[] = '## ' . self::NAVIGATION_SECTION;
+            $lines[] = '';
+        }
+
+        foreach ($navigation as $line) {
             $lines[] = $line;
         }
     }

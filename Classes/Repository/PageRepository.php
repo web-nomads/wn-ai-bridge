@@ -233,13 +233,17 @@ class PageRepository
      * @param int|null $languageUid Language UID to filter by (null = all languages)
      * @param array<int, bool> $visitedUids UIDs already visited to prevent infinite recursion
      * @param int $currentDepth Current recursion depth
+     * @param bool $withSpacers Keep menu separators instead of skipping them. Only
+     *        the llms.txt navigation asks for this — a separator is not a page and
+     *        everything else would have to filter it out again.
      * @return array<int, array{uid: int, pid: int, title: string, description: string, abstract: string, doktype: int, sys_language_uid: int, l10n_parent: int}>
      */
     protected function findNavigationPages(
         int $parentUid,
         ?int $languageUid,
         array $visitedUids,
-        int $currentDepth = 0
+        int $currentDepth = 0,
+        bool $withSpacers = false
     ): array {
         // Prevent infinite recursion
         if ($currentDepth >= self::MAX_RECURSION_DEPTH) {
@@ -251,7 +255,7 @@ class PageRepository
         }
         $visitedUids[$parentUid] = true;
 
-        $queryBuilder = $this->createNavigationQueryBuilder($parentUid, $languageUid);
+        $queryBuilder = $this->createNavigationQueryBuilder($parentUid, $languageUid, $withSpacers);
         $result = $queryBuilder->executeQuery();
 
         $now = $this->now();
@@ -267,12 +271,19 @@ class PageRepository
 
             // Skip folders, spacers, and shortcuts but fetch their subpages
             if (in_array((int)$row['doktype'], self::EXCLUDED_DOKTYPES, true)) {
+                // A separator carries no content, but it does carry a title and a
+                // position — which is all a section heading needs.
+                if ($withSpacers && (int)$row['doktype'] === CorePageRepository::DOKTYPE_SPACER) {
+                    $pages[] = $this->mapRowToPageArray($row);
+                }
+
                 // Recursively get children of skipped pages
                 $childPages = $this->findNavigationPages(
                     (int)$row['uid'],
                     $languageUid ?? (int)$row['sys_language_uid'],
                     $visitedUids,
-                    $currentDepth + 1
+                    $currentDepth + 1,
+                    $withSpacers
                 );
                 foreach ($childPages as $childPage) {
                     $pages[] = $childPage;
@@ -288,20 +299,43 @@ class PageRepository
 
     /**
      * Create a query builder for navigation queries
+     *
+     * @param bool $withSpacers Let menu separators through "hide in menu" as well.
+     *        On a separator that setting hides the divider from the rendered menu
+     *        — it does not say that the group it opens stopped existing, and it is
+     *        the only way to structure llms.txt without also changing the menu.
      */
-    protected function createNavigationQueryBuilder(int $parentUid, ?int $languageUid): QueryBuilder
-    {
+    protected function createNavigationQueryBuilder(
+        int $parentUid,
+        ?int $languageUid,
+        bool $withSpacers = false
+    ): QueryBuilder {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
         $queryBuilder->getRestrictions()->removeAll()
             ->add(GeneralUtility::makeInstance(FrontendRestrictionContainer::class));
+
+        $visibleInNavigation = $queryBuilder->expr()->eq(
+            'nav_hide',
+            $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+        );
+
+        if ($withSpacers) {
+            $visibleInNavigation = $queryBuilder->expr()->or(
+                $visibleInNavigation,
+                $queryBuilder->expr()->eq(
+                    'doktype',
+                    $queryBuilder->createNamedParameter(CorePageRepository::DOKTYPE_SPACER, Connection::PARAM_INT)
+                )
+            );
+        }
 
         $queryBuilder
             ->select(...self::PAGE_FIELDS)
             ->from('pages')
             ->where(
                 $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($parentUid, Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq('nav_hide', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+                $visibleInNavigation
             )
             ->orderBy('sorting');
 
@@ -407,12 +441,18 @@ class PageRepository
      *
      * @param int $parentUid Parent page UID
      * @param SiteLanguage $siteLanguage The site language to fetch pages for
+     * @param bool $withSpacers Keep menu separators in the result. They are pages
+     *        like any other as far as translations go, so a separator comes back
+     *        with the title its own language gives it.
      * @return array<int, array{uid: int, pid: int, title: string, description: string, abstract: string, doktype: int, sys_language_uid: int, l10n_parent: int}>
      */
-    public function findNavigationByParentWithFallback(int $parentUid, SiteLanguage $siteLanguage): array
-    {
+    public function findNavigationByParentWithFallback(
+        int $parentUid,
+        SiteLanguage $siteLanguage,
+        bool $withSpacers = false
+    ): array {
         // Fetch default language pages first
-        $defaultLanguagePages = $this->findNavigationPages($parentUid, 0, []);
+        $defaultLanguagePages = $this->findNavigationPages($parentUid, 0, [], 0, $withSpacers);
 
         if (empty($defaultLanguagePages)) {
             return [];
