@@ -34,6 +34,70 @@ It contains:
 *   **Topics and contact information** — maintained by administrators in the
     site configuration
 
+..  _editor-llmstxt-sections:
+
+Grouping the links with menu separators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A long, flat list of links tells an agent little about which of them it wants.
+It can be grouped from the page tree, with the page type TYPO3 already ships for
+that purpose: :guilabel:`Menu separator`.
+
+Put one into the page tree above the pages that belong together. Its title
+becomes a heading in :file:`llms.txt`, and every page after it belongs to that
+heading until the next separator:
+
+..  code-block:: text
+
+    Page tree                    llms.txt
+    ─────────────                ────────────────────────────────
+    ▸ Services      (separator)  ## Services
+      About                      - [About](/about.md): What we do.
+      Pricing                    - [Pricing](/pricing.md): What it costs.
+    ▸ Legal         (separator)  ## Legal
+      Imprint                    - [Imprint](/imprint.md): Who runs this.
+
+A separator is not a page: it has no content, is never opened in the frontend,
+and appears in :file:`llms.txt` as a heading only — never as a link.
+
+..  note::
+
+    Separators are also widely used as pure decoration in menus. One whose title
+    carries no letters or digits — ``---``, ``•``, or nothing at all — is
+    skipped, so an existing menu does not suddenly grow headings out of its
+    dividers.
+
+..  _editor-llmstxt-sections-menu:
+
+Keeping the separator out of the menu
+'''''''''''''''''''''''''''''''''''''
+
+Whether a separator appears in the rendered menu is up to the site's own
+templates, not to this extension. TYPO3 leaves them out by default — an
+``HMENU`` needs ``SPC``, a :php:`MenuProcessor` needs ``includeSpacer = 1`` —
+but plenty of sites switch that on to draw dividers.
+
+Where the menu does render separators and the new one should not appear in it,
+tick :guilabel:`Hide in menu` on the separator. It keeps its heading in
+:file:`llms.txt`: that setting hides the divider, it does not say the group it
+opens stopped existing.
+
+This is the one place where a separator is treated differently from a page. A
+**page** marked :guilabel:`Hide in menu` stays out of :file:`llms.txt`, because
+the file follows the navigation.
+
+Things worth knowing:
+
+*   **Pages above the first separator** keep the default heading
+    :guilabel:`Main Page Structure`. Where a separator comes first, that default
+    heading is left out — it would open an empty section.
+*   **Separators are translated like any other page.** Give the separator a
+    title in each language and every :file:`llms.txt` gets its headings in its
+    own words.
+*   **Only separators directly below the site root become headings.** Deeper in
+    the tree a heading would cut the list in two, and the pages after it would
+    read as belonging to something they do not.
+
 llms-full.txt
 -------------
 

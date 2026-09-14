@@ -198,8 +198,11 @@ final class LlmsFullTxtDocumentTest extends TestCase
                 return self::page(1, 0, 'Home', 'The home page.');
             }
 
-            public function findNavigationByParentWithFallback(int $parentUid, SiteLanguage $siteLanguage): array
-            {
+            public function findNavigationByParentWithFallback(
+                int $parentUid,
+                SiteLanguage $siteLanguage,
+                bool $withSpacers = false
+            ): array {
                 return match ($parentUid) {
                     1 => [self::page(2, 1, 'Products', ''), self::page(3, 1, 'Contact', '')],
                     2 => [self::page(4, 2, 'Chairs', '')],

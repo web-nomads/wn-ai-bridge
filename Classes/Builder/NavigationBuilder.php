@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace WebNomads\WnAiBridge\Builder;
 
+use TYPO3\CMS\Core\Domain\Repository\PageRepository as CorePageRepository;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use WebNomads\WnAiBridge\Repository\PageRepository;
 use WebNomads\WnAiBridge\Service\UrlGeneratorService;
@@ -47,6 +48,11 @@ class NavigationBuilder
 
     /**
      * Recursive helper to build the structure
+     *
+     * Menu separators are asked for at the top level only. There they become the
+     * H2 headings that split the link list into sections; deeper down an H2 would
+     * cut the list in two and everything after it would read as a new section, so
+     * they keep being skipped.
      */
     protected function buildRecursive(int $parentUid, \TYPO3\CMS\Core\Site\Entity\SiteLanguage $siteLanguage, int $maxDepth, int $currentDepth = 1): array
     {
@@ -54,13 +60,28 @@ class NavigationBuilder
             return [];
         }
 
+        $topLevel = $currentDepth === 1;
+
         $structure = [];
-        $pages = $this->pageRepository->findNavigationByParentWithFallback($parentUid, $siteLanguage);
+        $pages = $this->pageRepository->findNavigationByParentWithFallback($parentUid, $siteLanguage, $topLevel);
 
         foreach ($pages as $page) {
+            $title = trim((string)preg_replace('/\s+/', ' ', trim((string)($page['nav_title'] ?: $page['title']))));
+
+            if ($topLevel && (int)$page['doktype'] === CorePageRepository::DOKTYPE_SPACER) {
+                if (self::isSectionTitle($title)) {
+                    $structure[] = [
+                        'uid' => $page['uid'],
+                        'title' => $title,
+                        'section' => true,
+                    ];
+                }
+                continue;
+            }
+
             $item = [
                 'uid' => $page['uid'],
-                'title' => preg_replace('/\s+/', ' ', trim($page['nav_title'] ?: $page['title'])),
+                'title' => $title,
                 // Collapsed onto one line: a break inside a list item ends it.
                 'description' => trim((string)preg_replace(
                     '/\s+/',
@@ -75,6 +96,18 @@ class NavigationBuilder
         }
 
         return $structure;
+    }
+
+    /**
+     * Whether a separator's title reads as a heading rather than as decoration.
+     *
+     * Separators are widely used purely visually, titled "---" or "•" or nothing
+     * at all. Those carry no meaning to put in a document, so they keep being
+     * skipped; a title with a letter or a digit in it is meant to be read.
+     */
+    public static function isSectionTitle(string $title): bool
+    {
+        return preg_match('/[\p{L}\p{N}]/u', $title) === 1;
     }
 
     protected function getLanguageTitle(array $page): string
@@ -103,6 +136,17 @@ class NavigationBuilder
         $indent = str_repeat('    ', $level);
 
         foreach ($navigationStructure as $item) {
+            if (!empty($item['section'])) {
+                // One blank line before the heading, one after — a list that
+                // touches the heading above it is still a list, but only just.
+                if ($lines !== []) {
+                    $lines[] = '';
+                }
+                $lines[] = '## ' . $item['title'];
+                $lines[] = '';
+                continue;
+            }
+
             if (!empty($item['url'])) {
                 $line = $indent . "- [{$item['title']}]({$item['url']})";
                 if (!empty($item['description'])) {

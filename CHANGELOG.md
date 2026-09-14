@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.31.0] - 2026-09-14
+
+### Added
+- **The llms.txt link list can be split into sections from the page tree.** A
+  flat list of every page tells an agent little about which link it wants. Put a
+  **Menu separator** above the pages that belong together and its title becomes
+  an `## H2`; every page after it belongs to that heading until the next
+  separator
+- No new page type was invented for this. A separator is what TYPO3 already
+  ships for "the items below this belong together": it carries a title, it is
+  translated like any page — so each language gets its headings in its own words
+  — and it is never opened in the frontend. A doktype of our own would have
+  claimed a number out of an unmanaged global namespace and needed TCA, an icon,
+  a wizard entry and fourteen translations to arrive at the same place
+- Pages standing above the first separator keep the default
+  `## Main Page Structure` heading. Where a separator comes first, that heading
+  is left out — it would open an empty section
+- Only separators directly below the site root become headings. Deeper in the
+  tree an H2 would cut the list in two, and everything after it would read as
+  belonging to something it does not
+
+### Changed
+- **A separator marked "hide in menu" still opens its section.** That setting
+  hides the divider from the rendered menu; it does not say the group stopped
+  existing — and on a site whose menu renders separators (an `HMENU` with `SPC`,
+  a `MenuProcessor` with `includeSpacer = 1`) it is the only way to structure
+  llms.txt without also changing the menu. A *page* marked the same way stays
+  out, as it always has, because the file follows the navigation
+- A separator whose title carries no letters or digits — `---`, `•`, or nothing
+  at all — is skipped. Separators are widely used as pure decoration, and
+  without this an update would have turned those dividers into headings
+
 ## [1.30.1] - 2026-09-13
 
 Nothing in the shipped package changed — the TER archive of 1.30.0 and 1.30.1
@@ -1031,7 +1063,8 @@ TYPO3 14.3 only.
 - Comprehensive documentation following TYPO3 standards
 - Support for TYPO3 v12, v13, and v14 LTS
 
-[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.30.1...HEAD
+[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.31.0...HEAD
+[1.31.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.30.1...v1.31.0
 [1.30.1]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.30.0...v1.30.1
 [1.30.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.29.3...v1.30.0
 [1.11.1]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.11.0...v1.11.1
