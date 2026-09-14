@@ -94,11 +94,11 @@ final class LlmsTxtEndpointTest extends FunctionalTestCase
         $body = $this->body('http://localhost/llms.txt');
 
         self::assertStringContainsString(
-            "## Services\n\n- [About](http://localhost/about.md): What we do.",
+            "## Services\n- [About](http://localhost/about.md): What we do.",
             $body
         );
         self::assertStringContainsString(
-            "## Legal\n\n- [Contact](http://localhost/contact.md): Where to find us.",
+            "## Legal\n- [Contact](http://localhost/contact.md): Where to find us.",
             $body
         );
 

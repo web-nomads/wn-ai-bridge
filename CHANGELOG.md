@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Only separators directly below the site root become headings. Deeper in the
   tree an H2 would cut the list in two, and everything after it would read as
   belonging to something it does not
+- A heading is written directly above its list, with a blank line only in front
+  of it. The list belongs to the heading it follows
+- A heading no page follows is left out. Under a strict language every page of a
+  section can be untranslated while the separator itself survives, and a heading
+  with nothing under it says nothing — it only suggests something went missing
 
 ### Changed
 - **A separator marked "hide in menu" still opens its section.** That setting
@@ -38,6 +43,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A separator whose title carries no letters or digits — `---`, `•`, or nothing
   at all — is skipped. Separators are widely used as pure decoration, and
   without this an update would have turned those dividers into headings
+- **An untranslated separator keeps its default-language title** instead of
+  disappearing. A page that is not translated is genuinely absent from that
+  language, but a separator carries structure rather than content: dropping it
+  would not remove a heading, it would merge two sections into one and change
+  what the document says. Under a strict language that is the difference between
+  a heading someone still has to translate and a silently flattened document
+- The heading of the navigation and the `## Optional` heading are written
+  directly above their lists too, so the document keeps one style throughout
 
 ## [1.30.1] - 2026-09-13
 

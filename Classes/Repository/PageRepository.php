@@ -482,6 +482,18 @@ class PageRepository
                 continue;
             }
 
+            // An untranslated separator keeps its default title instead of being
+            // dropped. A page that is not translated is genuinely absent from
+            // that language, but a separator carries structure rather than
+            // content: dropping it would not remove a heading, it would merge
+            // two sections into one and change what the document says. Under a
+            // strict language that is the difference between a heading someone
+            // still has to translate and a silently flattened document.
+            if ($withSpacers && (int)($page['doktype'] ?? 0) === CorePageRepository::DOKTYPE_SPACER) {
+                $result[] = $this->mapRowToPageArray($page);
+                continue;
+            }
+
             if ($corePageRepository->isPageSuitableForLanguage($page, $languageAspect)) {
                 $result[] = $this->mapRowToPageArray($page);
             }
