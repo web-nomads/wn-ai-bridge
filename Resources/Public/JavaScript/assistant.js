@@ -23,17 +23,11 @@
     }
     var labels = config.labels || {};
 
-    // Apply the configured colours (each validated as a hex value) as CSS custom
-    // properties so the widget matches the site design. Unset colours keep the
-    // stylesheet defaults (incl. dark-mode).
-    if (config.colors) {
-        Object.keys(config.colors).forEach(function (key) {
-            var value = config.colors[key];
-            if (typeof value === 'string' && /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value)) {
-                mount.style.setProperty('--wn-ai-' + key, value);
-            }
-        });
-    }
+    // The site's colours are not applied here any more. They arrive as a
+    // stylesheet next to this element (AssistantWidgetController), because an
+    // inline custom property cannot carry a media query and therefore applied
+    // to both colour schemes at once - which switched the widget's dark mode
+    // off for every site that had branded it.
 
     // --- State -----------------------------------------------------------
     var history = [];

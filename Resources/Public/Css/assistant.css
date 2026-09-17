@@ -3,26 +3,47 @@
  * Self-contained and scoped under #wn-ai-assistant to avoid clashing with the
  * host theme. All colours are CSS custom properties that can be overridden
  * per-site; honours prefers-color-scheme and prefers-reduced-motion.
+ *
+ * The palette is stated twice, once per colour scheme, and the two are complete
+ * rather than one being a patch on the other: a site configures a light set and
+ * a dark set, and whichever one the browser asks for has to stand on its own.
+ * Every pair below is measured against WCAG 2.2 — 4.5:1 for text, 3:1 for the
+ * boundary of a control.
+ */
+/*
+ * A site hands its own palette in through --wn-ai-light-* and --wn-ai-dark-*,
+ * written onto the widget element as a style attribute by the controller.
+ *
+ * Those two sets are read here rather than being applied directly, and the
+ * reason is the Content Security Policy: an inline <style> element needs
+ * `style-src-elem`, which a site running `default-src 'self'` does not grant,
+ * while a style *attribute* is commonly allowed and is what carries no media
+ * query. So the values arrive as attributes and the scheme switch stays in this
+ * file, where a media query can reach it.
+ *
+ * Each declaration therefore reads three deep: the site's value for this
+ * scheme, then its value for the light scheme, then the default below. That
+ * middle step is what makes a dark field left empty fall back to the light one.
  */
 #wn-ai-assistant {
-    --wn-ai-accent: #2563eb;
-    --wn-ai-accent-contrast: #ffffff;
-    --wn-ai-bg: #ffffff;
-    --wn-ai-fg: #1f2933;
-    --wn-ai-muted: #6b7280;
+    --wn-ai-accent: var(--wn-ai-light-accent, #2563eb);                   /* 5.2:1 on the panel */
+    --wn-ai-accent-contrast: var(--wn-ai-light-accent-contrast, #ffffff); /* 5.2:1 on the accent */
+    --wn-ai-bg: var(--wn-ai-light-bg, #ffffff);
+    --wn-ai-fg: var(--wn-ai-light-fg, #1f2933);                           /* 14.8:1 */
+    --wn-ai-muted: #6b7280;                                               /* 4.8:1 */
     --wn-ai-border: color-mix(in srgb, var(--wn-ai-fg) 18%, transparent);
 
-    --wn-ai-user-bg: #2563eb;
-    --wn-ai-user-fg: #ffffff;
-    --wn-ai-user-link: var(--wn-ai-user-fg);
+    --wn-ai-user-bg: var(--wn-ai-light-user-bg, #2563eb);
+    --wn-ai-user-fg: var(--wn-ai-light-user-fg, #ffffff);
+    --wn-ai-user-link: var(--wn-ai-light-user-link, var(--wn-ai-user-fg));
 
-    --wn-ai-assistant-bg: #f3f4f6;
-    --wn-ai-assistant-fg: var(--wn-ai-fg);
-    --wn-ai-assistant-link: var(--wn-ai-accent);
+    --wn-ai-assistant-bg: var(--wn-ai-light-assistant-bg, #f3f4f6);
+    --wn-ai-assistant-fg: var(--wn-ai-light-assistant-fg, var(--wn-ai-fg));
+    --wn-ai-assistant-link: var(--wn-ai-light-assistant-link, var(--wn-ai-accent));
 
-    --wn-ai-sources-bg: var(--wn-ai-bg);
-    --wn-ai-sources-fg: var(--wn-ai-muted);
-    --wn-ai-sources-link: var(--wn-ai-accent);
+    --wn-ai-sources-bg: var(--wn-ai-light-sources-bg, var(--wn-ai-bg));
+    --wn-ai-sources-fg: var(--wn-ai-light-sources-fg, var(--wn-ai-muted));
+    --wn-ai-sources-link: var(--wn-ai-light-sources-link, var(--wn-ai-accent));
 
     --wn-ai-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
     --wn-ai-radius: 16px;
@@ -442,12 +463,42 @@
 }
 
 /* Dark mode (applies only to colours the site has not overridden) ------ */
+/*
+ * The dark scheme used to change four values and leave the accent alone, which
+ * is why the link in an assistant bubble measured 2.45:1 and the toggle button
+ * 3.0:1 against the panel — a blue mixed to be read on white cannot be read on
+ * #1F2430. The accent is lifted here and the ink that sits on it goes dark with
+ * it, so the round button and the visitor's own bubbles keep their contrast
+ * instead of turning into white on mid blue.
+ */
+/*
+ * Every role is restated here, including the ones whose default is unchanged.
+ * The block above carries no media query, so anything left out of this one
+ * would keep the light declaration and the site's dark value would never be
+ * reached. Each line reads the dark value, then the light one, then the dark
+ * default — which is the fallback order the site configuration promises.
+ */
 @media (prefers-color-scheme: dark) {
     #wn-ai-assistant {
-        --wn-ai-bg: #1f2430;
-        --wn-ai-fg: #e5e7eb;
-        --wn-ai-muted: #9ca3af;
-        --wn-ai-assistant-bg: #2d3340;
+        /* 7.4:1 on the panel, 6.1:1 in a bubble; the ink 9.0:1 on the accent. */
+        --wn-ai-accent: var(--wn-ai-dark-accent, var(--wn-ai-light-accent, #8ab4ff));
+        --wn-ai-accent-contrast: var(--wn-ai-dark-accent-contrast, var(--wn-ai-light-accent-contrast, #0b1220));
+        --wn-ai-bg: var(--wn-ai-dark-bg, var(--wn-ai-light-bg, #1f2430));
+        --wn-ai-fg: var(--wn-ai-dark-fg, var(--wn-ai-light-fg, #e5e7eb));  /* 12.5:1 */
+        --wn-ai-muted: #9ca3af;                                            /* 6.1:1 */
+
+        --wn-ai-user-bg: var(--wn-ai-dark-user-bg, var(--wn-ai-light-user-bg, #8ab4ff));
+        --wn-ai-user-fg: var(--wn-ai-dark-user-fg, var(--wn-ai-light-user-fg, #0b1220));
+        --wn-ai-user-link: var(--wn-ai-dark-user-link, var(--wn-ai-light-user-link, var(--wn-ai-user-fg)));
+
+        --wn-ai-assistant-bg: var(--wn-ai-dark-assistant-bg, var(--wn-ai-light-assistant-bg, #2d3340));
+        --wn-ai-assistant-fg: var(--wn-ai-dark-assistant-fg, var(--wn-ai-light-assistant-fg, var(--wn-ai-fg)));
+        --wn-ai-assistant-link: var(--wn-ai-dark-assistant-link, var(--wn-ai-light-assistant-link, var(--wn-ai-accent)));
+
+        --wn-ai-sources-bg: var(--wn-ai-dark-sources-bg, var(--wn-ai-light-sources-bg, var(--wn-ai-bg)));
+        --wn-ai-sources-fg: var(--wn-ai-dark-sources-fg, var(--wn-ai-light-sources-fg, var(--wn-ai-muted)));
+        --wn-ai-sources-link: var(--wn-ai-dark-sources-link, var(--wn-ai-light-sources-link, var(--wn-ai-accent)));
+
         --wn-ai-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     }
 }

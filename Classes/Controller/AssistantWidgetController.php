@@ -9,6 +9,7 @@ use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use WebNomads\WnAiBridge\Configuration\AssistantColorRoles;
 use WebNomads\WnAiBridge\Middleware\AssistantRequestMiddleware;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
 
@@ -52,7 +53,6 @@ final class AssistantWidgetController
             'autoOpen' => $this->configurationService->isAssistantAutoOpenEnabled(),
             'autoOpenDelay' => $this->configurationService->getAssistantAutoOpenDelay(),
             'avatar' => $this->configurationService->getAssistantAvatarUrl(),
-            'colors' => $this->configurationService->getAssistantColors(),
             'labels' => [
                 'toggle' => $this->label('widget.toggle', 'Open the search assistant'),
                 'send' => $this->label('widget.send', 'Senden'),
@@ -84,16 +84,72 @@ final class AssistantWidgetController
             );
         }
 
+        $style = $this->colorStyleAttribute();
+
         return sprintf(
-            '<div id="wn-ai-assistant" data-wn-ai-config="%s"></div>'
+            '<div id="wn-ai-assistant"%s data-wn-ai-config="%s"></div>'
                 . "\n" . '<link rel="stylesheet" href="%s">'
                 . '%s'
                 . "\n" . '<script src="%s" defer></script>',
+            $style,
             htmlspecialchars((string)$json, ENT_QUOTES, 'UTF-8'),
             $cssUrl,
             $customCssTag,
             $jsUrl,
         );
+    }
+
+    /**
+     * The site's own colours, as a style attribute holding both schemes.
+     *
+     * Not an inline <style> element, and not because a style attribute is
+     * nicer: a site that sends `default-src 'self'` — which is what TYPO3's own
+     * Content Security Policy produces — has no `style-src-elem`, so the
+     * browser drops an inline stylesheet on the floor and the widget silently
+     * keeps its defaults. A style *attribute* is covered by `style-src-attr`,
+     * which such a policy commonly does allow.
+     *
+     * An attribute cannot carry a media query, so it does not set the palette
+     * directly. It sets --wn-ai-light-* and --wn-ai-dark-*, and assistant.css
+     * picks between them inside one. That also puts the fallback where it can
+     * be read: dark, then light, then the stylesheet's own default.
+     *
+     * Not applied from JavaScript either, which is what this used to be. The
+     * attribute arrives with the markup, so the widget is never painted in the
+     * wrong colours first and needs no script to look right.
+     *
+     * Every value has passed the hex pattern in AssistantColorRoles, so nothing
+     * here can close the attribute or start a declaration of its own.
+     */
+    private function colorStyleAttribute(): string
+    {
+        $colors = $this->configurationService->getAssistantColors();
+
+        $declarations = $this->declarations('light', $colors['light'])
+            . $this->declarations('dark', $colors['dark']);
+        if ($declarations === '') {
+            return '';
+        }
+
+        return ' style="' . htmlspecialchars($declarations, ENT_QUOTES, 'UTF-8') . '"';
+    }
+
+    /**
+     * @param array<string, string> $colors CSS custom property suffix => hex value
+     */
+    private function declarations(string $scheme, array $colors): string
+    {
+        $declarations = '';
+        foreach ($colors as $key => $value) {
+            if (!isset(AssistantColorRoles::ROLES[$key])
+                || preg_match(AssistantColorRoles::HEX_PATTERN, $value) !== 1
+            ) {
+                continue;
+            }
+            $declarations .= '--wn-ai-' . $scheme . '-' . $key . ':' . $value . ';';
+        }
+
+        return $declarations;
     }
 
     /**
