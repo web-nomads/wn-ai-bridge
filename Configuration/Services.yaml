@@ -10,7 +10,15 @@ services:
       # TYPO3 v14 only, registered from Services.php. Reflecting on it under v13
       # fails over ModuleAccessGateInterface, which does not exist there.
       - '../Classes/Backend/SubscriptionRequiredGate.php'
+      # Registered from Services.php, where each one is tagged as an upgrade
+      # wizard by hand. They have to be excluded here, not merely repeated
+      # there: TYPO3 loads Services.php first and this file second, so a
+      # resource-based definition landing on the same class afterwards replaces
+      # the tagged one — and a wizard without its tag is a wizard the install
+      # tool never sees. That is what kept all of them unlisted.
+      - '../Classes/Upgrades/*'
       # Value objects — constructed from data, never injected.
+      - '../Classes/Configuration/AssistantColorRoles.php'
       - '../Classes/Domain/Model/*'
       - '../Classes/Subscription/SubscriptionToken.php'
       - '../Classes/Subscription/SubscriptionStatus.php'
