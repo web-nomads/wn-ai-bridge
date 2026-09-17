@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0] - 2026-09-17
+
+### Added
+- **One set of assistant colours per colour scheme.** A site configured thirteen
+  colours and they were used whatever scheme the visitor's browser asked for. A
+  colour mixed to be read on white cannot be read on near-black, so that was
+  never one decision but two — and branding the widget switched its dark mode
+  off, because an inline custom property applies to both schemes at once.
+
+  Each role is now a pair of fields, light and dark, side by side in *Site
+  Management > Sites > "AI Assistant Colors"*. A dark field left empty falls
+  back to the light value next to it, which is what this extension did before
+  the split, so nothing changes for a site until it fills one in. With both
+  empty the widget uses its own default for that scheme.
+
+  `AssistantColorRoles` holds the list that the form, the service and the
+  upgrade wizard all read, so the three cannot drift apart.
+
+- **A "Text Color on Accent" field.** The ink on the round toggle and the send
+  button was fixed at white. On a light brand colour — the mint web-nomads.ch
+  uses is 1.6:1 against it — that left the icon all but invisible, and no field
+  could fix it.
+
+- **An upgrade wizard for the split.** `wnAiBridgeAssistantColorScheme` reads
+  the configured panel background: dark means the palette was mixed for a dark
+  page, and it is moved into the dark fields. Moved rather than copied — a
+  near-black palette left in the light column would be served to the first
+  visitor on a bright screen. A light palette, and a site that already states
+  dark colours, are left alone.
+
+### Fixed
+- **No upgrade wizard of this extension was ever registered.** They are tagged
+  by hand in `Services.php`, because the `#[UpgradeWizard]` attribute sits in a
+  different namespace on v13 and v14. TYPO3 loads `Services.php` first and
+  `Services.yaml` second, so the resource-based registration of `Classes/*` in
+  the YAML landed on the same classes afterwards and replaced the tagged
+  definitions. A wizard without its tag is one the install tool never sees,
+  which is why none of them appeared in `upgrade:list`. `Classes/Upgrades/` is
+  excluded from the YAML resource now.
+
+- **The widget's dark scheme had no accent of its own.** It changed four values
+  and left the blue alone, so a link in an assistant bubble measured 2.45:1 and
+  the toggle button 3.0:1 against the panel. The dark scheme states every role
+  now, with a lifted accent at 7.4:1 and dark ink on it at 9.0:1.
+
+- **The colours no longer depend on JavaScript, or on a permissive CSP.** They
+  were applied by script after load, which painted the widget in the wrong
+  colours first. Emitting them as an inline `<style>` instead would have been
+  dropped outright by any site sending `default-src 'self'` — TYPO3's own policy
+  does. They ride in the style attribute the markup already carries, as
+  `--wn-ai-light-*` and `--wn-ai-dark-*`, and `assistant.css` picks between the
+  two inside a media query.
+
 ## [1.31.0] - 2026-09-14
 
 ### Added
