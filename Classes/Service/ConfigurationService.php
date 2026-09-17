@@ -11,6 +11,7 @@ use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use WebNomads\WnAiBridge\Configuration\AssistantColorRoles;
 use WebNomads\WnAiBridge\Subscription\SubscriptionService;
 use WebNomads\WnAiBridge\Subscription\SubscriptionStatus;
 
@@ -798,40 +799,34 @@ class ConfigurationService
     }
 
     /**
-     * Per-site colour overrides for the widget, keyed by their CSS custom
-     * property suffix (e.g. "accent" -> --wn-ai-accent). Only explicitly
-     * configured, valid hex values are returned; anything else is omitted so the
-     * stylesheet defaults (including dark-mode) still apply.
+     * Per-site colour overrides for the widget, one set per colour scheme,
+     * keyed by their CSS custom property suffix ("accent" -> --wn-ai-accent).
      *
-     * @return array<string, string>
+     * Only explicitly configured, valid hex values are returned; anything else
+     * is omitted so the stylesheet default for that scheme still applies.
+     *
+     * The dark set is deliberately not filled in from the light one. Leaving a
+     * role out of the dark rule is precisely what lets the light value carry
+     * over through the cascade, so the fallback costs nothing and the emitted
+     * stylesheet says only what the site actually decided.
+     *
+     * @return array{light: array<string, string>, dark: array<string, string>}
      */
     public function getAssistantColors(): array
     {
         $site = $this->getCurrentSite();
         $configuration = $site instanceof Site ? $site->getConfiguration() : [];
 
-        // CSS variable suffix => site configuration field.
-        $map = [
-            'accent' => 'aiAssistantAccentColor',
-            'bg' => 'aiAssistantBgColor',
-            'fg' => 'aiAssistantTextColor',
-            'user-bg' => 'aiAssistantUserBgColor',
-            'user-fg' => 'aiAssistantUserTextColor',
-            'user-link' => 'aiAssistantUserLinkColor',
-            'assistant-bg' => 'aiAssistantAssistantBgColor',
-            'assistant-fg' => 'aiAssistantAssistantTextColor',
-            'assistant-link' => 'aiAssistantAssistantLinkColor',
-            'sources-bg' => 'aiAssistantSourcesBgColor',
-            'sources-fg' => 'aiAssistantSourcesTextColor',
-            'sources-link' => 'aiAssistantSourcesLinkColor',
-        ];
+        $colors = ['light' => [], 'dark' => []];
+        foreach (AssistantColorRoles::ROLES as $cssKey => $lightField) {
+            $light = AssistantColorRoles::value($configuration, $lightField);
+            if ($light !== '') {
+                $colors['light'][$cssKey] = $light;
+            }
 
-        $colors = [];
-        foreach ($map as $cssKey => $field) {
-            $value = trim((string)($configuration[$field] ?? ''));
-            // Accept #rgb / #rrggbb only; ignore anything else to avoid CSS injection.
-            if (preg_match('/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $value) === 1) {
-                $colors[$cssKey] = $value;
+            $dark = AssistantColorRoles::value($configuration, AssistantColorRoles::darkField($lightField));
+            if ($dark !== '') {
+                $colors['dark'][$cssKey] = $dark;
             }
         }
 

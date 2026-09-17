@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use WebNomads\WnAiBridge\Backend\SubscriptionRequiredGate;
+use WebNomads\WnAiBridge\Upgrades\AssistantColorSchemeUpdate;
 use WebNomads\WnAiBridge\Upgrades\AssistantCostSettingsUpdate;
 use WebNomads\WnAiBridge\Upgrades\AssistantSettingsToSiteConfigurationUpdate;
 
@@ -23,7 +24,12 @@ return static function (ContainerConfigurator $configurator): void {
     // error — it is simply ignored, so naming the wrong one leaves the wizard
     // unregistered and says nothing about it. The tag itself is the same on both.
     $services = $configurator->services();
-    foreach ([AssistantSettingsToSiteConfigurationUpdate::class, AssistantCostSettingsUpdate::class] as $wizard) {
+    $wizards = [
+        AssistantSettingsToSiteConfigurationUpdate::class,
+        AssistantCostSettingsUpdate::class,
+        AssistantColorSchemeUpdate::class,
+    ];
+    foreach ($wizards as $wizard) {
         $services
             ->set($wizard)
             ->autowire()
