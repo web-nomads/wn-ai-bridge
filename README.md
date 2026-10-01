@@ -189,12 +189,12 @@ Without a valid key the widget stays hidden and the two modules disappear.
 Everything else keeps working.
 
 Order your subscription key:  
-DE: [https://www.marcelmarty.ch/#extensions](https://www.marcelmarty.ch/#extensions)  
-EN: [https://www.marcelmarty.ch/en/#extensions](https://www.marcelmarty.ch/en/#extensions)  
+DE: [https://www.web-nomads.ch/extensions/ai-bridge/ai-bridge-subscription-bestellen](https://www.web-nomads.ch/extensions/ai-bridge/ai-bridge-subscription-bestellen)  
+EN: [https://www.web-nomads.ch/en/extensions/ai-bridge/order-ai-bridge-subscription](https://www.web-nomads.ch/en/extensions/ai-bridge/order-ai-bridge-subscription)  
 
 Order your **14 days free trial key** here:  
-DE: [https://www.marcelmarty.ch/ai-bridge-trial](https://www.marcelmarty.ch/ai-bridge-trial)  
-EN: [https://www.marcelmarty.ch/en/ai-bridge-trial](https://www.marcelmarty.ch/en/ai-bridge-trial)  
+DE: [https://www.web-nomads.ch/extensions/ai-bridge/ai-bridge-trial](https://www.web-nomads.ch/extensions/ai-bridge/ai-bridge-trial)  
+EN: [https://www.web-nomads.ch/en/extensions/ai-bridge/ai-bridge-trial](https://www.web-nomads.ch/en/extensions/ai-bridge/ai-bridge-trial)  
 
 Once the trial key has expired, nothing will be automatically renewed or charged
 
