@@ -84,10 +84,16 @@ services:
   WebNomads\WnAiBridge\Middleware\LinkRelationMiddleware:
     public: true
 
-  # Bind the LLM abstraction to the Anthropic implementation. Swap this alias to
-  # add another provider without touching the assistant service.
+  # Answers are generated through AiM; provider, model and key are configured there.
   WebNomads\WnAiBridge\Llm\LlmClientInterface:
-    alias: WebNomads\WnAiBridge\Llm\AnthropicClient
+    alias: WebNomads\WnAiBridge\Llm\AimClient
+
+  WebNomads\WnAiBridge\Llm\AimResponseTracker:
+    shared: true
+    tags:
+      - name: event.listener
+        identifier: 'wn-ai-bridge/aim-response-tracker'
+        event: B13\Aim\Event\AfterAiResponseEvent
 
   WebNomads\WnAiBridge\Command\DownloadMarkdownCommand:
     tags:

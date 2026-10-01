@@ -37,28 +37,6 @@ final class AssistantSiteSettingsTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * The LLM API key stays installation-wide: it is the account the provider
-     * bills, not something a website answers for.
-     */
-    #[Test]
-    public function theApiKeyIsReadFromTheExtensionConfiguration(): void
-    {
-        $configuration = $this->service([], ['assistantApiKey' => 'sk-installation']);
-
-        self::assertSame('sk-installation', $configuration->getAssistantApiKey());
-        self::assertTrue($configuration->isAssistantLlmConfigured());
-    }
-
-    #[Test]
-    public function noApiKeyMeansSearchOnly(): void
-    {
-        $configuration = $this->service([], []);
-
-        self::assertSame('', $configuration->getAssistantApiKey());
-        self::assertFalse($configuration->isAssistantLlmConfigured());
-    }
-
     #[Test]
     public function theSiteDecidesHowMuchItsAnswersMayVary(): void
     {

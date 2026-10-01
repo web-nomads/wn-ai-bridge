@@ -68,12 +68,12 @@ parameters:
 		-
 			message: "#^Offset 'content' on array\\{role\\: string, content\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
 			count: 1
-			path: Classes/Llm/AnthropicClient.php
+			path: Classes/Llm/AimClient.php
 
 		-
 			message: "#^Offset 'role' on array\\{role\\: string, content\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
 			count: 1
-			path: Classes/Llm/AnthropicClient.php
+			path: Classes/Llm/AimClient.php
 
 		-
 			message: "#^Method WebNomads\\\\WnAiBridge\\\\Repository\\\\PageRepository\\:\\:fetchRawById\\(\\) return type has no value type specified in iterable type array\\.$#"

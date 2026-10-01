@@ -19,21 +19,25 @@ assistant answers with concrete suggestions and links to the matching pages.
 The two modes
 =============
 
-Search-only (default, no API key)
+Search-only (default, no provider in AiM)
     The assistant returns the best matching pages as ranked suggestions with
     links. Fast, free and privacy-friendly — no data leaves the server.
 
-Hybrid / RAG (with an LLM API key)
+Hybrid / RAG (with a provider configured in AiM)
     A language model additionally composes a short, grounded answer that cites
-    the source pages (retrieval-augmented generation). If the model is
-    unavailable, the assistant transparently falls back to search-only.
+    the source pages (retrieval-augmented generation). The request goes through
+    the AiM extension, which picks the provider configuration, applies budgets
+    and tone of voice and logs it. If the model is unavailable, the assistant
+    transparently falls back to search-only.
 
 ..  note::
 
     The fallback is silent by design: the visitor gets suggestions instead of an
-    error message. A missing API key, an account without credit or an unknown
-    model id therefore shows up as "the assistant only ever lists pages", never
-    as a visible failure. The incident is written to the TYPO3 log.
+    error message. No enabled provider configuration in AiM, a missing bridge
+    package or an account without credit therefore shows up as "the assistant
+    only ever lists pages", never as a visible failure. The incident is written
+    to the TYPO3 log, and failed requests appear in AiM's :guilabel:`Request
+    Log`.
 
 ..  _assistant-how-it-works:
 
@@ -194,7 +198,7 @@ opens with a table error.
 The :guilabel:`Enquiries` module shows the entries in a filterable list — by
 date range, IP address, provider, mode and free text over question and answer —
 with a statistics overview above it: interactions, the LLM-versus-search split,
-input, output and total tokens, the estimated total cost and a per-provider
+input, output and total tokens, the total cost and a per-provider
 breakdown. A :guilabel:`Clear log` action removes all entries.
 
 Conversations
@@ -206,14 +210,14 @@ shows one collapsible row per conversation with the first question, the date and
 the visitor information; expanding it reveals the follow-up questions and
 answers with their provider, model and per-turn plus total token usage.
 
-Estimated cost
---------------
+Cost
+----
 
-The module estimates the LLM cost from the recorded token usage and per-model
-pricing, shown as a total, per conversation and per turn. Model prices are quoted
-in USD and converted with :confval:`assistantUsdConversionRate`; the currency the
-figures are labelled with is :confval:`assistantCurrency`. Prices change over
-time, so treat the figures as budgeting estimates, not accounting.
+Each answer is logged with the cost AiM reported for it, computed from the token
+prices of the AiM provider configuration that answered and in that
+configuration's currency. The module shows it as a total, per conversation and
+per turn; amounts in different currencies are listed side by side rather than
+added up. Answers logged before version 2.0.0 carry no stored cost.
 
 Visitor origin
 --------------
@@ -255,6 +259,6 @@ out in :ref:`data-sent-to-the-licence-server`.
 Protecting the endpoint
 =======================
 
-The ``/wn-ai-bridge/ask`` endpoint is public and, with an API key configured,
+The ``/wn-ai-bridge/ask`` endpoint is public and, with a provider configured,
 every request to it can cost money. Before going live, read
 :ref:`administrator-security`.

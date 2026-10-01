@@ -27,6 +27,15 @@ Upgrading
     releases added tables or columns, and a missing column fails at the moment
     the feature is used, not at the moment of the update.
 
+..  important::
+
+    Version 2.0.0 sends the assistant's requests through AiM (``b13/aim``).
+    Provider, model, API key and token prices are no longer set in this
+    extension. After the update run ``extension:setup`` and the upgrade wizard
+    ``wnAiBridgeAimProviderConfiguration``, which creates the AiM provider
+    configuration from the former settings. For Claude, install
+    ``symfony/ai-anthropic-platform`` as well. See :ref:`installation-claude`.
+
 ..  note::
 
     Version 1.31.0 turns :guilabel:`Menu separator` pages into headings in

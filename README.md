@@ -126,13 +126,20 @@ below `/en/` is described by `/en/llms.txt` rather than the root file.
 A floating chat widget. Switch it on in the extension configuration
 (`assistantEnabled`) and per site in the site configuration.
 
-**Search-only** (no API key) returns ranked matching pages as suggestions with
-links. Fast, free, and nothing leaves your server.
+**Search-only** (no provider configured in AiM) returns ranked matching pages
+as suggestions with links. Fast, free, and nothing leaves your server.
 
-**Hybrid** (with an LLM API key in `assistantApiKey`) additionally lets the
-model compose a short answer from the retrieved pages and cite them. Any
-failure — quota, timeout, malformed response — falls back to search-only rather
-than showing an error.
+**Hybrid** additionally lets a language model compose a short answer from the
+retrieved pages and cite them. The model is reached through
+[AiM](https://extensions.typo3.org/extension/aim) (`b13/aim`), where provider,
+model, API key and token prices are configured once for the whole installation
+(*Admin Tools > AiM > Providers*); for Claude, also install
+`symfony/ai-anthropic-platform`. Any failure — no provider, quota, timeout,
+malformed response — falls back to search-only rather than showing an error.
+
+Upgrading from 1.x: the upgrade wizard *"AI Bridge: move the Claude API key
+into an AiM provider configuration"* turns the former `assistantApiKey`,
+`assistantModel` and cost settings into an AiM provider configuration.
 
 The temperature and the agent instructions are set **per site**, on the **AI
 Assistant** tab of the site configuration: they are answers a website gives, not

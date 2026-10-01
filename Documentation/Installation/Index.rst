@@ -37,7 +37,10 @@ Requirements
     * - ``ke_search`` or ``indexed_search``
       - Optional. The assistant works without either, but answers are
         noticeably better with a real search index
-    * - An Anthropic API key
+    * - AiM (``b13/aim``) 0.5 or later
+      - Installed as a dependency. Holds the language model connection
+    * - A provider for AiM, e.g. ``symfony/ai-anthropic-platform`` and an
+        Anthropic API key
       - Optional. Without it the assistant runs in search-only mode
     * - A subscription key
       - Required for the chat assistant and its two backend modules. llms.txt
@@ -250,9 +253,15 @@ suggestions with links, costs nothing and sends no data anywhere. That is the
 Step 6: Connecting Claude
 =========================
 
-With an API key the assistant additionally composes a short answer from the
-pages it found and cites them. Everything else stays as it is — retrieval is
+With a language model the assistant additionally composes a short answer from
+the pages it found and cites them. Everything else stays as it is — retrieval is
 unchanged, the model only phrases the result.
+
+The model is reached through the AiM extension (``b13/aim``), which is installed
+together with this one. AiM holds provider, model and API key for every
+extension in the installation, enforces budgets and rate limits and logs each
+request with its cost. Any conversation-capable provider AiM supports works;
+the steps below are for Claude.
 
 Getting an API key
 ------------------
@@ -267,14 +276,41 @@ Getting an API key
 Configuration
 -------------
 
-:guilabel:`Admin Tools > Settings > Extension Configuration > wn_ai_bridge`,
-tab :guilabel:`assistant`:
+Install the Anthropic bridge for AiM:
+
+..  code-block:: bash
+
+    composer require symfony/ai-anthropic-platform
+
+Then create a provider configuration under :guilabel:`Admin Tools > AiM >
+Providers`:
 
 ..  code-block:: none
 
-    assistantProvider = anthropic
-    assistantApiKey   = sk-ant-...
-    assistantModel    = claude-haiku-4-5
+    Provider          anthropic
+    API Key           sk-ant-...
+    Model             claude-haiku-4-5
+    Input token cost  price per 1M input tokens, in your currency
+    Output token cost price per 1M output tokens, in your currency
+    Currency          e.g. CHF
+
+The token costs are what the :guilabel:`Enquiries` module shows as cost; left at
+zero, every answer costs nothing there. The key is stored encrypted.
+
+Without a configuration in AiM the assistant stays in search-only mode.
+
+..  rubric:: Upgrading from 1.x
+
+The API key, the model and the conversion rate used to be set in this
+extension's configuration. The upgrade wizard *"AI Bridge: move the Claude API
+key into an AiM provider configuration"* (``wnAiBridgeAimProviderConfiguration``)
+creates the AiM configuration from them, with the prices of the model converted
+into the former currency, and then removes the old settings:
+
+..  code-block:: bash
+
+    vendor/bin/typo3 extension:setup
+    vendor/bin/typo3 upgrade:run wnAiBridgeAimProviderConfiguration
 
 Choosing a model
 ----------------
@@ -295,8 +331,8 @@ Choosing a model
     * - ``claude-opus-5``
       - Hard to justify for this purpose
 
-The model id is passed through to the API unchanged, so newer models can be
-entered as soon as they are released.
+AiM offers the models the installed bridge knows in its :guilabel:`Model`
+field.
 
 Tuning the answers
 ------------------
@@ -363,14 +399,13 @@ Step 8: Logging and cost tracking
 
 ..  code-block:: none
 
-    assistantLogging      = 1
-    assistantUsdConversionRate = 0.90
-    assistantCurrency          = CHF
+    assistantLogging = 1
 
 Every question, answer, provider, model and token count is then recorded and
-shown in the :guilabel:`Enquiries` module, together with an estimated cost. The
-estimate converts the providers' USD prices with the rate above; it is for
-budgeting, not accounting.
+shown in the :guilabel:`Enquiries` module, together with its cost. The cost is
+what AiM computed from the token prices of the provider configuration that
+answered, in that configuration's currency. AiM's own :guilabel:`Request Log`
+records the same requests from its side.
 
 Run ``extension:setup`` after enabling this, or the module opens with a table
 error.
@@ -452,8 +487,9 @@ Troubleshooting
         The subscription keeps working, but a renewal or a revocation cannot
         arrive — see :ref:`administrator-server-failure`
     * - Assistant only lists pages, never phrases an answer
-      - No :confval:`assistantApiKey`, no credit on the account, or an unknown
-        model id. The fallback is silent by design — look in the TYPO3 log
+      - No enabled provider configuration in AiM, the bridge package missing,
+        or no credit on the account. The fallback is silent by design — look
+        in AiM's :guilabel:`Request Log` and in the TYPO3 log
     * - Assistant finds nothing
       - No search index. Check :confval:`assistantSearchSources` and whether
         ``ke_search`` / ``indexed_search`` are indexed at all

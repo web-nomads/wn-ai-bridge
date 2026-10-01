@@ -55,6 +55,8 @@ final class AssistantLogWriter
                 'input_tokens' => (int)($response->inputTokens ?? 0),
                 'output_tokens' => (int)($response->outputTokens ?? 0),
                 'total_tokens' => (int)(($response->inputTokens ?? 0) + ($response->outputTokens ?? 0)),
+                'cost' => (float)($response->cost ?? 0.0),
+                'cost_currency' => mb_substr((string)($response->costCurrency ?? ''), 0, 10),
                 'source_count' => count($response->sources),
                 'sources' => $this->encodeSources($response->sources),
                 'ip_address' => $this->resolveClientIp($request),

@@ -22,9 +22,10 @@ use WebNomads\WnAiBridge\Search\SearchService;
  * approved answer is returned as-is ("learning" mode), weaker matches become
  * binding hints in the prompt.
  *
- * Without an API key it degrades to a search-only response (ranked suggestions
- * with links) and any LLM failure transparently falls back to the same, so the
- * widget always returns something useful.
+ * Without a conversation provider configured in AiM it degrades to a
+ * search-only response (ranked suggestions with links) and any LLM failure
+ * transparently falls back to the same, so the widget always returns something
+ * useful.
  */
 final class AssistantService implements LoggerAwareInterface
 {
@@ -68,7 +69,7 @@ final class AssistantService implements LoggerAwareInterface
             return new AssistantResponse($this->noResultsMessage(), [], 'search');
         }
 
-        if ($this->isLlmUsable()) {
+        if ($this->llmClient->isAvailable()) {
             try {
                 $learningsPrompt = $this->safeLearningsPrompt($question, $languageId);
                 $result = $this->generateLlmAnswer($question, $history, $results, $learningsPrompt);
@@ -76,10 +77,12 @@ final class AssistantService implements LoggerAwareInterface
                     $result->text,
                     $results,
                     'llm',
-                    $this->configurationService->getAssistantProvider(),
-                    $this->configurationService->getAssistantModel(),
+                    $result->provider,
+                    $result->model,
                     $result->inputTokens,
                     $result->outputTokens,
+                    $result->cost,
+                    $result->costCurrency,
                 );
             } catch (LlmException $e) {
                 // Never surface an LLM outage to the visitor — fall back silently.
@@ -94,12 +97,6 @@ final class AssistantService implements LoggerAwareInterface
         return new AssistantResponse($this->searchOnlyMessage($results), $results, 'search');
     }
 
-    private function isLlmUsable(): bool
-    {
-        return $this->configurationService->isAssistantLlmConfigured()
-            && $this->configurationService->getAssistantProvider() === $this->llmClient->getProviderKey();
-    }
-
     /**
      * @param list<array{role: string, content: string}> $history
      * @param list<SearchResultItem> $results
@@ -111,9 +108,9 @@ final class AssistantService implements LoggerAwareInterface
         return $this->llmClient->complete(
             $this->buildSystemPrompt(),
             $messages,
-            $this->configurationService->getAssistantModel(),
             $this->configurationService->getAssistantMaxTokens(),
             $this->configurationService->getAssistantTemperature(),
+            $this->configurationService->getCurrentSiteRootPageId(),
         );
     }
 
