@@ -24,7 +24,7 @@ return [
         'parent' => 'wn_ai_bridge',
         'access' => 'user',
         'workspaces' => 'live',
-        'iconIdentifier' => 'wn-ai-bridge-module',
+        'iconIdentifier' => 'wn-ai-bridge-module-enquiries',
         'path' => '/module/wn-ai-bridge/enquiries',
         // Formerly "wn_ai_bridge_log". The alias keeps backend group permissions
         // and bookmarks pointing at the old identifier working.
@@ -40,7 +40,7 @@ return [
         'parent' => 'wn_ai_bridge',
         'access' => 'user',
         'workspaces' => 'live',
-        'iconIdentifier' => 'wn-ai-bridge-module',
+        'iconIdentifier' => 'wn-ai-bridge-module-answers',
         'path' => '/module/wn-ai-bridge/answers',
         // Formerly "Corrections". The alias keeps backend group permissions and
         // bookmarks pointing at the old identifier working.
@@ -56,7 +56,7 @@ return [
         'parent' => 'wn_ai_bridge',
         'access' => 'user',
         'workspaces' => 'live',
-        'iconIdentifier' => 'wn-ai-bridge-module',
+        'iconIdentifier' => 'wn-ai-bridge-module-bot-access',
         'path' => '/module/wn-ai-bridge/bot-access',
         'labels' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_botaccess.xlf',
         'routes' => [
