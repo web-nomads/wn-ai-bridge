@@ -10,6 +10,7 @@ use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Site\Entity\Site;
@@ -175,6 +176,57 @@ final class SiteSubscriptionKeyTest extends TestCase
         self::assertStringContainsString('a.example', $status->getMessage());
     }
 
+    /**
+     * Every key tried is a status check with the issuing server. A leftover
+     * installation-wide key that every site has replaced used to be tried first
+     * in the backend and on the command line — and once its subscription had
+     * been deleted on the server, each of those checks was reported there as
+     * "unknownSubscription".
+     */
+    #[Test]
+    public function aLeftoverInstallationKeyIsNeverAskedForWhereEverySiteHasItsOwn(): void
+    {
+        $sites = [
+            'ours' => $this->site('ours', 1, 'https://a.example/', $this->key('sub_a', ['a.example'])),
+            'theirs' => $this->site('theirs', 2, 'https://b.example/', $this->key('sub_b', ['b.example'])),
+        ];
+        $askedUrls = new \ArrayObject();
+
+        $status = $this->resolveStatus(
+            'a.example',
+            $sites,
+            null,
+            ['subscriptionKey' => $this->key('sub_leftover', ['a.example', 'b.example'])],
+            $askedUrls,
+        );
+
+        self::assertTrue($status->valid, $status->getMessage());
+        self::assertSame('sub_a', $status->token?->id);
+        self::assertNotEmpty($askedUrls, 'The backend is expected to ask the issuing server.');
+        foreach ($askedUrls as $url) {
+            self::assertStringNotContainsString('sub_leftover', $url);
+        }
+    }
+
+    #[Test]
+    public function inTheBackendASiteWithoutAKeyStillRunsOnTheInstallationOne(): void
+    {
+        $sites = [
+            'ours' => $this->site('ours', 1, 'https://a.example/', ''),
+            'theirs' => $this->site('theirs', 2, 'https://b.example/', ''),
+        ];
+
+        $status = $this->resolveStatus(
+            'typo3.admin.example',
+            $sites,
+            null,
+            ['subscriptionKey' => $this->key('sub_installation', ['a.example'])],
+        );
+
+        self::assertTrue($status->valid, $status->getMessage());
+        self::assertSame('sub_installation', $status->token?->id);
+    }
+
     #[Test]
     public function withNoKeyAnywhereTheStatusSaysSo(): void
     {
@@ -187,12 +239,14 @@ final class SiteSubscriptionKeyTest extends TestCase
     /**
      * @param array<string, Site> $sites
      * @param array<string, string> $extensionConfiguration
+     * @param \ArrayObject<int, string>|null $askedUrls Collects the status check URLs; makes it a backend request
      */
     private function resolveStatus(
         string $host,
         array $sites,
         ?Site $requestSite,
         array $extensionConfiguration = [],
+        ?\ArrayObject $askedUrls = null,
     ): SubscriptionStatus {
         $_SERVER['HTTP_HOST'] = $host;
         GeneralUtility::flushInternalRuntimeCaches();
@@ -203,6 +257,9 @@ final class SiteSubscriptionKeyTest extends TestCase
         ];
 
         $request = new ServerRequest('https://' . $host . '/');
+        if ($askedUrls !== null) {
+            $request = $request->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE);
+        }
         $GLOBALS['TYPO3_REQUEST'] = $requestSite instanceof Site
             ? $request->withAttribute('site', $requestSite)
             : $request;
@@ -213,7 +270,12 @@ final class SiteSubscriptionKeyTest extends TestCase
         $siteFinder->method('getAllSites')->willReturn($sites);
 
         $factory = $this->createMock(RequestFactory::class);
-        $factory->method('request')->willThrowException(new \RuntimeException('unreachable'));
+        $factory->method('request')->willReturnCallback(
+            static function (string $url) use ($askedUrls): never {
+                $askedUrls?->append($url);
+                throw new \RuntimeException('unreachable');
+            }
+        );
 
         return (new SubscriptionService(
             new SubscriptionOnlineCheck($factory),
