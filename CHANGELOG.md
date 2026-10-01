@@ -7,6 +7,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-01
+
+### Changed
+- **The assistant talks to its language model through AiM.** Answers used to be
+  requested from the Anthropic Messages API directly, with a key, a model and a
+  price table of this extension's own. They now go through the AiM extension
+  (`b13/aim`), which is where provider, model and API key are configured — once
+  per installation, for every extension that uses AI. AiM also enforces budgets
+  and rate limits, applies the site's tone of voice, retries with another
+  provider when one fails, and keeps a request log of its own.
+
+  Any provider AiM supports can answer now, not only Claude. For Anthropic,
+  install `symfony/ai-anthropic-platform` next to AiM.
+
+  Without a conversation-capable provider in AiM the assistant runs in
+  search-only mode, exactly as it did without an API key.
+
+- **The cost in the "Enquiries" module is what AiM reported.** It is computed
+  from the token prices of the AiM provider configuration that answered and
+  shown in that configuration's currency, instead of being estimated afterwards
+  from a price table in the code. Each logged answer stores its cost, so a price
+  change no longer rewrites the past. Answers logged before this version have no
+  stored cost and count as zero.
+
+- `LlmClientInterface` lost `getProviderKey()` and the `$model` argument of
+  `complete()`, and gained `isAvailable()`; `LlmResult` carries provider, model,
+  cost and currency. The implementation is `AimClient`.
+
+### Added
+- **An upgrade wizard that hands the Claude API key to AiM.**
+  `wnAiBridgeAimProviderConfiguration` creates an AiM provider configuration
+  from the former settings: the key encrypted the way AiM stores it, the model,
+  and the token prices of that model converted with the former conversion rate
+  into the former currency, so the figures in the log module stay comparable. It
+  becomes AiM's default configuration unless AiM already has one. A key AiM
+  already holds is not added a second time. The former settings are removed
+  only after the configuration has been written.
+- Columns `cost` and `cost_currency` in `tx_wnaibridge_assistant_log`. Run the
+  database schema update.
+- **An icon of its own for each backend module.** "Enquiries", "Answers" and
+  "Bot Access Log" all showed the extension icon, so the module menu gave no
+  hint which was which. They now show a speech bubble with a question mark, a
+  speech bubble with a check mark and a robot head, on the same background.
+  The extension icon itself, shown for the "AI Bridge" module group, is now an
+  arch bridge under an AI sparkle instead of an abstract network graph.
+
+### Fixed
+- **A leftover installation-wide subscription key kept the issuing server
+  reporting "unknownSubscription".** The backend and the command line tried the
+  installation-wide `subscriptionKey` before the keys of the sites, and every key
+  tried is a status check with the issuing server. Where every site had long
+  carried a key of its own but the extension configuration still held an old one
+  whose subscription had since been deleted, each backend visit and scheduler
+  run checked it first, and the server reported it as unknown — until the next
+  key turned out valid. The installation-wide key is now only used for a site
+  that names no key of its own, as documented. Removing it altogether is what
+  the upgrade wizard `wnAiBridgeAssistantSettingsToSiteConfiguration` does.
+
+### Removed
+- Extension configuration `assistantProvider`, `assistantApiKey`,
+  `assistantModel`, `assistantUsdConversionRate` and `assistantCurrency`. All of
+  it lives in AiM now; the upgrade wizard above carries it over.
+- `AnthropicClient` and `CostCalculator`.
+- The upgrade wizard `wnAiBridgeAssistantCostSettings`. It renamed the
+  conversion rate that no longer exists; the new wizard still reads the old
+  name.
+
 ## [1.32.0] - 2026-09-17
 
 ### Added
@@ -1129,7 +1196,9 @@ TYPO3 14.3 only.
 - Comprehensive documentation following TYPO3 standards
 - Support for TYPO3 v12, v13, and v14 LTS
 
-[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.31.0...HEAD
+[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.32.0...v2.0.0
+[1.32.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.31.0...v1.32.0
 [1.31.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.30.1...v1.31.0
 [1.30.1]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.30.0...v1.30.1
 [1.30.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.29.3...v1.30.0
