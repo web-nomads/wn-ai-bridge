@@ -1,0 +1,24 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bgGradientVertical" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#FF8700;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <rect width="512" height="512" fill="url(#bgGradientVertical)"/>
+
+    <line x1="256" y1="104" x2="256" y2="148" stroke="white" stroke-width="24" stroke-linecap="round"/>
+    <circle cx="256" cy="92" r="22" fill="white"/>
+
+    <rect x="120" y="148" width="272" height="216" rx="48"
+          stroke="white" stroke-width="28" fill="white" fill-opacity="0.1"/>
+
+    <rect x="76" y="216" width="30" height="80" rx="10" fill="white"/>
+    <rect x="406" y="216" width="30" height="80" rx="10" fill="white"/>
+
+    <circle cx="204" cy="240" r="28" fill="white"/>
+    <circle cx="308" cy="240" r="28" fill="white"/>
+
+    <line x1="200" y1="312" x2="312" y2="312" stroke="white" stroke-width="24" stroke-linecap="round"/>
+</svg>

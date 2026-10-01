@@ -7,37 +7,12 @@
     </defs>
 
     <rect width="512" height="512" fill="url(#bgGradientVertical)"/>
-    
-    <g transform="translate(145, 256)" stroke="white" stroke-width="3">
-        <path d="M0 -100 L86.6 -50 L86.6 50 L0 100 L-86.6 50 L-86.6 -50 Z" fill="white" fill-opacity="0.1"/>
-        
-        <line x1="0" y1="-100" x2="0" y2="0" stroke-opacity="0.5"/>
-        <line x1="86.6" y1="-50" x2="0" y2="0" stroke-opacity="0.5"/>
-        <line x1="86.6" y1="50" x2="0" y2="0" stroke-opacity="0.5"/>
-        <line x1="0" y1="100" x2="0" y2="0" stroke-opacity="0.5"/>
-        <line x1="-86.6" y1="50" x2="0" y2="0" stroke-opacity="0.5"/>
-        <line x1="-86.6" y1="-50" x2="0" y2="0" stroke-opacity="0.5"/>
 
-        <circle cx="0" cy="-100" r="8" fill="white"/>
-        <circle cx="86.6" cy="-50" r="8" fill="white"/>
-        <circle cx="86.6" cy="50" r="8" fill="white"/>
-        <circle cx="0" cy="100" r="8" fill="white"/>
-        <circle cx="-86.6" cy="50" r="8" fill="white"/>
-        <circle cx="-86.6" cy="-50" r="8" fill="white"/>
-        <circle cx="0" cy="0" r="12" fill="white"/>
-    </g>
+    <path d="M256 70 C268 152 290 176 372 188 C290 200 268 224 256 306 C244 224 222 200 140 188 C222 176 244 152 256 70 Z" fill="white"/>
+    <path d="M384 72 C388 98 394 104 420 108 C394 112 388 118 384 144 C380 118 374 112 348 108 C374 104 380 98 384 72 Z" fill="white"/>
 
-    <path d="M245 256 H310" stroke="white" stroke-width="12" stroke-linecap="square"/>
-
-    <g transform="translate(330, 160)">
-        <rect width="110" height="192" stroke="white" stroke-width="8" fill="white" fill-opacity="0.05"/>
-        <rect x="15" y="20" width="80" height="8" fill="white"/>
-        <rect x="15" y="45" width="35" height="35" fill="white"/>
-        <rect x="60" y="45" width="35" height="4" fill="white"/>
-        <rect x="60" y="55" width="35" height="4" fill="white"/>
-        <rect x="60" y="65" width="35" height="4" fill="white"/>
-        
-        <path d="M35 175 L55 150 L75 175" stroke="white" stroke-width="10" fill="none" stroke-linejoin="miter"/>
-        <path d="M55 150 V185" stroke="white" stroke-width="10"/>
-    </g>
+    <line x1="56" y1="346" x2="456" y2="346" stroke="white" stroke-width="28" stroke-linecap="round"/>
+    <path d="M88 444 Q256 256 424 444" stroke="white" stroke-width="28" stroke-linecap="round" fill="none"/>
+    <line x1="172" y1="346" x2="172" y2="374" stroke="white" stroke-width="16" stroke-linecap="round"/>
+    <line x1="340" y1="346" x2="340" y2="374" stroke="white" stroke-width="16" stroke-linecap="round"/>
 </svg>
