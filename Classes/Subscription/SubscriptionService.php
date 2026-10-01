@@ -336,18 +336,30 @@ final class SubscriptionService implements SingletonInterface
      *
      * A licence covers domains, and a domain belongs to a site, so keys are
      * maintained per site — two websites in one TYPO3 can be licensed
-     * separately. The site of the current request comes first, then the
-     * installation-wide key from the extension configuration, then the keys of
-     * the other sites.
+     * separately. The site of the current request comes first, then the other
+     * sites.
+     *
+     * The installation-wide key from the extension configuration only stands in
+     * for a site that names no key of its own. Every key tried is a status check
+     * with the issuing server, so a leftover installation-wide key that every
+     * site has long replaced was checked on each backend visit and scheduler run
+     * — and reported there as unknown once its subscription had been deleted.
      *
      * @return list<string>
      */
     private function candidateKeys(): array
     {
-        $keys = [$this->siteValue($this->currentSite()), $this->configValue('subscriptionKey')];
+        $installationKey = $this->configValue('subscriptionKey');
+        $currentSite = $this->currentSite();
+        $sites = $currentSite !== null ? [$currentSite, ...$this->allSites()] : $this->allSites();
 
-        foreach ($this->allSites() as $site) {
-            $keys[] = $this->siteValue($site);
+        $keys = [];
+        foreach ($sites as $site) {
+            $siteKey = $this->siteValue($site);
+            $keys[] = $siteKey !== '' ? $siteKey : $installationKey;
+        }
+        if ($sites === []) {
+            $keys[] = $installationKey;
         }
 
         return array_values(array_unique(array_filter($keys, static fn(string $key): bool => $key !== '')));
