@@ -14,6 +14,8 @@ CREATE TABLE tx_wnaibridge_assistant_log (
     input_tokens int(11) unsigned DEFAULT '0' NOT NULL,
     output_tokens int(11) unsigned DEFAULT '0' NOT NULL,
     total_tokens int(11) unsigned DEFAULT '0' NOT NULL,
+    cost decimal(12,6) DEFAULT '0.000000' NOT NULL,
+    cost_currency varchar(10) DEFAULT '' NOT NULL,
     source_count int(11) unsigned DEFAULT '0' NOT NULL,
     sources mediumtext,
     ip_address varchar(45) DEFAULT '' NOT NULL,

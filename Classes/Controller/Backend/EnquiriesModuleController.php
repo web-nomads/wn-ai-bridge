@@ -18,7 +18,7 @@ use WebNomads\WnAiBridge\Domain\Model\AssistantLogEntry;
 use WebNomads\WnAiBridge\Domain\Model\LogFilter;
 use WebNomads\WnAiBridge\Domain\Repository\AssistantLogRepository;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
-use WebNomads\WnAiBridge\Service\CostCalculator;
+use WebNomads\WnAiBridge\Service\CostFormatter;
 use WebNomads\WnAiBridge\Service\SiteListService;
 use WebNomads\WnAiBridge\Service\VisitorInfoService;
 use WebNomads\WnAiBridge\Subscription\SubscriptionService;
@@ -40,7 +40,7 @@ final class EnquiriesModuleController
         private readonly ConfigurationService $configurationService,
         private readonly BackendUriBuilder $uriBuilder,
         private readonly VisitorInfoService $visitorInfoService,
-        private readonly CostCalculator $costCalculator,
+        private readonly CostFormatter $costFormatter,
         private readonly ViewFactoryInterface $viewFactory,
         private readonly SubscriptionService $subscriptionService,
         private readonly SiteListService $siteListService,
@@ -92,14 +92,12 @@ final class EnquiriesModuleController
         $totalThreads = 0;
         $stats = $this->emptyStatistics();
         $providers = [];
-        $totalCost = $this->costCalculator->format(0.0);
+        $totalCost = $this->costFormatter->formatTotals([]);
         try {
             $stats = $this->repository->getStatistics($filter);
             $providers = $this->repository->findDistinctProviders();
             $totalThreads = $this->repository->countThreads($filter);
-            $totalCost = $this->costCalculator->format(
-                $this->costCalculator->totalCost($this->repository->getModelTokenTotals($filter))
-            );
+            $totalCost = $this->costFormatter->formatTotals($this->repository->getCostTotals($filter));
             $conversationIds = $this->repository->findThreadConversationIds($filter);
             $threads = $this->buildThreads($conversationIds);
         } catch (\Throwable $e) {
@@ -189,21 +187,22 @@ final class EnquiriesModuleController
             $inputTokens = 0;
             $outputTokens = 0;
             $totalTokens = 0;
-            $cost = 0.0;
+            $costs = [];
             $turns = [];
             foreach ($entries as $entry) {
                 $inputTokens += $entry->inputTokens;
                 $outputTokens += $entry->outputTokens;
                 $totalTokens += $entry->totalTokens;
 
-                $turnCost = $this->costCalculator->cost($entry->model, $entry->inputTokens, $entry->outputTokens);
-                $cost += $turnCost;
+                if ($entry->cost > 0) {
+                    $costs[$entry->costCurrency] = ($costs[$entry->costCurrency] ?? 0.0) + $entry->cost;
+                }
 
                 // Wrap each turn so the template can show its per-turn cost and
                 // the answer with the "[n]" citations turned into real links.
                 $turns[] = [
                     'entry' => $entry,
-                    'cost' => $this->costCalculator->format($turnCost),
+                    'cost' => $this->costFormatter->format($entry->cost, $entry->costCurrency),
                     'answerHtml' => $this->renderAnswerHtml($entry->answer, $entry->sources),
                     'overrideUrl' => $this->buildOverrideUrl($entry),
                 ];
@@ -217,7 +216,7 @@ final class EnquiriesModuleController
                 'inputTokens' => $inputTokens,
                 'outputTokens' => $outputTokens,
                 'totalTokens' => $totalTokens,
-                'cost' => $this->costCalculator->format($cost),
+                'cost' => $this->costFormatter->formatTotals($costs),
                 'visitor' => $this->visitorInfoService->resolve($entries[0]->ipAddress),
             ];
         }

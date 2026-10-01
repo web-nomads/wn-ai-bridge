@@ -333,35 +333,6 @@ class ConfigurationService
         return (bool)($site->getConfiguration()['aiAssistantEnabled'] ?? true);
     }
 
-    public function getAssistantProvider(): string
-    {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
-        $provider = trim((string)($extConf['assistantProvider'] ?? 'anthropic'));
-        return $provider !== '' ? $provider : 'anthropic';
-    }
-
-    public function getAssistantApiKey(): string
-    {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
-        return trim((string)($extConf['assistantApiKey'] ?? ''));
-    }
-
-    /**
-     * Whether an LLM is configured. Without a key the assistant runs in
-     * search-only mode (ranked hits + links, no generated answer).
-     */
-    public function isAssistantLlmConfigured(): bool
-    {
-        return $this->getAssistantApiKey() !== '';
-    }
-
-    public function getAssistantModel(): string
-    {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
-        $model = trim((string)($extConf['assistantModel'] ?? ''));
-        return $model !== '' ? $model : 'claude-haiku-4-5';
-    }
-
     /**
      * Configured search sources: auto | kesearch | indexed | pages.
      */
@@ -489,40 +460,6 @@ class ConfigurationService
     {
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
         return (bool)($extConf['assistantLogGeoLookup'] ?? false);
-    }
-
-    /**
-     * Rate the USD model prices are converted with before the log module shows
-     * them. Named after what it does rather than after one currency, so an
-     * installation that bills in euros no longer has to read "CHF" everywhere.
-     *
-     * The former "assistantUsdToChfRate" is still read when the new setting is
-     * absent, so an installation that has not run the upgrade wizard yet keeps
-     * the rate it had.
-     */
-    public function getAssistantUsdConversionRate(): float
-    {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
-        $raw = trim((string)($extConf['assistantUsdConversionRate'] ?? ''));
-        if ($raw === '') {
-            $raw = trim((string)($extConf['assistantUsdToChfRate'] ?? ''));
-        }
-
-        $rate = (float)str_replace(',', '.', $raw);
-
-        return $rate > 0 ? $rate : 0.90;
-    }
-
-    /**
-     * The currency the converted cost is quoted in — a label, not a conversion:
-     * it has to match the rate above, which nothing here can check.
-     */
-    public function getAssistantCurrency(): string
-    {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
-        $currency = trim((string)($extConf['assistantCurrency'] ?? ''));
-
-        return $currency !== '' ? $currency : 'CHF';
     }
 
     /**

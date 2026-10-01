@@ -30,7 +30,7 @@ final class LlmsTxtEndpointTest extends FunctionalTestCase
      */
     protected array $coreExtensionsToLoad = ['seo'];
 
-    protected array $testExtensionsToLoad = ['web-nomads/wn-ai-bridge'];
+    protected array $testExtensionsToLoad = ['b13/aim', 'web-nomads/wn-ai-bridge'];
 
     protected array $configurationToUseInTestInstance = [
         'EXTENSIONS' => [

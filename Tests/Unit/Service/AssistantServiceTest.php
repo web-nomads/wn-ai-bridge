@@ -57,33 +57,47 @@ class AssistantServiceTest extends TestCase
         return new SearchService([$provider], $configuration, $pageAccess);
     }
 
-    private function llmClient(?string $answer, ?\Throwable $throws = null): LlmClientInterface
+    /** @var \ArrayObject<int, array{maxTokens: int, temperature: ?float, pageId: ?int}> */
+    private \ArrayObject $llmCalls;
+
+    protected function setUp(): void
     {
-        return new class ($answer, $throws) implements LlmClientInterface {
-            public function __construct(private readonly ?string $answer, private readonly ?\Throwable $throws) {}
-            public function getProviderKey(): string
+        parent::setUp();
+        $this->llmCalls = new \ArrayObject();
+    }
+
+    private function llmClient(?string $answer, ?\Throwable $throws = null, bool $available = true): LlmClientInterface
+    {
+        return new class ($answer, $throws, $available, $this->llmCalls) implements LlmClientInterface {
+            /** @param \ArrayObject<int, array{maxTokens: int, temperature: ?float, pageId: ?int}> $calls */
+            public function __construct(
+                private readonly ?string $answer,
+                private readonly ?\Throwable $throws,
+                private readonly bool $available,
+                private readonly \ArrayObject $calls,
+            ) {}
+            public function isAvailable(): bool
             {
-                return 'anthropic';
+                return $this->available;
             }
-            public function complete(string $systemPrompt, array $messages, string $model, int $maxTokens, ?float $temperature = null): LlmResult
+            public function complete(string $systemPrompt, array $messages, int $maxTokens, ?float $temperature = null, ?int $pageId = null): LlmResult
             {
+                $this->calls->append(['maxTokens' => $maxTokens, 'temperature' => $temperature, 'pageId' => $pageId]);
                 if ($this->throws !== null) {
                     throw $this->throws;
                 }
-                return new LlmResult((string)$this->answer, 12, 34);
+                return new LlmResult((string)$this->answer, 12, 34, 'anthropic', 'claude-haiku-4-5-20251001', 0.0123, 'CHF');
             }
         };
     }
 
-    private function configuration(bool $llmConfigured): ConfigurationService
+    private function configuration(): ConfigurationService
     {
         $configuration = $this->createMock(ConfigurationService::class);
         $configuration->method('getAssistantSearchSources')->willReturn('auto');
         $configuration->method('getAssistantMaxResults')->willReturn(5);
         $configuration->method('getAssistantSearchRootPageId')->willReturn(0);
-        $configuration->method('isAssistantLlmConfigured')->willReturn($llmConfigured);
-        $configuration->method('getAssistantProvider')->willReturn('anthropic');
-        $configuration->method('getAssistantModel')->willReturn('claude-haiku-4-5');
+        $configuration->method('getCurrentSiteRootPageId')->willReturn(7);
         $configuration->method('getAssistantMaxTokens')->willReturn(1024);
         $configuration->method('getAssistantTemperature')->willReturn(0.7);
         $configuration->method('getAssistantInstructions')->willReturn('');
@@ -117,7 +131,7 @@ class AssistantServiceTest extends TestCase
     #[Test]
     public function returnsNoResultsMessageWhenNothingFound(): void
     {
-        $configuration = $this->configuration(llmConfigured: false);
+        $configuration = $this->configuration();
         $service = new AssistantService(
             $this->searchService([], $configuration),
             $configuration,
@@ -135,11 +149,11 @@ class AssistantServiceTest extends TestCase
     #[Test]
     public function returnsSearchOnlyResponseWhenLlmNotConfigured(): void
     {
-        $configuration = $this->configuration(llmConfigured: false);
+        $configuration = $this->configuration();
         $service = new AssistantService(
             $this->searchService($this->sampleResults(), $configuration),
             $configuration,
-            $this->llmClient('should not be used'),
+            $this->llmClient('should not be used', available: false),
             $this->learningService($configuration),
         );
 
@@ -153,7 +167,7 @@ class AssistantServiceTest extends TestCase
     #[Test]
     public function returnsLlmAnswerWhenConfigured(): void
     {
-        $configuration = $this->configuration(llmConfigured: true);
+        $configuration = $this->configuration();
         $service = new AssistantService(
             $this->searchService($this->sampleResults(), $configuration),
             $configuration,
@@ -168,15 +182,50 @@ class AssistantServiceTest extends TestCase
         self::assertCount(1, $response->sources);
         // Provider/model and token usage are captured for logging.
         self::assertSame('anthropic', $response->provider);
-        self::assertSame('claude-haiku-4-5', $response->model);
+        self::assertSame('claude-haiku-4-5-20251001', $response->model);
         self::assertSame(12, $response->inputTokens);
         self::assertSame(34, $response->outputTokens);
+        // Cost comes from AiM, in the currency of the configuration that answered.
+        self::assertSame(0.0123, $response->cost);
+        self::assertSame('CHF', $response->costCurrency);
+    }
+
+    #[Test]
+    public function theSiteDecidesTokenLimitTemperatureAndPageContext(): void
+    {
+        $configuration = $this->configuration();
+        $service = new AssistantService(
+            $this->searchService($this->sampleResults(), $configuration),
+            $configuration,
+            $this->llmClient('Antwort [1].'),
+            $this->learningService($configuration),
+        );
+
+        $service->ask('Studium', [], 0);
+
+        self::assertSame([['maxTokens' => 1024, 'temperature' => 0.7, 'pageId' => 7]], $this->llmCalls->getArrayCopy());
+    }
+
+    #[Test]
+    public function withoutAnAimProviderTheModelIsNeverAsked(): void
+    {
+        $configuration = $this->configuration();
+        $service = new AssistantService(
+            $this->searchService($this->sampleResults(), $configuration),
+            $configuration,
+            $this->llmClient('unused', available: false),
+            $this->learningService($configuration),
+        );
+
+        $service->ask('Studium', [], 0);
+
+        self::assertCount(0, $this->llmCalls);
     }
 
     #[Test]
     public function fallsBackToSearchWhenLlmFails(): void
     {
-        $configuration = $this->configuration(llmConfigured: true);
+        $configuration = $this->configuration();
         $service = new AssistantService(
             $this->searchService($this->sampleResults(), $configuration),
             $configuration,

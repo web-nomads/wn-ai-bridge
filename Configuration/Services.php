@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use WebNomads\WnAiBridge\Backend\SubscriptionRequiredGate;
+use WebNomads\WnAiBridge\Upgrades\AimProviderConfigurationUpdate;
 use WebNomads\WnAiBridge\Upgrades\AssistantColorSchemeUpdate;
-use WebNomads\WnAiBridge\Upgrades\AssistantCostSettingsUpdate;
 use WebNomads\WnAiBridge\Upgrades\AssistantSettingsToSiteConfigurationUpdate;
 
 /**
@@ -26,7 +26,7 @@ return static function (ContainerConfigurator $configurator): void {
     $services = $configurator->services();
     $wizards = [
         AssistantSettingsToSiteConfigurationUpdate::class,
-        AssistantCostSettingsUpdate::class,
+        AimProviderConfigurationUpdate::class,
         AssistantColorSchemeUpdate::class,
     ];
     foreach ($wizards as $wizard) {

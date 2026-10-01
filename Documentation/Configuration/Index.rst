@@ -113,27 +113,17 @@ Tab "assistant"
     Master switch for the AI search assistant. The widget additionally has to be
     enabled per site with :confval:`aiAssistantEnabled`.
 
-..  confval:: assistantProvider
-    :type: options
-    :Default: anthropic
+..  note::
 
-    LLM provider. Currently ``anthropic``.
+    Provider, model and API key are not configured here. The assistant sends
+    its requests through the AiM extension, see :ref:`installation-claude`.
 
-..  confval:: assistantApiKey
-    :type: string
-    :Default: (empty)
+    ..  versionchanged:: 2.0.0
 
-    The provider API key. Leave it empty to run the assistant in search-only
-    mode. Installation-wide: it is the account the provider bills, not something
-    a website answers for.
-
-..  confval:: assistantModel
-    :type: string
-    :Default: claude-haiku-4-5
-
-    Model id. It is passed to the API unchanged, so a newly released model can
-    be entered as soon as it exists. See :ref:`installation-claude` for how to
-    choose one.
+        ``assistantProvider``, ``assistantApiKey``, ``assistantModel``,
+        ``assistantUsdConversionRate`` and ``assistantCurrency`` were removed.
+        The upgrade wizard *"AI Bridge: move the Claude API key into an AiM
+        provider configuration"* carries them over into AiM.
 
 ..  confval:: assistantSearchSources
     :type: options
@@ -187,28 +177,6 @@ Tab "assistant"
         This sends visitor IP addresses to a third party. It is off by default;
         enable it only if that is compatible with your data-protection
         requirements.
-
-..  confval:: assistantUsdConversionRate
-    :type: string
-    :Default: 0.90
-
-    Rate the estimated LLM cost is converted with before the log module shows
-    it. Model prices are quoted in USD. The result is a rough estimate for
-    budgeting, not accounting.
-
-    ..  versionchanged:: 1.29.0
-
-        Formerly ``assistantUsdToChfRate``. The upgrade wizard *"AI Bridge:
-        rename the USD conversion rate and record the currency it converts to"*
-        carries the configured rate over; until it has run, the former setting
-        is still read.
-
-..  confval:: assistantCurrency
-    :type: string
-    :Default: CHF
-
-    The currency the estimated cost is shown in. A label only — it has to match
-    the conversion rate above, which nothing here can check.
 
 ..  _configuration-subscription:
 

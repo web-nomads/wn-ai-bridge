@@ -31,15 +31,6 @@ rateLimiterPerKeyRequestsPerMinute = 120
 # cat=assistant; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantEnabled
 assistantEnabled = 0
 
-# cat=assistant; type=options[Anthropic Claude=anthropic]; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantProvider
-assistantProvider = anthropic
-
-# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantApiKey
-assistantApiKey =
-
-# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantModel
-assistantModel = claude-haiku-4-5
-
 # cat=assistant; type=options[Automatic=auto,ke_search=kesearch,Indexed Search=indexed,Page content only=pages]; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantSearchSources
 assistantSearchSources = auto
 
@@ -57,9 +48,3 @@ assistantLogging = 0
 
 # cat=assistant; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantLogGeoLookup
 assistantLogGeoLookup = 0
-
-# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantUsdConversionRate
-assistantUsdConversionRate = 0.90
-
-# cat=assistant; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.assistantCurrency
-assistantCurrency = CHF

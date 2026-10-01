@@ -271,31 +271,27 @@ final class AssistantLogRepository
     }
 
     /**
-     * Token totals grouped by model, for estimating total cost.
+     * Cost as reported by AiM, summed per currency.
      *
-     * @return list<array{model: string, inputTokens: int, outputTokens: int}>
+     * @return array<string, float> currency => amount
      */
-    public function getModelTokenTotals(LogFilter $filter): array
+    public function getCostTotals(LogFilter $filter): array
     {
         $queryBuilder = $this->createFilteredQuery($filter);
         $rows = $queryBuilder
-            ->select('model')
-            ->addSelectLiteral(
-                'COALESCE(SUM(input_tokens), 0) AS in_tokens',
-                'COALESCE(SUM(output_tokens), 0) AS out_tokens'
-            )
-            ->groupBy('model')
+            ->select('cost_currency')
+            ->addSelectLiteral('COALESCE(SUM(cost), 0) AS amount')
+            ->andWhere($queryBuilder->expr()->gt('cost', $queryBuilder->createNamedParameter(0)))
+            ->groupBy('cost_currency')
             ->executeQuery()
             ->fetchAllAssociative();
 
-        return array_map(
-            static fn(array $row): array => [
-                'model' => (string)$row['model'],
-                'inputTokens' => (int)$row['in_tokens'],
-                'outputTokens' => (int)$row['out_tokens'],
-            ],
-            $rows
-        );
+        $totals = [];
+        foreach ($rows as $row) {
+            $totals[(string)$row['cost_currency']] = (float)$row['amount'];
+        }
+
+        return $totals;
     }
 
     /**

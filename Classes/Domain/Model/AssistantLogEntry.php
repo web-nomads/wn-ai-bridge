@@ -30,6 +30,8 @@ final class AssistantLogEntry
         public readonly int $pageId,
         /** @var list<array{title: string, url: string}> */
         public readonly array $sources = [],
+        public readonly float $cost = 0.0,
+        public readonly string $costCurrency = '',
     ) {}
 
     /**
@@ -56,6 +58,8 @@ final class AssistantLogEntry
             (string)($row['site_identifier'] ?? ''),
             (int)($row['page_id'] ?? 0),
             self::decodeSources($row['sources'] ?? null),
+            (float)($row['cost'] ?? 0.0),
+            (string)($row['cost_currency'] ?? ''),
         );
     }
 

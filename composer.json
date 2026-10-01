@@ -20,6 +20,7 @@
     "require": {
         "php": "^8.2 || ^8.3 || ^8.4",
         "ext-sodium": "*",
+        "b13/aim": "^0.5",
         "league/html-to-markdown": "^5.1",
         "typo3/cms-backend": "^13.4 || ^14.1",
         "typo3/cms-core": "^13.4 || ^14.1",
@@ -40,6 +41,7 @@
         "typo3/testing-framework": "^8.0 || ^9.3"
     },
     "suggest": {
+        "symfony/ai-anthropic-platform": "Lets AiM talk to Anthropic Claude; any other AiM provider bridge works as well",
         "typo3/cms-indexed-search": "Use the TYPO3 core indexed search index as a source for the AI search assistant",
         "tpwd/ke_search": "Use the ke_search index as a source for the AI search assistant"
     },

@@ -38,7 +38,7 @@ purpose — they are constructed from data, never injected.
     * - :php:`Service`
       - The application services: llms.txt and llms-full.txt generation, page
         rendering, Markdown conversion, HTML cleanup, the assistant, the
-        learning source, cost calculation, configuration access
+        learning source, cost formatting, configuration access
     * - :php:`Search`
       - The search backends behind :php:`SearchProviderInterface` and the
         :php:`SearchService` that merges their results
@@ -47,8 +47,8 @@ purpose — they are constructed from data, never injected.
         :php:`PageAccessService` decides whether a page may be shown — to the
         current visitor, or to one without a login
     * - :php:`Llm`
-      - The provider abstraction :php:`LlmClientInterface` and its Anthropic
-        implementation
+      - :php:`LlmClientInterface` and :php:`AimClient`, which sends the
+        conversation through AiM
     * - :php:`Subscription`
       - Key decoding, signature verification, the daily online check and tamper
         detection
@@ -87,7 +87,8 @@ Database tables
       - Contents
     * - ``tx_wnaibridge_assistant_log``
       - One row per turn: question, answer, mode, provider, model, token usage,
-        conversation id, visitor information
+        cost and its currency as reported by AiM, conversation id, visitor
+        information
     * - ``tx_wnaibridge_assistant_learning``
       - The curated answers: topic, the answer objected to, the correction,
         keywords, status, origin, site identifier and language
@@ -175,9 +176,13 @@ fallback).
 Adding an LLM provider
 ----------------------
 
-:php:`LlmClientInterface` is bound to :php:`AnthropicClient` by an alias in
-:file:`Configuration/Services.yaml`. Implement the interface and override the
-alias to swap the provider without touching the assistant service:
+Providers are AiM's business: any Symfony AI bridge AiM discovers, or a
+provider registered with AiM's ``#[AsAiProvider]`` attribute, can answer the
+assistant once a provider configuration for it exists. Nothing in this extension
+has to change.
+
+To bypass AiM altogether, implement :php:`LlmClientInterface` and override the
+alias to :php:`AimClient` in :file:`Configuration/Services.yaml`:
 
 ..  code-block:: yaml
     :caption: EXT:my_ext/Configuration/Services.yaml

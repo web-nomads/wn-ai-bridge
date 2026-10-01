@@ -428,15 +428,6 @@
 			<trans-unit id="config.assistantEnabled">
 				<source>Enable AI search assistant: Master switch for the chat widget that helps visitors find information on the site</source>
 			</trans-unit>
-			<trans-unit id="config.assistantProvider">
-				<source>LLM provider: Provider used to compose answers. Without an API key the assistant answers from search results alone</source>
-			</trans-unit>
-			<trans-unit id="config.assistantApiKey">
-				<source>LLM API key: API key of the provider. Leave empty for search-only mode (hits and links without a composed answer)</source>
-			</trans-unit>
-			<trans-unit id="config.assistantModel">
-				<source>LLM model: Model id used to compose answers, e.g. claude-haiku-4-5 for fast and inexpensive answers or claude-sonnet-5 for harder questions</source>
-			</trans-unit>
 			<trans-unit id="config.assistantSearchSources">
 				<source>Search sources: Which search indexes are used (Automatic uses everything available)</source>
 			</trans-unit>
@@ -454,12 +445,6 @@
 			</trans-unit>
 			<trans-unit id="config.assistantLogGeoLookup">
 				<source>Country lookup in the log module: Resolves the country of an IP address through an external service (ip-api.com) while the log is displayed. Results are cached. Off by default for data protection reasons</source>
-			</trans-unit>
-			<trans-unit id="config.assistantUsdConversionRate">
-				<source>Conversion rate from USD: Rate the estimated LLM cost is converted with before the log module shows it (model prices are quoted in USD). Example: 0.90</source>
-			</trans-unit>
-			<trans-unit id="config.assistantCurrency">
-				<source>Currency: Currency the estimated cost is shown in. A label only — it has to match the conversion rate above, which nothing here can check. Example: CHF</source>
 			</trans-unit>
 
 		</body>
