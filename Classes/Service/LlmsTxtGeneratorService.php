@@ -39,6 +39,11 @@ class LlmsTxtGeneratorService
      */
     private const OPTIONAL_SECTION = 'Optional';
 
+    /**
+     * Heading of the pages hidden in menus but marked for llms.txt, e.g. landing pages.
+     */
+    public const FURTHER_SECTION = 'Further Pages';
+
     private readonly ConfigurationService $configurationService;
     private readonly PageRepository $pageRepository;
     private readonly NavigationBuilder $navigationBuilder;
@@ -88,6 +93,7 @@ class LlmsTxtGeneratorService
         $this->appendHeader($lines, $homePage);
         $this->appendDetails($lines);
         $this->appendNavigation($lines, $site->getRootPageId(), $languageUid);
+        $this->appendListedPages($lines, $site->getRootPageId(), $languageUid);
         $this->appendFullDocumentLink($lines);
 
         return implode("\n", $lines) . "\n";
@@ -180,6 +186,26 @@ class LlmsTxtGeneratorService
         }
 
         foreach ($navigation as $line) {
+            $lines[] = $line;
+        }
+    }
+
+    /**
+     * Append the pages hidden in menus that the editor marked for llms.txt, as a
+     * file list of their own; the section is left out when there are none.
+     *
+     * @param list<string> $lines
+     */
+    private function appendListedPages(array &$lines, int $rootPageId, int $languageUid): void
+    {
+        $listed = $this->navigationBuilder->formatAsMarkdown($this->navigationBuilder->buildListed($rootPageId, $languageUid), $languageUid);
+        if ($listed === []) {
+            return;
+        }
+
+        $lines[] = '';
+        $lines[] = '## ' . self::FURTHER_SECTION;
+        foreach ($listed as $line) {
             $lines[] = $line;
         }
     }

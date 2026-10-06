@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-10-06
+
+### Added
+- Page option **List in llms.txt although hidden in menus**
+  (`tx_wnaibridge_llms_include`, next to *Hide in menu*). `llms.txt` lists such
+  pages in a section `## Further Pages` after the navigation and
+  `llms-full.txt` includes their content, wherever they lie in the site's page
+  tree, folders included. Meant for landing pages, e.g. those the AI Monitor
+  creates. Translations and visibility are handled as for navigation pages.
+
 ## [2.0.0] - 2026-10-01
 
 ### Changed

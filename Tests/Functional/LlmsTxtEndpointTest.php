@@ -128,6 +128,24 @@ final class LlmsTxtEndpointTest extends FunctionalTestCase
         self::assertStringNotContainsString('internal.md', $body, 'A page hidden from the menu stays out.');
     }
 
+    /**
+     * A landing page lives in a folder and is hidden in menus; marked for
+     * llms.txt it gets a file list of its own, a page hidden without the mark
+     * stays out.
+     */
+    #[Test]
+    public function aPageMarkedForLlmsTxtIsListedAlthoughHiddenInMenus(): void
+    {
+        $body = $this->body('http://localhost/llms.txt');
+
+        self::assertStringContainsString(
+            "## Further Pages\n- [Is TYPO3 fit for AI search?](http://localhost/typo3-ai-search.md): A direct answer for AI assistants.",
+            $body
+        );
+        self::assertStringNotContainsString('internal.md', $body);
+        self::assertStringNotContainsString('landing-pages.md', $body, 'The folder itself is no page.');
+    }
+
     #[Test]
     public function aPageHeadCarriesBothLinkRelations(): void
     {

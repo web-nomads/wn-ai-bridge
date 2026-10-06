@@ -106,6 +106,16 @@ heading in `llms.txt`. That setting hides the divider, not the group it opens.
 A *page* marked the same way does stay out, because the file follows the
 navigation.
 
+### Pages hidden in menus
+
+Some pages are meant to be found without being in the menu, landing pages
+above all. Tick **List in llms.txt although hidden in menus** in the page
+properties (tab *Access*, next to *Hide in menu*): `llms.txt` lists such pages
+in a section of their own, `## Further Pages`, after the navigation, and
+`llms-full.txt` includes their content. They may lie anywhere in the site's page
+tree, also in a folder. The AI Monitor (`web-nomads/wn-ai-monitor`) sets the
+option on the landing pages it creates.
+
 ### Link relations
 
 An agent that holds a page should not have to guess where its machine-readable

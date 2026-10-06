@@ -108,6 +108,22 @@ final class LlmsTxtDocumentTest extends TestCase
     }
 
     #[Test]
+    public function pagesHiddenInMenusButMarkedForLlmsTxtGetAListOfTheirOwn(): void
+    {
+        $document = $this->subject()->generateLlmsTxt(1);
+
+        self::assertStringContainsString(
+            "\n## Further Pages\n- [Is TYPO3 fit for AI search?](https://example.com/typo3-ai-search.md): A direct answer.\n",
+            $document
+        );
+        self::assertLessThan(
+            strpos($document, '## Further Pages'),
+            strpos($document, 'products.md'),
+            'The navigation comes first.'
+        );
+    }
+
+    #[Test]
     public function thePreambleSaysWhereTheMarkdownVersionsAre(): void
     {
         $document = $this->subject()->generateLlmsTxt(1);
@@ -257,6 +273,14 @@ final class LlmsTxtDocumentTest extends TestCase
             /**
              * @return list<array<string, mixed>>
              */
+            public function buildListed(int $rootPageUid, int $languageUid = 0): array
+            {
+                return [];
+            }
+
+            /**
+             * @return list<array<string, mixed>>
+             */
             public function build(int $rootPageUid, int $maxDepth = 2, int $languageUid = 0): array
             {
                 $structure = [];
@@ -303,6 +327,21 @@ final class LlmsTxtDocumentTest extends TestCase
     {
         return new class () extends NavigationBuilder {
             public function __construct() {}
+
+            /**
+             * @return list<array<string, mixed>>
+             */
+            public function buildListed(int $rootPageUid, int $languageUid = 0): array
+            {
+                return [[
+                    'uid' => 9,
+                    'title' => 'Is TYPO3 fit for AI search?',
+                    'description' => 'A direct answer.',
+                    'url' => 'https://example.com/typo3-ai-search.md',
+                    'language' => 'English',
+                    'pages' => [],
+                ]];
+            }
 
             /**
              * @return list<array<string, mixed>>

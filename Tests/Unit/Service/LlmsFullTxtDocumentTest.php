@@ -198,6 +198,11 @@ final class LlmsFullTxtDocumentTest extends TestCase
                 return self::page(1, 0, 'Home', 'The home page.');
             }
 
+            public function findListedInLlmsTxtWithFallback(int $rootPageUid, SiteLanguage $siteLanguage): array
+            {
+                return [];
+            }
+
             public function findNavigationByParentWithFallback(
                 int $parentUid,
                 SiteLanguage $siteLanguage,

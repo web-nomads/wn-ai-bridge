@@ -584,6 +584,56 @@ class PageRepository
     }
 
     /**
+     * Pages below the root marked "List in llms.txt although hidden in menus", in the given language
+     *
+     * Folders do not stop the search: landing pages typically live in one.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function findListedInLlmsTxtWithFallback(int $rootPageUid, SiteLanguage $siteLanguage): array
+    {
+        $descendants = GeneralUtility::makeInstance(CorePageRepository::class, $this->context)
+            ->getDescendantPageIdsRecursive($rootPageUid, self::MAX_RECURSION_DEPTH);
+        if ($descendants === []) {
+            return [];
+        }
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
+        $queryBuilder->getRestrictions()->removeAll()
+            ->add(GeneralUtility::makeInstance(FrontendRestrictionContainer::class));
+        $rows = $queryBuilder
+            ->select(...self::PAGE_FIELDS)
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter(array_slice($descendants, 0, self::MAX_BATCH_SIZE), Connection::PARAM_INT_ARRAY)),
+                $queryBuilder->expr()->eq('tx_wnaibridge_llms_include', $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)),
+                $queryBuilder->expr()->notIn('doktype', $queryBuilder->createNamedParameter(self::EXCLUDED_DOKTYPES, Connection::PARAM_INT_ARRAY))
+            )
+            ->orderBy('sorting')
+            ->addOrderBy('uid')
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $now = $this->now();
+        $rows = array_values(array_filter($rows, static fn(array $row): bool => PageAccessService::isVisibleRow($row, PageAccessService::ANONYMOUS_GROUPS, $now)));
+        if ($siteLanguage->getLanguageId() === 0) {
+            return array_map(fn(array $row): array => $this->mapRowToPageArray($row), $rows);
+        }
+
+        $corePageRepository = $this->createCorePageRepository($siteLanguage);
+        $languageAspect = LanguageAspectFactory::createFromSiteLanguage($siteLanguage);
+        $result = [];
+        foreach ($corePageRepository->getPagesOverlay($rows) as $page) {
+            if (PageAccessService::isVisibleRow($page, PageAccessService::ANONYMOUS_GROUPS, $now)
+                && $corePageRepository->isPageSuitableForLanguage($page, $languageAspect)
+            ) {
+                $result[] = $this->mapRowToPageArray($page);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Create a Core PageRepository instance configured for the given site language
      * This handles language overlays with proper fallback chain
      */
