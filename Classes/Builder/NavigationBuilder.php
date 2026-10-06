@@ -47,6 +47,35 @@ class NavigationBuilder
     }
 
     /**
+     * Pages hidden in menus but marked for llms.txt, as items of a flat list
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function buildListed(int $rootPageUid, int $languageUid = 0): array
+    {
+        $site = $this->siteFinder->getSiteByPageId($rootPageUid);
+        try {
+            $siteLanguage = $site->getLanguageById($languageUid);
+        } catch (\Exception $e) {
+            $siteLanguage = $site->getDefaultLanguage();
+        }
+
+        $items = [];
+        foreach ($this->pageRepository->findListedInLlmsTxtWithFallback($rootPageUid, $siteLanguage) as $page) {
+            $items[] = [
+                'uid' => $page['uid'],
+                'title' => trim((string)preg_replace('/\s+/', ' ', trim((string)($page['nav_title'] ?: $page['title'])))),
+                'description' => trim((string)preg_replace('/\s+/', ' ', trim((string)($page['description'] ?: $page['abstract'] ?: '')))),
+                'url' => $this->urlGenerator->generatePageUrl($page),
+                'language' => $this->getLanguageTitle($page),
+                'pages' => [],
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
      * Recursive helper to build the structure
      *
      * Menu separators are asked for at the top level only. There they become the

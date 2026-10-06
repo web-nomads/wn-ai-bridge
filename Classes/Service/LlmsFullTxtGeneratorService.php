@@ -112,6 +112,10 @@ class LlmsFullTxtGeneratorService
         $this->appendAbout($lines);
         $this->appendPage($lines, $homePage, 2);
         $this->appendChildren($lines, $rootPageId, $siteLanguage, $this->configurationService->getMaxDepth(), 2);
+        // pages hidden in menus but marked for llms.txt, e.g. landing pages
+        foreach ($this->pageRepository->findListedInLlmsTxtWithFallback($rootPageId, $siteLanguage) as $page) {
+            $this->appendPage($lines, $page, 2);
+        }
         $this->appendAdditionalInfo($lines);
         $this->appendTruncationNote($lines);
 

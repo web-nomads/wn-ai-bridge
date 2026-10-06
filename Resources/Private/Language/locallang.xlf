@@ -446,6 +446,12 @@
 			<trans-unit id="config.assistantLogGeoLookup">
 				<source>Country lookup in the log module: Resolves the country of an IP address through an external service (ip-api.com) while the log is displayed. Results are cached. Off by default for data protection reasons</source>
 			</trans-unit>
+			<trans-unit id="pages.llms_include">
+				<source>List in llms.txt although hidden in menus</source>
+			</trans-unit>
+			<trans-unit id="pages.llms_include.description">
+				<source>For pages that are not in the menu but should be found by AI assistants, such as landing pages: llms.txt and llms-full.txt list them under &quot;Further Pages&quot;, wherever they are in the page tree</source>
+			</trans-unit>
 
 		</body>
 	</file>

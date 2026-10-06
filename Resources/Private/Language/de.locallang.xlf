@@ -71,6 +71,14 @@
 				<source>Country lookup in the log module: Resolves the country of an IP address through an external service (ip-api.com) while the log is displayed. Results are cached. Off by default for data protection reasons</source>
 				<target>Geo-/Länder-Lookup im Log-Modul: Ermittelt beim Anzeigen im Backend das Land zu einer IP über einen externen Dienst (ip-api.com). Ergebnisse werden zwischengespeichert. Aus Datenschutzgründen standardmässig aus</target>
 			</trans-unit>
+			<trans-unit id="pages.llms_include">
+				<source>List in llms.txt although hidden in menus</source>
+				<target>In llms.txt aufnehmen, auch wenn im Menü verborgen</target>
+			</trans-unit>
+			<trans-unit id="pages.llms_include.description">
+				<source>For pages that are not in the menu but should be found by AI assistants, such as landing pages: llms.txt and llms-full.txt list them under &quot;Further Pages&quot;, wherever they are in the page tree</source>
+				<target>Für Seiten, die nicht im Menü stehen, aber von KI-Assistenten gefunden werden sollen, etwa Landing-Pages: llms.txt und llms-full.txt führen sie unter «Further Pages» auf, egal wo sie im Seitenbaum liegen</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

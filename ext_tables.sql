@@ -90,3 +90,7 @@ CREATE TABLE tx_wnaibridge_bot_access (
     KEY ip_address (ip_address),
     KEY site (site_identifier)
 );
+
+CREATE TABLE pages (
+    tx_wnaibridge_llms_include tinyint(1) unsigned DEFAULT '0' NOT NULL
+);
