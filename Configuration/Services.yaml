@@ -57,7 +57,7 @@ services:
   WebNomads\WnAiBridge\Controller\Backend\AnswersModuleController:
     public: true
 
-  WebNomads\WnAiBridge\Controller\Backend\BotAccessModuleController:
+  WebNomads\WnAiBridge\Controller\Backend\AgentAnalyticsModuleController:
     public: true
 
   # The subscription state is resolved once per request and cached in the
@@ -78,7 +78,7 @@ services:
   WebNomads\WnAiBridge\Middleware\AssistantRequestMiddleware:
     public: true
 
-  WebNomads\WnAiBridge\Middleware\BotAccessLogMiddleware:
+  WebNomads\WnAiBridge\Middleware\AgentVisitMiddleware:
     public: true
 
   WebNomads\WnAiBridge\Middleware\LinkRelationMiddleware:
@@ -106,3 +106,15 @@ services:
       - name: 'console.command'
         command: 'ai-bridge:check-subscription'
         description: 'Verify the subscription key and refresh its status with the issuing server'
+
+  WebNomads\WnAiBridge\Command\ImportLogsCommand:
+    tags:
+      - name: 'console.command'
+        command: 'ai-bridge:import-logs'
+        description: 'Import AI crawler and AI referral visits from web server access logs'
+
+  WebNomads\WnAiBridge\Command\PurgeVisitsCommand:
+    tags:
+      - name: 'console.command'
+        command: 'ai-bridge:purge-visits'
+        description: 'Delete crawler and referral visits older than the retention period'

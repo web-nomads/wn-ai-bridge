@@ -413,8 +413,20 @@
 			<trans-unit id="config.cacheMarkdown">
 				<source>Cache Markdown: Keeps the generated Markdown of a page in the TYPO3 cache</source>
 			</trans-unit>
-			<trans-unit id="config.botAccessLogging">
-				<source>Log bot access: Records requests by bots and crawlers to llms.txt, the Markdown versions (.md) and regular pages. Shown in the backend module &quot;Bot Access Log&quot; (mind data protection)</source>
+			<trans-unit id="config.agentAnalytics">
+				<source>Log AI crawler visits: Stores requests of known AI crawlers (GPTBot, ClaudeBot, PerplexityBot, ...) to llms.txt, the Markdown versions (.md) and pages, with status and a salted hash of the IP address, for the backend module &quot;Agent Analytics&quot;. Default for all sites; a site can override it in its site configuration, tab &quot;Agent Analytics&quot;</source>
+			</trans-unit>
+			<trans-unit id="config.agentReferrals">
+				<source>Log visits referred by AI platforms: Stores visits coming from ChatGPT, Perplexity, Gemini, Copilot, Claude and others with page and status, without IP address. Default for all sites; a site can override it in its site configuration, tab &quot;Agent Analytics&quot;</source>
+			</trans-unit>
+			<trans-unit id="config.agentVerifyIp">
+				<source>Verify crawler IP addresses: Checks by reverse and forward DNS whether a crawler claiming to be Googlebot, Bingbot, Applebot and the like really comes from its operator. One DNS lookup per crawler address and day. Default for all sites; a site can override it in its site configuration, tab &quot;Agent Analytics&quot;</source>
+			</trans-unit>
+			<trans-unit id="config.agentExtraBots">
+				<source>More crawler tokens: Further user agent parts to log as AI crawlers, separated by commas, e.g. SomeAIBot, OtherCrawler. Default for all sites; a site can add its own in its site configuration, tab &quot;Agent Analytics&quot;</source>
+			</trans-unit>
+			<trans-unit id="config.agentRetentionDays">
+				<source>Keep visits (days): Visits older than this are removed by ai-bridge:purge-visits. 0 keeps everything</source>
 			</trans-unit>
 			<trans-unit id="config.rateLimiterEnabled">
 				<source>Enable rate limiter: Throttles AI Bridge requests (llms.txt / .md) globally</source>
@@ -453,6 +465,42 @@
 				<source>For pages that are not in the menu but should be found by AI assistants, such as landing pages: llms.txt and llms-full.txt list them under &quot;Further Pages&quot;, wherever they are in the page tree</source>
 			</trans-unit>
 
+			<trans-unit id="site.tab.agents">
+				<source>Agent Analytics</source>
+			</trans-unit>
+			<trans-unit id="site.agent.default">
+				<source>Default of the extension configuration</source>
+			</trans-unit>
+			<trans-unit id="site.agent.on">
+				<source>On</source>
+			</trans-unit>
+			<trans-unit id="site.agent.off">
+				<source>Off</source>
+			</trans-unit>
+			<trans-unit id="site.aiBridgeAgentAnalytics">
+				<source>Log AI crawler visits</source>
+			</trans-unit>
+			<trans-unit id="site.aiBridgeAgentAnalytics.description">
+				<source>Requests of known AI crawlers to llms.txt, the Markdown versions and pages of this site, for the module Agent Analytics. IP addresses are stored as salted hash only.</source>
+			</trans-unit>
+			<trans-unit id="site.aiBridgeAgentReferrals">
+				<source>Log visits referred by AI platforms</source>
+			</trans-unit>
+			<trans-unit id="site.aiBridgeAgentReferrals.description">
+				<source>Visitors coming from ChatGPT, Perplexity, Gemini, Copilot, Claude and others, without IP address.</source>
+			</trans-unit>
+			<trans-unit id="site.aiBridgeAgentVerifyIp">
+				<source>Verify crawler IP addresses</source>
+			</trans-unit>
+			<trans-unit id="site.aiBridgeAgentVerifyIp.description">
+				<source>Checks by reverse and forward DNS whether Googlebot, Bingbot, Applebot and the like really come from their operator.</source>
+			</trans-unit>
+			<trans-unit id="site.aiBridgeAgentExtraBots">
+				<source>More crawler tokens</source>
+			</trans-unit>
+			<trans-unit id="site.aiBridgeAgentExtraBots.description">
+				<source>User agent parts logged as AI crawlers in addition to those of the extension configuration, separated by commas.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

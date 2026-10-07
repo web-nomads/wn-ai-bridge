@@ -16,8 +16,20 @@ debug = 0
 # cat=basic; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.cacheMarkdown
 cacheMarkdown = 0
 
-# cat=basic; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.botAccessLogging
-botAccessLogging = 0
+# cat=agents; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.agentAnalytics
+agentAnalytics = 1
+
+# cat=agents; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.agentReferrals
+agentReferrals = 1
+
+# cat=agents; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.agentVerifyIp
+agentVerifyIp = 0
+
+# cat=agents; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.agentExtraBots
+agentExtraBots =
+
+# cat=agents; type=int+; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.agentRetentionDays
+agentRetentionDays = 90
 
 # cat=rateLimiter; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.rateLimiterEnabled
 rateLimiterEnabled = 0

@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\View\ViewFactoryData;
 use TYPO3\CMS\Core\View\ViewFactoryInterface;
+use WebNomads\WnAiBridge\Backend\ModuleDocHeader;
 use WebNomads\WnAiBridge\Domain\Model\AssistantLogEntry;
 use WebNomads\WnAiBridge\Domain\Model\LogFilter;
 use WebNomads\WnAiBridge\Domain\Repository\AssistantLogRepository;
@@ -52,6 +53,7 @@ final class EnquiriesModuleController
         // second line of defence so the log is never reachable by accident.
         if (!$this->subscriptionService->hasFeature(SubscriptionService::FEATURE_LOG)) {
             $moduleTemplate = $this->moduleTemplateFactory->create($request);
+            ModuleDocHeader::withoutButtonBar($moduleTemplate);
             $moduleTemplate->setTitle('AI Assistant Enquiries');
             $moduleTemplate->assign('subscription', $this->subscriptionService->getStatus());
 
@@ -134,6 +136,7 @@ final class EnquiriesModuleController
         $pageRenderer->loadJavaScriptModule('@webnomads/wn-ai-bridge/backend-filter.js');
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
+        ModuleDocHeader::withoutButtonBar($moduleTemplate);
         $moduleTemplate->setTitle('AI Assistant Enquiries');
         $moduleTemplate->assignMultiple($variables);
 

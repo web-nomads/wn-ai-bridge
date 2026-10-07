@@ -457,7 +457,7 @@ Step 10: Verify
     * - Answer is a phrased text, not a list of hits
       - The LLM connection works
     * - Backend module group :guilabel:`AI Bridge`
-      - :guilabel:`Enquiries`, :guilabel:`Answers`, :guilabel:`Bot Access Log`
+      - :guilabel:`Enquiries`, :guilabel:`Answers`, :guilabel:`Agent Analytics`
 
 ..  note::
 

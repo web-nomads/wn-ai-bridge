@@ -17,8 +17,8 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:wn_ai_bridge/Resources/Public/Icons/module-answers.svg',
     ],
-    'wn-ai-bridge-module-bot-access' => [
+    'wn-ai-bridge-module-agents' => [
         'provider' => SvgIconProvider::class,
-        'source' => 'EXT:wn_ai_bridge/Resources/Public/Icons/module-bot-access.svg',
+        'source' => 'EXT:wn_ai_bridge/Resources/Public/Icons/module-agents.svg',
     ],
 ];

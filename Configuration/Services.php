@@ -8,6 +8,7 @@ use WebNomads\WnAiBridge\Backend\SubscriptionRequiredGate;
 use WebNomads\WnAiBridge\Upgrades\AimProviderConfigurationUpdate;
 use WebNomads\WnAiBridge\Upgrades\AssistantColorSchemeUpdate;
 use WebNomads\WnAiBridge\Upgrades\AssistantSettingsToSiteConfigurationUpdate;
+use WebNomads\WnAiBridge\Upgrades\BotAccessLogMigrationUpdate;
 
 /**
  * Services that only exist on one TYPO3 version, next to the version-independent
@@ -28,6 +29,7 @@ return static function (ContainerConfigurator $configurator): void {
         AssistantSettingsToSiteConfigurationUpdate::class,
         AimProviderConfigurationUpdate::class,
         AssistantColorSchemeUpdate::class,
+        BotAccessLogMigrationUpdate::class,
     ];
     foreach ($wizards as $wizard) {
         $services

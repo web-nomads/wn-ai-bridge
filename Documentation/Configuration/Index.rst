@@ -65,14 +65,57 @@ Tab "basic"
     Falls back to raw HTML when a page cannot be parsed into Markdown, instead
     of returning an error.
 
-..  confval:: botAccessLogging
+..  _configuration-agents:
+
+Tab "agents"
+------------
+
+The switches of :guilabel:`Agent Analytics`. The first four are defaults for
+all sites; a site can override them on its :guilabel:`Agent Analytics` tab, see
+:ref:`configuration-site-agents`.
+
+..  confval:: agentAnalytics
+    :type: boolean
+    :Default: 1
+
+    Records requests of known AI crawlers (GPTBot, ClaudeBot, PerplexityBot,
+    Googlebot, Bingbot and others) to ``llms.txt``, ``llms-full.txt``, the
+    Markdown versions and HTML pages into ``tx_wnaibridge_agent_visit``, with
+    status and a salted hash of the IP address. Shown in the
+    :guilabel:`Agent Analytics` module. Requests of other bots and of people
+    are not stored. Replaces ``botAccessLogging`` of versions up to 2.1.
+
+..  confval:: agentReferrals
+    :type: boolean
+    :Default: 1
+
+    Records visits whose referrer or ``utm_source`` names an AI platform
+    (ChatGPT, Perplexity, Gemini, Copilot, Claude and others), with page,
+    status and platform, without IP address.
+
+..  confval:: agentVerifyIp
     :type: boolean
     :Default: 0
 
-    Records bot and crawler accesses to ``llms.txt``, the Markdown versions and
-    normal pages into ``tx_wnaibridge_bot_access``, shown in the
-    :guilabel:`Bot Access Log` module. Run the database schema update after
-    enabling.
+    Checks by reverse and forward DNS whether a crawler claiming to be
+    Googlebot, Bingbot, Applebot, Amazonbot, DuckAssistBot or PetalBot really
+    comes from its operator. One DNS lookup per crawler address and day; the
+    module then shows verified and unverified visits per crawler.
+
+..  confval:: agentExtraBots
+    :type: string
+    :Default: (empty)
+
+    Further user agent parts to record as AI crawlers, separated by commas,
+    e.g. ``SomeAIBot, OtherCrawler``. Tokens shorter than three characters are
+    ignored.
+
+..  confval:: agentRetentionDays
+    :type: int
+    :Default: 90
+
+    Visits older than this are removed by ``ai-bridge:purge-visits``. 0 keeps
+    everything.
 
 ..  _configuration-ratelimiter:
 
@@ -480,6 +523,30 @@ For anything the colours cannot express, use :confval:`aiAssistantCustomCss` and
 override the CSS custom properties such as ``--wn-ai-accent`` or
 ``--wn-ai-radius``.
 
+..  _configuration-site-agents:
+
+Tab "Agent Analytics"
+---------------------
+
+Overrides of the extension configuration for one site. A switch left on
+*Default of the extension configuration* follows :confval:`agentAnalytics`,
+:confval:`agentReferrals` or :confval:`agentVerifyIp`.
+
+..  list-table::
+    :header-rows: 1
+    :widths: 35 65
+
+    * - Field
+      - Meaning
+    * - ``aiBridgeAgentAnalytics``
+      - Log AI crawler visits on this site: default, on or off
+    * - ``aiBridgeAgentReferrals``
+      - Log visits referred by AI platforms: default, on or off
+    * - ``aiBridgeAgentVerifyIp``
+      - Verify crawler IP addresses by DNS: default, on or off
+    * - ``aiBridgeAgentExtraBots``
+      - Crawler tokens added to :confval:`agentExtraBots` for this site
+
 ..  _configuration-routes:
 
 Route enhancers
@@ -678,9 +745,9 @@ sees them. Use these identifiers when configuring
     * - :guilabel:`Answers`
       - ``wn_ai_bridge_answers``
       - ``wn_ai_bridge_corrections``
-    * - :guilabel:`Bot Access Log`
+    * - :guilabel:`Agent Analytics`
+      - ``wn_ai_bridge_agents``
       - ``wn_ai_bridge_botaccess``
-      - —
 
 ..  note::
 

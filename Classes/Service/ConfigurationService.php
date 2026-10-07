@@ -246,17 +246,6 @@ class ConfigurationService
     }
 
     /**
-     * Whether bot/crawler accesses to llms.txt, the Markdown (.md) versions and
-     * normal pages are recorded for review in the "Bot Access Log" backend
-     * module. Off by default.
-     */
-    public function isBotAccessLoggingEnabled(): bool
-    {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['wn_ai_bridge'] ?? [];
-        return (bool)($extConf['botAccessLogging'] ?? false);
-    }
-
-    /**
      * Whether the rate limiter for AI-Bridge requests is globally enabled.
      */
     public function isRateLimiterEnabled(): bool

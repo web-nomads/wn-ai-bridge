@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_agents.xlf" date="2026-10-07T12:00:00Z">
+		<header>
+			<description>Language labels for the backend module Agent Analytics</description>
+		</header>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Agent Analytics</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>Agent Analytics</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>Which AI crawlers read llms.txt, the Markdown versions and the pages, how often they return, and how many visitors AI platforms send.</source>
+			</trans-unit>
+			<trans-unit id="module.title">
+				<source>Agent Analytics</source>
+			</trans-unit>
+			<trans-unit id="module.intro">
+				<source>Visits of AI crawlers to llms.txt, the Markdown versions and the pages, and of visitors sent by AI platforms, logged by this TYPO3 or imported from access logs.</source>
+			</trans-unit>
+			<trans-unit id="module.loggingOff">
+				<source>Logging of AI crawler visits is switched off, in the extension configuration or in the site configuration (tab Agent Analytics).</source>
+			</trans-unit>
+			<trans-unit id="module.tableMissing">
+				<source>The table for the visits does not exist yet. Please run the database schema update (Admin Tools › Maintenance › Analyze Database Structure).</source>
+			</trans-unit>
+			<trans-unit id="filter.site">
+				<source>Site</source>
+			</trans-unit>
+			<trans-unit id="filter.all">
+				<source>All</source>
+			</trans-unit>
+			<trans-unit id="filter.period">
+				<source>Period</source>
+			</trans-unit>
+			<trans-unit id="period.days">
+				<source>Last %1$s days</source>
+			</trans-unit>
+			<trans-unit id="period.custom">
+				<source>Custom range</source>
+			</trans-unit>
+			<trans-unit id="filter.dateFrom">
+				<source>From</source>
+			</trans-unit>
+			<trans-unit id="filter.dateTo">
+				<source>To</source>
+			</trans-unit>
+			<trans-unit id="filter.apply">
+				<source>Show</source>
+			</trans-unit>
+			<trans-unit id="filter.reset">
+				<source>Reset</source>
+			</trans-unit>
+			<trans-unit id="button.exportCsv">
+				<source>Export CSV</source>
+			</trans-unit>
+			<trans-unit id="kpi.crawlerVisits">
+				<source>Crawler visits</source>
+			</trans-unit>
+			<trans-unit id="kpi.crawlers">
+				<source>Crawlers</source>
+			</trans-unit>
+			<trans-unit id="kpi.pages">
+				<source>Pages</source>
+			</trans-unit>
+			<trans-unit id="kpi.markdown">
+				<source>Markdown</source>
+			</trans-unit>
+			<trans-unit id="kpi.referrals">
+				<source>AI referrals</source>
+			</trans-unit>
+			<trans-unit id="kpi.platforms">
+				<source>Platforms</source>
+			</trans-unit>
+			<trans-unit id="chart.crawlerVisits">
+				<source>Crawler visits over time</source>
+			</trans-unit>
+			<trans-unit id="granularity.day">
+				<source>Daily</source>
+			</trans-unit>
+			<trans-unit id="granularity.week">
+				<source>Weekly</source>
+			</trans-unit>
+			<trans-unit id="crawlers.title">
+				<source>AI crawlers</source>
+			</trans-unit>
+			<trans-unit id="col.crawler">
+				<source>Crawler</source>
+			</trans-unit>
+			<trans-unit id="col.purpose">
+				<source>Purpose</source>
+			</trans-unit>
+			<trans-unit id="purpose.training">
+				<source>model training</source>
+			</trans-unit>
+			<trans-unit id="purpose.search">
+				<source>AI search</source>
+			</trans-unit>
+			<trans-unit id="purpose.user">
+				<source>user request</source>
+			</trans-unit>
+			<trans-unit id="col.visits">
+				<source>Visits</source>
+			</trans-unit>
+			<trans-unit id="col.pages">
+				<source>Pages</source>
+			</trans-unit>
+			<trans-unit id="col.recrawl">
+				<source>Recrawl interval</source>
+			</trans-unit>
+			<trans-unit id="col.lastVisit">
+				<source>Last visit</source>
+			</trans-unit>
+			<trans-unit id="col.verified">
+				<source>Verified</source>
+			</trans-unit>
+			<trans-unit id="col.verifiedCount">
+				<source>%1$s verified, %2$s not</source>
+			</trans-unit>
+			<trans-unit id="recrawl.hint">
+				<source>Recrawl interval: median time between two visits of the same crawler to the same page. HTML: normal pages.</source>
+			</trans-unit>
+			<trans-unit id="topPages.title">
+				<source>Pages read by AI crawlers</source>
+			</trans-unit>
+			<trans-unit id="col.page">
+				<source>Page</source>
+			</trans-unit>
+			<trans-unit id="col.by">
+				<source>By</source>
+			</trans-unit>
+			<trans-unit id="referrals.title">
+				<source>AI referral traffic</source>
+			</trans-unit>
+			<trans-unit id="platforms.title">
+				<source>Platforms</source>
+			</trans-unit>
+			<trans-unit id="landingPages.title">
+				<source>Landing pages</source>
+			</trans-unit>
+			<trans-unit id="referrals.none">
+				<source>No visitors from AI platforms in this period.</source>
+			</trans-unit>
+			<trans-unit id="referrals.off">
+				<source>Logging of visits referred by AI platforms is switched off.</source>
+			</trans-unit>
+			<trans-unit id="empty.title">
+				<source>No visits yet</source>
+			</trans-unit>
+			<trans-unit id="empty.text">
+				<source>Visits of AI crawlers are recorded from now on. Older visits can be imported from the web server logs with ai-bridge:import-logs.</source>
+			</trans-unit>
+			<trans-unit id="privacy">
+				<source>Crawler IP addresses are stored as salted hashes only, visitors from AI platforms without IP address. ai-bridge:purge-visits removes visits after %1$s days (0 = kept).</source>
+			</trans-unit>
+			<trans-unit id="action.clear">
+				<source>Delete all visits</source>
+			</trans-unit>
+			<trans-unit id="action.clearConfirm">
+				<source>Delete all logged visits?</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

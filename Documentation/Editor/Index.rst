@@ -312,24 +312,40 @@ Entries reach the module in three ways:
     written by anonymous visitors, and approving one puts it in front of every
     future visitor who asks a similar question.
 
-..  _editor-botaccess:
+..  _editor-agents:
 
-Bot Access Log
---------------
+Agent Analytics
+---------------
 
-Which bots and crawlers requested ``llms.txt``, ``llms-full.txt``, the Markdown
-versions and normal pages, filterable by date, request type, bot and IP address,
-with an :guilabel:`AI crawlers only` switch. It is informational: useful for
-seeing whether the machine-readable content is actually being picked up, and by
-whom.
+Which AI crawlers read ``llms.txt``, ``llms-full.txt``, the Markdown versions and
+the pages, how often they come back, and how many visitors AI platforms send to
+the website. The module was called :guilabel:`Bot Access Log` up to version 2.1.
 
-The link list and the full document are counted apart, because how often each is
-asked for says something different: ``llms.txt`` is a table of contents a crawler
-reads to find its way around, ``llms-full.txt`` is the whole site in one
-expensive request. Its tile and its filter option appear while
-:confval:`llmsFullTxt` is switched on — a site that does not serve the document
-has nothing to show for it. Accesses are recorded either way, so switching the
-document on later does not start from zero.
+Choose a period (the last 7, 30, 90 or 365 days, or a range of your own) and, on
+an installation with several websites, the site. The module shows:
 
-This module does not require a subscription, but it only records anything while
-``botAccessLogging`` is enabled in the extension configuration.
+*   key figures: crawler visits, crawlers, distinct pages, fetches of
+    ``llms.txt``, ``llms-full.txt`` and the Markdown versions, AI referrals and
+    platforms,
+*   the crawler visits over time, per day or per week, one line per crawler,
+*   one row per crawler with its purpose (model training, AI search or a user
+    request), its visits split into ``llms.txt``, ``llms-full.txt``, ``.md`` and
+    HTML pages, the number of distinct pages, the recrawl interval — the median
+    time between two visits of the same crawler to the same page — and the last
+    visit; with :confval:`agentVerifyIp` also how many visits were verified,
+*   the pages read most by AI crawlers, with the crawlers reading them,
+*   the visitors sent by ChatGPT, Perplexity, Gemini, Copilot, Claude and
+    others over time, per platform and with their landing pages.
+
+All tables can be exported as CSV. The link list and the full document are
+counted apart: ``llms.txt`` is a table of contents a crawler reads to find its
+way around, ``llms-full.txt`` is the whole site in one expensive request. The
+``llms-full.txt`` figures appear while :confval:`llmsFullTxt` is switched on.
+
+Only known AI crawlers are recorded — search engine bots without an AI use, SEO
+tools and HTTP libraries are not. IP addresses of crawlers are stored as salted
+hash only, referred visitors without any IP address. Visits are removed by
+``ai-bridge:purge-visits`` after :confval:`agentRetentionDays` days.
+
+This module does not require a subscription. Recording is on by default and can
+be switched off with :confval:`agentAnalytics` or per site.

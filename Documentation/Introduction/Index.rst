@@ -65,9 +65,9 @@ Feature overview
     * - Enquiry log and cost tracking
       - Every question and answer with provider, model, token usage and an
         estimated cost
-    * - Bot access log
-      - Which crawlers requested ``llms.txt``, the Markdown versions and normal
-        pages
+    * - Agent Analytics
+      - Which AI crawlers read ``llms.txt``, the Markdown versions and the
+        pages, how often they return, and which visitors AI platforms send
     * - Rate limiting and bot protection
       - Guards for the public assistant endpoint
     * - Multi-language
@@ -98,8 +98,8 @@ submodules:
       - The answers the assistant gives for questions it recognises, including
         the corrections visitors made
       - Yes
-    * - :guilabel:`Bot Access Log`
-      - Accesses by bots and crawlers
+    * - :guilabel:`Agent Analytics`
+      - Visits of AI crawlers and visitors referred by AI platforms
       - No
 
 ..  note::
@@ -212,8 +212,8 @@ Requirements
       - Optional. Without it the assistant runs in search-only mode
     * - A subscription key
       - Required for the chat assistant and the :guilabel:`Enquiries` and
-        :guilabel:`Answers` modules. llms.txt, the Markdown export and the
-        :guilabel:`Bot Access Log` work without one
+        :guilabel:`Answers` modules. llms.txt, the Markdown export and
+        :guilabel:`Agent Analytics` work without one
 
 Continue with :ref:`installation`.
 

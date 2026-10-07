@@ -62,33 +62,31 @@ CREATE TABLE tx_wnaibridge_assistant_learning (
 );
 
 #
-# Access log for bot/crawler requests to llms.txt, the Markdown versions and
-# normal pages.
+# Agent Analytics: AI crawler requests to llms.txt, the Markdown versions and
+# pages, and visits referred by AI platforms. IP addresses of crawlers as
+# salted hash only, of referred visitors not at all.
 #
-CREATE TABLE tx_wnaibridge_bot_access (
+CREATE TABLE tx_wnaibridge_agent_visit (
     uid int(11) unsigned NOT NULL auto_increment,
     pid int(11) unsigned DEFAULT '0' NOT NULL,
     crdate int(11) unsigned DEFAULT '0' NOT NULL,
     site_identifier varchar(128) DEFAULT '' NOT NULL,
-    language_uid int(11) DEFAULT '0' NOT NULL,
+    host varchar(255) DEFAULT '' NOT NULL,
+    path varchar(1000) DEFAULT '' NOT NULL,
     request_type varchar(16) DEFAULT '' NOT NULL,
-    method varchar(10) DEFAULT '' NOT NULL,
-    path text,
-    query_string text,
-    http_status int(11) unsigned DEFAULT '0' NOT NULL,
-    bot_name varchar(64) DEFAULT '' NOT NULL,
-    is_ai_bot smallint(5) unsigned DEFAULT '0' NOT NULL,
-    user_agent varchar(500) DEFAULT '' NOT NULL,
-    ip_address varchar(45) DEFAULT '' NOT NULL,
-    referer varchar(500) DEFAULT '' NOT NULL,
+    status int(11) unsigned DEFAULT '0' NOT NULL,
+    kind varchar(10) DEFAULT '' NOT NULL,
+    agent varchar(60) DEFAULT '' NOT NULL,
+    purpose varchar(20) DEFAULT '' NOT NULL,
+    ip_hash varchar(16) DEFAULT '' NOT NULL,
+    verified smallint(5) unsigned DEFAULT '0' NOT NULL,
+    source varchar(10) DEFAULT 'live' NOT NULL,
+    line_hash varchar(40) DEFAULT '' NOT NULL,
 
     PRIMARY KEY (uid),
-    KEY parent (pid),
-    KEY crdate (crdate),
-    KEY request_type (request_type),
-    KEY bot_name (bot_name),
-    KEY ip_address (ip_address),
-    KEY site (site_identifier)
+    KEY time_site (crdate, site_identifier),
+    KEY kind_agent (kind, agent),
+    KEY line_hash (line_hash)
 );
 
 CREATE TABLE pages (
