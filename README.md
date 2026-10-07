@@ -171,7 +171,7 @@ and know nothing about sites, so the boundary is drawn on the results.
 |---|---|
 | **Enquiries** | Every question asked, the answer given, the provider, token usage and cost. Filterable |
 | **Answers** | Question/answer pairs the assistant uses as its own knowledge |
-| **Bot Access Log** | Which AI crawlers requested `llms.txt` and the Markdown endpoints |
+| **Agent Analytics** | Which AI crawlers read `llms.txt`, the Markdown versions and the pages, how often they return, and which visitors AI platforms send |
 
 **Answers** is the local learning source. An entry is played back verbatim when
 a new question matches it in meaning — term overlap plus string similarity, not
@@ -179,6 +179,19 @@ exact wording. Weaker matches are handed to the model as binding hints. Entries
 come from three places: written by an editor, taken over from a logged answer in
 **Enquiries**, or captured from a correction a visitor made in the chat, which
 arrives as "pending" and is only used once approved.
+
+**Agent Analytics** records the requests of known AI crawlers (GPTBot,
+ClaudeBot, PerplexityBot, Googlebot, Bingbot and others) to `llms.txt`,
+`llms-full.txt`, the Markdown versions and the pages, and the visitors that
+ChatGPT, Perplexity, Gemini, Copilot or Claude send to the website. For a period
+and a site it shows the visits over time, one row per crawler with its purpose,
+the requests per format, the recrawl interval and the last visit, the pages read
+most, and the referral traffic per platform with its landing pages; every table
+can be exported as CSV. Crawler IP addresses are stored as salted hash only,
+referred visitors without IP address. Older visits can be imported from web
+server logs with `ai-bridge:import-logs`; `ai-bridge:purge-visits` removes
+visits after 90 days (configurable). Up to version 2.1 the module was called
+**Bot Access Log**; its AI crawler entries are taken over by an upgrade wizard.
 
 ## Subscription
 
@@ -192,7 +205,7 @@ expiry date and the enabled features.
 | Functions | Needs a key |
 |---|---|
 | Chat widget, Enquiries, Answers | yes |
-| llms.txt, Markdown endpoints, Bot Access Log | no |
+| llms.txt, Markdown endpoints, Agent Analytics | no |
 
 **Important:**  
 Without a valid key the widget stays hidden and the two modules disappear.
@@ -236,9 +249,9 @@ manipulated.
 ## Configuration
 
 Extension configuration (Admin Tools → Settings → Extension Configuration)
-covers the assistant, the LLM provider, rate limiting and the subscription key.
-Per-site settings live on the **AI Bridge** and **AI Search Assistant** tabs of
-the site configuration.
+covers the assistant, the LLM provider, rate limiting, Agent Analytics and the
+subscription key. Per-site settings live on the **AI Bridge**, **AI Search
+Assistant** and **Agent Analytics** tabs of the site configuration.
 
 Two things worth setting before going live with the assistant:
 

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
+use WebNomads\WnAiBridge\Controller\Backend\AgentAnalyticsModuleController;
 use WebNomads\WnAiBridge\Controller\Backend\AnswersModuleController;
-use WebNomads\WnAiBridge\Controller\Backend\BotAccessModuleController;
 use WebNomads\WnAiBridge\Controller\Backend\EnquiriesModuleController;
 
 /**
  * Backend module registration.
  *
  * A dedicated top-level "AI Bridge" module group holds three submodules: the
- * visitors' enquiries, the curated answers and the bot access log.
+ * visitors' enquiries, the curated answers and Agent Analytics.
  */
 return [
     'wn_ai_bridge' => [
@@ -52,16 +52,18 @@ return [
             ],
         ],
     ],
-    'wn_ai_bridge_botaccess' => [
+    'wn_ai_bridge_agents' => [
         'parent' => 'wn_ai_bridge',
         'access' => 'user',
         'workspaces' => 'live',
-        'iconIdentifier' => 'wn-ai-bridge-module-bot-access',
-        'path' => '/module/wn-ai-bridge/bot-access',
-        'labels' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_botaccess.xlf',
+        'iconIdentifier' => 'wn-ai-bridge-module-agents',
+        'path' => '/module/wn-ai-bridge/agents',
+        // formerly "Bot Access Log"; keeps group permissions and bookmarks
+        'aliases' => ['wn_ai_bridge_botaccess'],
+        'labels' => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_agents.xlf',
         'routes' => [
             '_default' => [
-                'target' => BotAccessModuleController::class . '::handleRequest',
+                'target' => AgentAnalyticsModuleController::class . '::handleRequest',
             ],
         ],
     ],

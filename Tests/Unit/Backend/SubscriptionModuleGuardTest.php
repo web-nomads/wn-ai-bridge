@@ -104,9 +104,9 @@ final class SubscriptionModuleGuardTest extends TestCase
     #[Test]
     public function modulesWithoutASubscriptionFeatureAreLeftAlone(): void
     {
-        // The bot access log is part of the free feature set.
+        // Agent Analytics is part of the free feature set.
         foreach ([13, 14] as $majorVersion) {
-            $event = $this->guard($majorVersion, hasFeature: false)('wn_ai_bridge_botaccess');
+            $event = $this->guard($majorVersion, hasFeature: false)('wn_ai_bridge_agents');
 
             self::assertSame(self::MODULE_CONFIGURATION, $event->getConfiguration());
         }

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use WebNomads\WnAiBridge\Middleware\AgentVisitMiddleware;
 use WebNomads\WnAiBridge\Middleware\AssistantRequestMiddleware;
-use WebNomads\WnAiBridge\Middleware\BotAccessLogMiddleware;
 use WebNomads\WnAiBridge\Middleware\LinkRelationMiddleware;
 use WebNomads\WnAiBridge\Middleware\RateLimiterMiddleware;
 
@@ -33,13 +33,13 @@ return [
                 'typo3/cms-frontend/site',
             ],
             'before' => [
-                'web-nomads/wn-ai-bridge/bot-access-log',
+                'web-nomads/wn-ai-bridge/agent-visits',
             ],
         ],
-        // Records bot accesses. Runs after site resolution and wraps the rest of
-        // the stack so it can read the final response status. It never blocks.
-        'web-nomads/wn-ai-bridge/bot-access-log' => [
-            'target' => BotAccessLogMiddleware::class,
+        // Records AI crawler and AI referral visits. Runs after site resolution and
+        // wraps the rest of the stack so it can read the final response. It never blocks.
+        'web-nomads/wn-ai-bridge/agent-visits' => [
+            'target' => AgentVisitMiddleware::class,
             'after' => [
                 'typo3/cms-frontend/site',
             ],

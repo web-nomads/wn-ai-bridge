@@ -29,6 +29,16 @@ Upgrading
 
 ..  important::
 
+    Version 2.2.0 turns the :guilabel:`Bot Access Log` into
+    :guilabel:`Agent Analytics`. Run ``extension:setup`` (new table
+    ``tx_wnaibridge_agent_visit``) and the upgrade wizard
+    ``wnAiBridgeBotAccessLogMigration``, which takes the AI crawler entries
+    over with hashed IP addresses and empties the old table. Recording is now
+    on by default (:confval:`agentAnalytics`); schedule
+    ``ai-bridge:purge-visits`` daily. See :ref:`editor-agents`.
+
+..  important::
+
     Version 2.0.0 sends the assistant's requests through AiM (``b13/aim``).
     Provider, model, API key and token prices are no longer set in this
     extension. After the update run ``extension:setup`` and the upgrade wizard

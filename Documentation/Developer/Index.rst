@@ -34,7 +34,13 @@ purpose — they are constructed from data, never injected.
     * - :php:`Middleware`
       - :php:`AssistantRequestMiddleware` answers ``/wn-ai-bridge/ask`` with
         JSON, :php:`RateLimiterMiddleware` throttles, and
-        :php:`BotAccessLogMiddleware` records crawler accesses
+        :php:`AgentVisitMiddleware` records AI crawler and AI referral visits
+    * - :php:`Agent`
+      - Agent Analytics: :php:`AgentDetector` names the crawler or AI
+        platform, :php:`VisitLogger` stores a visit with hashed IP,
+        :php:`BotVerifier` checks crawler addresses by DNS,
+        :php:`LogLineParser` reads access logs for ``ai-bridge:import-logs``,
+        :php:`AgentAnalyticsBuilder` prepares the module
     * - :php:`Service`
       - The application services: llms.txt and llms-full.txt generation, page
         rendering, Markdown conversion, HTML cleanup, the assistant, the
@@ -53,7 +59,7 @@ purpose — they are constructed from data, never injected.
       - Key decoding, signature verification, the daily online check and tamper
         detection
     * - :php:`Domain\Model` / :php:`Domain\Repository`
-      - The log, learning and bot access records and their database access
+      - The log and learning records and their database access
     * - :php:`Dto`
       - :php:`SearchResultItem` and :php:`AssistantResponse`
 
@@ -65,8 +71,9 @@ Request flow
 The frontend middlewares are registered in
 :file:`Configuration/RequestMiddlewares.php` and ordered deliberately:
 
-#.  ``bot-access-log`` runs after site resolution and wraps the rest of the
-    stack, so it can read the final response status. It never blocks.
+#.  ``agent-visits`` runs after site resolution and wraps the rest of the
+    stack, so it can read the final response status and content type. It never
+    blocks.
 #.  ``rate-limiter`` runs after site resolution — so the normalised parameters
     and the resolved reverse-proxy IP are available — but before the page
     resolver, so a throttled request is rejected as cheaply as possible.

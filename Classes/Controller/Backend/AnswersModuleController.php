@@ -11,6 +11,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WebNomads\WnAiBridge\Backend\ModuleDocHeader;
 use WebNomads\WnAiBridge\Domain\Model\AssistantLearning;
 use WebNomads\WnAiBridge\Domain\Model\AssistantLogEntry;
 use WebNomads\WnAiBridge\Domain\Repository\AssistantLearningRepository;
@@ -314,6 +315,7 @@ final class AnswersModuleController
             ->addCssFile('EXT:wn_ai_bridge/Resources/Public/Css/backend.css');
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
+        ModuleDocHeader::withoutButtonBar($moduleTemplate);
         $moduleTemplate->setTitle('AI Assistant Answers');
 
         return $moduleTemplate;

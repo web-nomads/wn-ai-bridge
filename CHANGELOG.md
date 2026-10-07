@@ -7,6 +7,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-10-07
+
+### Changed
+- **The "Bot Access Log" module became "Agent Analytics"**, built like the
+  module of the same name in the AI Monitor. Instead of a list of single
+  requests it reports for a period (last 7, 30, 90 or 365 days, or a range of
+  your own) and a site: key figures, the crawler visits over time per day or
+  week, one row per crawler with its purpose (model training, AI search, user
+  request), its requests to `llms.txt`, `llms-full.txt`, the Markdown versions
+  and HTML pages, distinct pages, median recrawl interval and last visit, the
+  pages read most by AI crawlers, and the visitors AI platforms send. All tables
+  can be exported as CSV. The module identifier is now `wn_ai_bridge_agents`;
+  `wn_ai_bridge_botaccess` stays as alias, so group permissions and bookmarks
+  keep working.
+- **Only known AI crawlers are recorded**, recognised by the same list as the
+  AI Monitor (GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-User,
+  PerplexityBot, Googlebot, Bingbot, Applebot, Amazonbot, meta-externalagent,
+  CCBot and others). SEO tools, HTTP libraries and other bots are no longer
+  logged.
+- **No more personal data in plain text.** Crawler IP addresses are stored as a
+  salted 16-character hash, user agents and referrers are not stored at all.
+  The new table is `tx_wnaibridge_agent_visit`; run the database schema update.
+- **The filter of Agent Analytics works in place.** Period, dates, site and the
+  daily/weekly switch reload only the results via AJAX, and the charts are
+  redrawn; the module itself is not loaded again.
+- **No button bar in the modules.** "Enquiries", "Answers" and "Agent
+  Analytics" no longer show the bar with only the reload button TYPO3 14 adds;
+  the doc header with the breadcrumb stays.
+- **Recording is on by default.** The extension setting `botAccessLogging`
+  (default off) is replaced by `agentAnalytics` (default on); without IP
+  addresses in the table there is no longer a reason to keep it off.
+
+### Added
+- **Visits referred by AI platforms**: visitors coming from ChatGPT,
+  Perplexity, Gemini, Copilot, Claude and others (by referrer or `utm_source`)
+  are recorded with page, status and platform, without IP address, and shown
+  per platform with their landing pages. Setting `agentReferrals`, default on.
+- **Crawler verification** by forward-confirmed reverse DNS for Googlebot,
+  Bingbot, Applebot, Amazonbot, DuckAssistBot and PetalBot, setting
+  `agentVerifyIp`, default off.
+- **Own crawler tokens** with `agentExtraBots`.
+- **Per-site switches** on the new site configuration tab "Agent Analytics";
+  empty fields follow the extension configuration.
+- Command `ai-bridge:import-logs` imports crawler and referral visits from web
+  server access logs (combined format, plain or gzipped), each line once.
+- Command `ai-bridge:purge-visits` removes visits older than
+  `agentRetentionDays` (default 90, 0 keeps everything); schedule it daily.
+- Upgrade wizard `wnAiBridgeBotAccessLogMigration` takes the AI crawler entries
+  of the former bot access log over, with hashed IP addresses, and empties the
+  old table `tx_wnaibridge_bot_access`, which can then be dropped with
+  "Analyze Database Structure".
+
+### Removed
+- `BotAccessLogMiddleware`, `BotAccessModuleController`, `BotAccessRepository`,
+  `BotAccessEntry`, `BotAccessFilter` and the methods `isAiBot()`, `botName()`
+  and `isBotUserAgent()` of `BotDetectionService`.
+- `ConfigurationService::isBotAccessLoggingEnabled()`.
+
 ## [2.1.0] - 2026-10-06
 
 ### Added
@@ -1206,7 +1264,9 @@ TYPO3 14.3 only.
 - Comprehensive documentation following TYPO3 standards
 - Support for TYPO3 v12, v13, and v14 LTS
 
-[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.32.0...v2.0.0
 [1.32.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.31.0...v1.32.0
 [1.31.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.30.1...v1.31.0

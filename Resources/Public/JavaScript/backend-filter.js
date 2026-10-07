@@ -88,6 +88,29 @@ class AjaxFilter {
     this.load(url.href);
   }
 
+  /**
+   * Filter as the server applied it (optional `[data-wn-ai-filter-state]` JSON
+   * in the results), written back into the form, e.g. after a reset or a link
+   */
+  applyState() {
+    const element = this.results.querySelector('[data-wn-ai-filter-state]');
+    if (!element) {
+      return;
+    }
+    let state;
+    try {
+      state = JSON.parse(element.dataset.wnAiFilterState);
+    } catch {
+      return;
+    }
+    for (const [name, value] of Object.entries(state)) {
+      const field = this.form.elements.namedItem(name);
+      if (field && 'value' in field) {
+        field.value = value;
+      }
+    }
+  }
+
   async load(target) {
     const url = new URL(target, window.location.href);
     const displayUrl = url.href;
@@ -109,8 +132,10 @@ class AjaxFilter {
         throw new Error('Request failed: ' + response.status);
       }
       this.results.innerHTML = await response.text();
+      this.applyState();
       // Keep the browser url in sync so a reload/bookmark preserves the filter.
       window.history.replaceState(null, '', displayUrl);
+      this.root.dispatchEvent(new CustomEvent('wn-ai-filter:loaded', { bubbles: true }));
     } catch (error) {
       if (error.name !== 'AbortError') {
         // Fall back to a full navigation so the user still sees a result.

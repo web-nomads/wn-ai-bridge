@@ -158,3 +158,14 @@
     color: inherit;
     text-decoration: underline;
 }
+
+/* Agent Analytics */
+.wn-ai-chart {
+    position: relative;
+    height: 280px;
+}
+
+.wn-ai-agents__path {
+    max-width: 480px;
+    word-break: break-all;
+}

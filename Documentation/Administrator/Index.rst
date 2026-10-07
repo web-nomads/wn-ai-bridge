@@ -69,7 +69,7 @@ What the subscription gates
     module menu only — reached through a bookmark or the live search, they
     answer with a "subscription required" screen instead of the module.
 
-**llms.txt, the Markdown export, the** :guilabel:`Bot Access Log` **and the rate
+**llms.txt, the Markdown export,** :guilabel:`Agent Analytics` **and the rate
 limiter are not part of the subscription** and keep working either way.
 
 Domains
@@ -303,16 +303,23 @@ off by default:
     * - ``tx_wnaibridge_assistant_learning``
       - :confval:`aiAssistantLearning`
       - Question, the answer objected to, the visitor's correction, IP address
-    * - ``tx_wnaibridge_bot_access``
-      - :confval:`botAccessLogging`
-      - Path, user agent, IP address and referer of bot requests
+    * - ``tx_wnaibridge_agent_visit``
+      - :confval:`agentAnalytics`, :confval:`agentReferrals` (both on by
+        default)
+      - Time, site, host, path, request type and status of AI crawler requests
+        with crawler token and a salted 16-character hash of the IP address;
+        of visits referred by AI platforms the platform, without any IP
+        address. No user agents, no referrer URLs, no query strings of
+        visitors. Removed after :confval:`agentRetentionDays` by
+        ``ai-bridge:purge-visits``
 
 Before enabling any of them:
 
 *   cover them in the site's privacy policy, including the LLM provider as a
     recipient if an API key is configured,
-*   define a retention period and actually enforce it — both log modules have a
-    :guilabel:`Clear log` action,
+*   define a retention period and actually enforce it — the enquiry log has a
+    :guilabel:`Clear log` action, Agent Analytics :confval:`agentRetentionDays`
+    and ``ai-bridge:purge-visits``,
 *   decide deliberately about :confval:`assistantLogGeoLookup`, which sends
     visitor IP addresses to a third party.
 
@@ -381,8 +388,9 @@ Maintenance
       - Daily, on installations nobody logs into
     * - Clearing the enquiry log
       - According to the retention period you defined
-    * - Clearing the bot access log
-      - Same
+    * - ``ai-bridge:purge-visits``
+      - Daily; removes Agent Analytics visits older than
+        :confval:`agentRetentionDays`
     * - Reviewing pending visitor corrections
       - Whenever :confval:`aiAssistantLearning` is enabled
 

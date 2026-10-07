@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="fr" datatype="plaintext" original="EXT:wn_ai_bridge/Resources/Private/Language/locallang_agents.xlf" date="2026-10-07T12:00:00Z">
+		<header>
+			<description>Language labels for the backend module Agent Analytics</description>
+		</header>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Agent Analytics</source>
+				<target>Agent Analytics</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>Agent Analytics</source>
+				<target>Agent Analytics</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>Which AI crawlers read llms.txt, the Markdown versions and the pages, how often they return, and how many visitors AI platforms send.</source>
+				<target>Quels robots d’IA lisent llms.txt, les versions Markdown et les pages, à quelle fréquence ils reviennent et combien de visiteurs les plateformes d’IA envoient.</target>
+			</trans-unit>
+			<trans-unit id="module.title">
+				<source>Agent Analytics</source>
+				<target>Agent Analytics</target>
+			</trans-unit>
+			<trans-unit id="module.intro">
+				<source>Visits of AI crawlers to llms.txt, the Markdown versions and the pages, and of visitors sent by AI platforms, logged by this TYPO3 or imported from access logs.</source>
+				<target>Visites de robots d’IA sur llms.txt, les versions Markdown et les pages, ainsi que de visiteurs envoyés par des plateformes d’IA, enregistrées par ce TYPO3 ou importées de journaux d’accès.</target>
+			</trans-unit>
+			<trans-unit id="module.loggingOff">
+				<source>Logging of AI crawler visits is switched off, in the extension configuration or in the site configuration (tab Agent Analytics).</source>
+				<target>L’enregistrement des visites de robots d’IA est désactivé, dans la configuration de l’extension ou dans la configuration du site (onglet Agent Analytics).</target>
+			</trans-unit>
+			<trans-unit id="module.tableMissing">
+				<source>The table for the visits does not exist yet. Please run the database schema update (Admin Tools › Maintenance › Analyze Database Structure).</source>
+				<target>La table des visites n’existe pas encore. Veuillez mettre à jour le schéma de la base de données (Admin Tools › Maintenance › Analyze Database Structure).</target>
+			</trans-unit>
+			<trans-unit id="filter.site">
+				<source>Site</source>
+				<target>Site</target>
+			</trans-unit>
+			<trans-unit id="filter.all">
+				<source>All</source>
+				<target>Tous</target>
+			</trans-unit>
+			<trans-unit id="filter.period">
+				<source>Period</source>
+				<target>Période</target>
+			</trans-unit>
+			<trans-unit id="period.days">
+				<source>Last %1$s days</source>
+				<target>%1$s derniers jours</target>
+			</trans-unit>
+			<trans-unit id="period.custom">
+				<source>Custom range</source>
+				<target>Période personnalisée</target>
+			</trans-unit>
+			<trans-unit id="filter.dateFrom">
+				<source>From</source>
+				<target>Du</target>
+			</trans-unit>
+			<trans-unit id="filter.dateTo">
+				<source>To</source>
+				<target>Au</target>
+			</trans-unit>
+			<trans-unit id="filter.apply">
+				<source>Show</source>
+				<target>Afficher</target>
+			</trans-unit>
+			<trans-unit id="filter.reset">
+				<source>Reset</source>
+				<target>Réinitialiser</target>
+			</trans-unit>
+			<trans-unit id="button.exportCsv">
+				<source>Export CSV</source>
+				<target>Exporter en CSV</target>
+			</trans-unit>
+			<trans-unit id="kpi.crawlerVisits">
+				<source>Crawler visits</source>
+				<target>Visites de robots</target>
+			</trans-unit>
+			<trans-unit id="kpi.crawlers">
+				<source>Crawlers</source>
+				<target>Robots</target>
+			</trans-unit>
+			<trans-unit id="kpi.pages">
+				<source>Pages</source>
+				<target>Pages</target>
+			</trans-unit>
+			<trans-unit id="kpi.markdown">
+				<source>Markdown</source>
+				<target>Markdown</target>
+			</trans-unit>
+			<trans-unit id="kpi.referrals">
+				<source>AI referrals</source>
+				<target>Renvois d’IA</target>
+			</trans-unit>
+			<trans-unit id="kpi.platforms">
+				<source>Platforms</source>
+				<target>Plateformes</target>
+			</trans-unit>
+			<trans-unit id="chart.crawlerVisits">
+				<source>Crawler visits over time</source>
+				<target>Visites de robots dans le temps</target>
+			</trans-unit>
+			<trans-unit id="granularity.day">
+				<source>Daily</source>
+				<target>Par jour</target>
+			</trans-unit>
+			<trans-unit id="granularity.week">
+				<source>Weekly</source>
+				<target>Par semaine</target>
+			</trans-unit>
+			<trans-unit id="crawlers.title">
+				<source>AI crawlers</source>
+				<target>Robots d’IA</target>
+			</trans-unit>
+			<trans-unit id="col.crawler">
+				<source>Crawler</source>
+				<target>Robot</target>
+			</trans-unit>
+			<trans-unit id="col.purpose">
+				<source>Purpose</source>
+				<target>Finalité</target>
+			</trans-unit>
+			<trans-unit id="purpose.training">
+				<source>model training</source>
+				<target>entraînement de modèles</target>
+			</trans-unit>
+			<trans-unit id="purpose.search">
+				<source>AI search</source>
+				<target>recherche IA</target>
+			</trans-unit>
+			<trans-unit id="purpose.user">
+				<source>user request</source>
+				<target>requête d’utilisateur</target>
+			</trans-unit>
+			<trans-unit id="col.visits">
+				<source>Visits</source>
+				<target>Visites</target>
+			</trans-unit>
+			<trans-unit id="col.pages">
+				<source>Pages</source>
+				<target>Pages</target>
+			</trans-unit>
+			<trans-unit id="col.recrawl">
+				<source>Recrawl interval</source>
+				<target>Intervalle de recrawl</target>
+			</trans-unit>
+			<trans-unit id="col.lastVisit">
+				<source>Last visit</source>
+				<target>Dernière visite</target>
+			</trans-unit>
+			<trans-unit id="col.verified">
+				<source>Verified</source>
+				<target>Vérifié</target>
+			</trans-unit>
+			<trans-unit id="col.verifiedCount">
+				<source>%1$s verified, %2$s not</source>
+				<target>%1$s vérifiées, %2$s non</target>
+			</trans-unit>
+			<trans-unit id="recrawl.hint">
+				<source>Recrawl interval: median time between two visits of the same crawler to the same page. HTML: normal pages.</source>
+				<target>Intervalle de recrawl : durée médiane entre deux visites du même robot sur la même page. HTML : pages normales.</target>
+			</trans-unit>
+			<trans-unit id="topPages.title">
+				<source>Pages read by AI crawlers</source>
+				<target>Pages lues par des robots d’IA</target>
+			</trans-unit>
+			<trans-unit id="col.page">
+				<source>Page</source>
+				<target>Page</target>
+			</trans-unit>
+			<trans-unit id="col.by">
+				<source>By</source>
+				<target>Par</target>
+			</trans-unit>
+			<trans-unit id="referrals.title">
+				<source>AI referral traffic</source>
+				<target>Trafic des plateformes d’IA</target>
+			</trans-unit>
+			<trans-unit id="platforms.title">
+				<source>Platforms</source>
+				<target>Plateformes</target>
+			</trans-unit>
+			<trans-unit id="landingPages.title">
+				<source>Landing pages</source>
+				<target>Pages d’entrée</target>
+			</trans-unit>
+			<trans-unit id="referrals.none">
+				<source>No visitors from AI platforms in this period.</source>
+				<target>Aucun visiteur de plateformes d’IA sur cette période.</target>
+			</trans-unit>
+			<trans-unit id="referrals.off">
+				<source>Logging of visits referred by AI platforms is switched off.</source>
+				<target>L’enregistrement des visites renvoyées par des plateformes d’IA est désactivé.</target>
+			</trans-unit>
+			<trans-unit id="empty.title">
+				<source>No visits yet</source>
+				<target>Pas encore de visites</target>
+			</trans-unit>
+			<trans-unit id="empty.text">
+				<source>Visits of AI crawlers are recorded from now on. Older visits can be imported from the web server logs with ai-bridge:import-logs.</source>
+				<target>Les visites de robots d’IA sont enregistrées à partir de maintenant. Les visites antérieures peuvent être importées des journaux du serveur web avec ai-bridge:import-logs.</target>
+			</trans-unit>
+			<trans-unit id="privacy">
+				<source>Crawler IP addresses are stored as salted hashes only, visitors from AI platforms without IP address. ai-bridge:purge-visits removes visits after %1$s days (0 = kept).</source>
+				<target>Les adresses IP des robots ne sont enregistrées que sous forme de hachage salé, les visiteurs de plateformes d’IA sans adresse IP. ai-bridge:purge-visits supprime les visites après %1$s jours (0 = conservées).</target>
+			</trans-unit>
+			<trans-unit id="action.clear">
+				<source>Delete all visits</source>
+				<target>Supprimer toutes les visites</target>
+			</trans-unit>
+			<trans-unit id="action.clearConfirm">
+				<source>Delete all logged visits?</source>
+				<target>Supprimer toutes les visites enregistrées ?</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

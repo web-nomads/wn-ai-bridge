@@ -392,6 +392,37 @@ $GLOBALS['SiteConfiguration']['site']['columns']['aiAssistantSearchPid'] = [
     ],
 ];
 
+// Agent Analytics: default, on, off; "default" takes the extension configuration
+$agentLabel = static fn(string $key): string => 'LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.' . $key;
+$agentSwitch = static fn(string $field): array => [
+    'label' => $agentLabel($field),
+    'description' => $agentLabel($field . '.description'),
+    'config' => [
+        'type' => 'select',
+        'renderType' => 'selectSingle',
+        'items' => [
+            ['label' => $agentLabel('agent.default'), 'value' => ''],
+            ['label' => $agentLabel('agent.on'), 'value' => '1'],
+            ['label' => $agentLabel('agent.off'), 'value' => '0'],
+        ],
+        'default' => '',
+    ],
+];
+// AgentSettings::SITE_*, spelled out: no class map here yet
+$GLOBALS['SiteConfiguration']['site']['columns']['aiBridgeAgentAnalytics'] = $agentSwitch('aiBridgeAgentAnalytics');
+$GLOBALS['SiteConfiguration']['site']['columns']['aiBridgeAgentReferrals'] = $agentSwitch('aiBridgeAgentReferrals');
+$GLOBALS['SiteConfiguration']['site']['columns']['aiBridgeAgentVerifyIp'] = $agentSwitch('aiBridgeAgentVerifyIp');
+$GLOBALS['SiteConfiguration']['site']['columns']['aiBridgeAgentExtraBots'] = [
+    'label' => $agentLabel('aiBridgeAgentExtraBots'),
+    'description' => $agentLabel('aiBridgeAgentExtraBots.description'),
+    'config' => [
+        'type' => 'input',
+        'size' => 50,
+        'max' => 500,
+        'eval' => 'trim',
+    ],
+];
+
 if (!isset($GLOBALS['SiteConfiguration']['site']['types']['0']['showitem'])) {
     $GLOBALS['SiteConfiguration']['site']['types']['0']['showitem'] = '';
 }
@@ -423,7 +454,12 @@ $GLOBALS['SiteConfiguration']['site']['types']['0']['showitem'] .= ',
         aiAssistantSearchPid,
     --div--;LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.tab.assistantColors,
         --palette--;;aiAssistantColors,
-        aiAssistantCustomCss
+        aiAssistantCustomCss,
+    --div--;LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:site.tab.agents,
+        aiBridgeAgentAnalytics,
+        aiBridgeAgentReferrals,
+        aiBridgeAgentVerifyIp,
+        aiBridgeAgentExtraBots
 ';
 
 // Per-language overrides for the assistant's visitor-facing texts, so they can

@@ -1,0 +1,203 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:comment>Filter-dependent part of Agent Analytics; rendered inline by Index.html and alone as AJAX response by Results.html</f:comment>
+
+<f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_agents.xlf:</f:variable>
+
+<div hidden data-wn-ai-filter-state="{filterState}"></div>
+
+<f:if condition="!{logging}">
+    <div class="callout callout-warning"><div class="callout-body">
+        <f:translate key="{ll}module.loggingOff"/>
+    </div></div>
+</f:if>
+
+<f:if condition="{hasData}">
+    <f:then>
+        <div class="d-flex justify-content-end mb-2">
+            <a class="btn btn-sm btn-default" href="{csvUrl}"><core:icon identifier="actions-download" size="small"/> <f:translate key="{ll}button.exportCsv"/></a>
+        </div>
+
+        <div class="row row-cols-2 row-cols-md-4 row-cols-xl-{f:if(condition: llmsFullEnabled, then: 8, else: 7)} g-3 mb-4">
+            <f:render section="Kpi" arguments="{value: totals.crawlerVisits, key: 'kpi.crawlerVisits', ll: ll}"/>
+            <f:render section="Kpi" arguments="{value: totals.crawlers, key: 'kpi.crawlers', ll: ll}"/>
+            <f:render section="Kpi" arguments="{value: totals.pages, key: 'kpi.pages', ll: ll}"/>
+            <f:render section="Kpi" arguments="{value: totals.types.llmstxt, text: 'llms.txt'}"/>
+            <f:if condition="{llmsFullEnabled}">
+                <f:render section="Kpi" arguments="{value: totals.types.llmsfull, text: 'llms-full.txt'}"/>
+            </f:if>
+            <f:render section="Kpi" arguments="{value: totals.types.markdown, key: 'kpi.markdown', ll: ll}"/>
+            <f:render section="Kpi" arguments="{value: totals.referrals, key: 'kpi.referrals', ll: ll}"/>
+            <f:render section="Kpi" arguments="{value: totals.platforms, key: 'kpi.platforms', ll: ll}"/>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h2 class="card-title h5 mb-0"><f:translate key="{ll}chart.crawlerVisits"/></h2>
+                <div class="btn-group btn-group-sm" role="group">
+                    <a{f:if(condition: "{granularity} == 'day'", then: ' class="btn btn-default active" aria-current="true"', else: ' class="btn btn-default"')} href="{dayUrl}" data-wn-ai-page="day"><f:translate key="{ll}granularity.day"/></a>
+                    <a{f:if(condition: "{granularity} == 'week'", then: ' class="btn btn-default active" aria-current="true"', else: ' class="btn btn-default"')} href="{weekUrl}" data-wn-ai-page="week"><f:translate key="{ll}granularity.week"/></a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="wn-ai-chart">
+                    <canvas data-wn-ai-chart="{crawlerSeries}" role="img" aria-label="{f:translate(key: '{ll}chart.crawlerVisits')}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header"><h2 class="card-title h5 mb-0"><f:translate key="{ll}crawlers.title"/></h2></div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th><f:translate key="{ll}col.crawler"/></th>
+                                <th><f:translate key="{ll}col.purpose"/></th>
+                                <th class="text-end"><f:translate key="{ll}col.visits"/></th>
+                                <th class="text-end">llms.txt</th>
+                                <f:if condition="{llmsFullEnabled}"><th class="text-end">llms-full.txt</th></f:if>
+                                <th class="text-end">.md</th>
+                                <th class="text-end">HTML</th>
+                                <th class="text-end"><f:translate key="{ll}col.pages"/></th>
+                                <th class="text-end"><f:translate key="{ll}col.recrawl"/></th>
+                                <th><f:translate key="{ll}col.lastVisit"/></th>
+                                <f:if condition="{verifying}"><th><f:translate key="{ll}col.verified"/></th></f:if>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <f:for each="{crawlers}" as="crawler">
+                                <tr>
+                                    <td><strong>{crawler.agent}</strong></td>
+                                    <td><f:if condition="{crawler.purpose}"><f:translate key="{ll}purpose.{crawler.purpose}"/></f:if></td>
+                                    <td class="text-end">{crawler.visits}</td>
+                                    <td class="text-end">{crawler.types.llmstxt}</td>
+                                    <f:if condition="{llmsFullEnabled}"><td class="text-end">{crawler.types.llmsfull}</td></f:if>
+                                    <td class="text-end">{crawler.types.markdown}</td>
+                                    <td class="text-end">{crawler.types.page}</td>
+                                    <td class="text-end">{crawler.pages}</td>
+                                    <td class="text-end">
+                                        <f:if condition="{crawler.recrawlHours}">
+                                            <f:then><f:format.number decimals="1" decimalSeparator="." thousandsSeparator="'">{crawler.recrawlHours}</f:format.number> h</f:then>
+                                            <f:else><span class="text-body-secondary">–</span></f:else>
+                                        </f:if>
+                                    </td>
+                                    <td class="text-nowrap small"><f:format.date format="d.m.Y H:i">@{crawler.last}</f:format.date></td>
+                                    <f:if condition="{verifying}"><td class="small"><f:translate key="{ll}col.verifiedCount" arguments="{0: crawler.verified, 1: crawler.notVerified}"/></td></f:if>
+                                </tr>
+                            </f:for>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-body-secondary small mb-0"><f:translate key="{ll}recrawl.hint"/></p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header"><h2 class="card-title h5 mb-0"><f:translate key="{ll}topPages.title"/></h2></div>
+            <div class="card-body">
+                <f:render section="Pages" arguments="{pages: topPages, ll: ll}"/>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header"><h2 class="card-title h5 mb-0"><f:translate key="{ll}referrals.title"/></h2></div>
+            <div class="card-body">
+                <f:if condition="{totals.referrals}">
+                    <f:then>
+                        <div class="wn-ai-chart mb-3">
+                            <canvas data-wn-ai-chart="{referralSeries}" role="img" aria-label="{f:translate(key: '{ll}referrals.title')}"></canvas>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <h3 class="h6"><f:translate key="{ll}platforms.title"/></h3>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <f:for each="{platforms}" as="platform">
+                                            <tr><td>{platform.platform}</td><td class="text-end">{platform.visits}</td></tr>
+                                        </f:for>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-8">
+                                <h3 class="h6"><f:translate key="{ll}landingPages.title"/></h3>
+                                <f:render section="Pages" arguments="{pages: landingPages, ll: ll}"/>
+                            </div>
+                        </div>
+                    </f:then>
+                    <f:else>
+                        <p class="text-body-secondary mb-0">
+                            <f:if condition="{referralLogging}">
+                                <f:then><f:translate key="{ll}referrals.none"/></f:then>
+                                <f:else><f:translate key="{ll}referrals.off"/></f:else>
+                            </f:if>
+                        </p>
+                    </f:else>
+                </f:if>
+            </div>
+        </div>
+
+        <form method="post" action="{moduleUrl}" class="mb-3" data-wn-ai-confirm="{f:translate(key: '{ll}action.clearConfirm')}">
+            <input type="hidden" name="action" value="deleteAll">
+            <button type="submit" class="btn btn-sm btn-danger"><f:translate key="{ll}action.clear"/></button>
+        </form>
+    </f:then>
+    <f:else>
+        <f:if condition="!{tableError}">
+            <div class="callout callout-info"><div class="callout-body">
+                <h2 class="h5"><f:translate key="{ll}empty.title"/></h2>
+                <p class="mb-0"><f:translate key="{ll}empty.text"/></p>
+            </div></div>
+        </f:if>
+    </f:else>
+</f:if>
+
+<p class="text-body-secondary small"><f:translate key="{ll}privacy" arguments="{0: retention}"/></p>
+
+<f:section name="Kpi">
+    <div class="col"><div class="card h-100"><div class="card-body">
+        <div class="h2 mb-0">{value}</div>
+        <div class="text-body-secondary"><f:if condition="{key}"><f:then><f:translate key="{ll}{key}"/></f:then><f:else>{text}</f:else></f:if></div>
+    </div></div></div>
+</f:section>
+
+<f:section name="Pages">
+    <f:if condition="{pages}">
+        <f:then>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th><f:translate key="{ll}col.page"/></th>
+                            <th class="text-end"><f:translate key="{ll}col.visits"/></th>
+                            <th><f:translate key="{ll}col.by"/></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <f:for each="{pages}" as="page">
+                            <tr>
+                                <td class="small wn-ai-agents__path">
+                                    <f:switch expression="{page.type}">
+                                        <f:case value="llmstxt"><span class="badge bg-primary">llms.txt</span></f:case>
+                                        <f:case value="llmsfull"><span class="badge bg-primary">llms-full.txt</span></f:case>
+                                        <f:case value="markdown"><span class="badge bg-info">.md</span></f:case>
+                                        <f:defaultCase></f:defaultCase>
+                                    </f:switch>
+                                    {page.path -> f:format.crop(maxCharacters: 90)}
+                                </td>
+                                <td class="text-end">{page.visits}</td>
+                                <td><f:for each="{page.agents}" as="count" key="agent" iteration="a"><f:if condition="{a.index} < 3"><span class="badge bg-secondary">{agent} {count}</span> </f:if></f:for></td>
+                            </tr>
+                        </f:for>
+                    </tbody>
+                </table>
+            </div>
+        </f:then>
+        <f:else><p class="text-body-secondary mb-0">–</p></f:else>
+    </f:if>
+</f:section>
+
+</html>

@@ -1,0 +1,70 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module"/>
+
+<f:section name="Content">
+
+    <f:variable name="ll">LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang_agents.xlf:</f:variable>
+
+    <div class="wn-ai-log wn-ai-agents">
+
+    <f:render partial="SubscriptionInfo" arguments="{subscription: subscription}"/>
+
+    <h1><f:translate key="{ll}module.title"/></h1>
+    <p class="text-body-secondary"><f:translate key="{ll}module.intro"/></p>
+
+    <f:if condition="{tableError}">
+        <div class="callout callout-danger"><div class="callout-body">
+            <f:translate key="{ll}module.tableMissing"/>
+        </div></div>
+    </f:if>
+
+    <f:comment>Submitted via AJAX by backend-filter.js; the GET form is the fallback without JavaScript</f:comment>
+    <form method="get" action="{moduleUrl}" class="row g-2 align-items-end mb-3" data-wn-ai-filter-form>
+        <f:for each="{moduleArguments}" as="argumentValue" key="argumentName"><input type="hidden" name="{argumentName}" value="{argumentValue}"></f:for>
+        <f:if condition="{sites}">
+            <div class="col-auto">
+                <label class="form-label" for="wn-ai-agents-site"><f:translate key="{ll}filter.site"/></label>
+                <select name="site" id="wn-ai-agents-site" class="form-select form-select-sm">
+                    <option value=""><f:translate key="{ll}filter.all"/></option>
+                    <f:for each="{sites}" as="siteLabel" key="siteIdentifier">
+                        <option value="{siteIdentifier}"{f:if(condition: "{filter.site} == {siteIdentifier}", then: ' selected')}>{siteLabel}</option>
+                    </f:for>
+                </select>
+            </div>
+        </f:if>
+        <div class="col-auto">
+            <label class="form-label" for="wn-ai-agents-period"><f:translate key="{ll}filter.period"/></label>
+            <select name="period" id="wn-ai-agents-period" class="form-select form-select-sm" data-wn-ai-agents-period>
+                <f:for each="{periods}" as="days">
+                    <option value="{days}"{f:if(condition: "{filter.period} == {days}", then: ' selected')}><f:translate key="{ll}period.days" arguments="{0: days}"/></option>
+                </f:for>
+                <option value="custom"{f:if(condition: "{filter.period} == 'custom'", then: ' selected')}><f:translate key="{ll}period.custom"/></option>
+            </select>
+        </div>
+        <div class="col-auto" data-wn-ai-agents-dates{f:if(condition: "{filter.period} != 'custom'", then: ' hidden')}>
+            <label class="form-label" for="wn-ai-agents-from"><f:translate key="{ll}filter.dateFrom"/></label>
+            <input type="date" name="dateFrom" id="wn-ai-agents-from" value="{filter.dateFrom}" class="form-control form-control-sm">
+        </div>
+        <div class="col-auto" data-wn-ai-agents-dates{f:if(condition: "{filter.period} != 'custom'", then: ' hidden')}>
+            <label class="form-label" for="wn-ai-agents-to"><f:translate key="{ll}filter.dateTo"/></label>
+            <input type="date" name="dateTo" id="wn-ai-agents-to" value="{filter.dateTo}" class="form-control form-control-sm">
+        </div>
+        <input type="hidden" name="granularity" value="{granularity}">
+        <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-primary"><f:translate key="{ll}filter.apply"/></button>
+            <a href="{moduleUrl}" class="btn btn-sm btn-default" data-wn-ai-filter-reset><f:translate key="{ll}filter.reset"/></a>
+        </div>
+    </form>
+
+    <f:comment>Filter-dependent results, replaced in place on every AJAX request</f:comment>
+    <div data-wn-ai-filter-results>
+        <f:render partial="AgentAnalytics/Results" arguments="{_all}"/>
+    </div>
+
+    </div>
+
+</f:section>
+
+</html>
