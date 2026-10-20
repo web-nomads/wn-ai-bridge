@@ -17,6 +17,7 @@ use TYPO3\CMS\Core\Resource\Exception\InvalidPathException;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use WebNomads\WnAiBridge\Http\BasicAuthOptions;
 use WebNomads\WnAiBridge\Repository\PageRepository;
 use WebNomads\WnAiBridge\Service\MarkdownConverterService;
 use WebNomads\WnAiBridge\Service\UrlGeneratorService;
@@ -272,8 +273,16 @@ final class DownloadMarkdownCommand extends Command
             $uri = (string)$site->getRouter()->generateUri((int)$page['uid']);
             $markdownUrl = rtrim($uri, '/') . '.md';
 
-            $response = $this->httpClient->request('GET', $markdownUrl);
+            $response = $this->httpClient->request('GET', $markdownUrl, BasicAuthOptions::forOwnSite());
             $statusCode = $response->getStatusCode();
+
+            if ($statusCode === 401) {
+                $this->logger->warning('Site requires authentication (401), check basicAuthUsername/basicAuthPassword', [
+                    'page_uid' => $page['uid'],
+                    'url' => $markdownUrl,
+                ]);
+                return null;
+            }
 
             if ($statusCode === 403) {
                 $this->logger->info('Skipping protected page (403 Forbidden)', [

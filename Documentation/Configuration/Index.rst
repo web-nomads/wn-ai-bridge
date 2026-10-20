@@ -65,6 +65,24 @@ Tab "basic"
     Falls back to raw HTML when a page cannot be parsed into Markdown, instead
     of returning an error.
 
+..  confval:: basicAuthUsername
+    :type: string
+    :Default: (empty)
+
+    For a site behind HTTP Basic Authentication, such as a password-protected
+    staging server. Sent with the requests the extension makes to its own
+    site: :confval:`parsingFallbackHtml`, which fetches the rendered page, and
+    ``ai-bridge:download-markdown``, which fetches every ``.md`` URL. Leave
+    empty when the site is publicly reachable; nothing is sent then.
+
+..  confval:: basicAuthPassword
+    :type: string
+    :Default: (empty)
+
+    The password for :confval:`basicAuthUsername`. Extension configuration is
+    stored in plain text in :file:`config/system/settings.php`, so use an
+    account that exists for this purpose only.
+
 ..  _configuration-agents:
 
 Tab "agents"

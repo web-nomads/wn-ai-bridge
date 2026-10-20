@@ -260,6 +260,11 @@ Two things worth setting before going live with the assistant:
 - Set a spending limit in your LLM provider account as an independent second
   net.
 
+On a site behind HTTP Basic Authentication (a staging server, for example),
+enter the credentials in `basicAuthUsername` and `basicAuthPassword`. They are
+sent with the requests the extension makes to its own site — the HTML parsing
+fallback and `ai-bridge:download-markdown`.
+
 ## Documentation
 
 The full manual is rendered at
