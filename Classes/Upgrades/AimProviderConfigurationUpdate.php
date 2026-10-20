@@ -8,8 +8,6 @@ use B13\Aim\Crypto\ApiKeyEncryption;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Install\Updates\DatabaseUpdatedPrerequisite;
-use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 
 /**
  * Moves the LLM connection of the assistant into an AiM provider configuration.
@@ -101,7 +99,7 @@ final class AimProviderConfigurationUpdate implements UpgradeWizardInterface
     public function getPrerequisites(): array
     {
         return [
-            DatabaseUpdatedPrerequisite::class,
+            Prerequisites::databaseUpdated(),
         ];
     }
 

@@ -7,8 +7,6 @@ namespace WebNomads\WnAiBridge\Upgrades;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Site\SiteFinder;
-use TYPO3\CMS\Install\Updates\DatabaseUpdatedPrerequisite;
-use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 use WebNomads\WnAiBridge\Agent\AgentDetector;
 use WebNomads\WnAiBridge\Agent\AgentSettings;
 use WebNomads\WnAiBridge\Agent\BotVerifier;
@@ -50,7 +48,7 @@ final class BotAccessLogMigrationUpdate implements UpgradeWizardInterface
     public function getPrerequisites(): array
     {
         return [
-            DatabaseUpdatedPrerequisite::class,
+            Prerequisites::databaseUpdated(),
         ];
     }
 

@@ -7,7 +7,6 @@ namespace WebNomads\WnAiBridge\Upgrades;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Configuration\SiteConfiguration;
 use TYPO3\CMS\Core\Configuration\SiteWriter;
-use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
 
 /**

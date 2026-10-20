@@ -25,17 +25,19 @@ return static function (ContainerConfigurator $configurator): void {
     // error — it is simply ignored, so naming the wrong one leaves the wizard
     // unregistered and says nothing about it. The tag itself is the same on both.
     $services = $configurator->services();
+    // identifiers as literals: $class::IDENTIFIER autoloads, and the extension
+    // is not autoloadable yet while it is being installed in classic mode
     $wizards = [
-        AssistantSettingsToSiteConfigurationUpdate::class,
-        AimProviderConfigurationUpdate::class,
-        AssistantColorSchemeUpdate::class,
-        BotAccessLogMigrationUpdate::class,
+        'wnAiBridgeAssistantSettingsToSiteConfiguration' => AssistantSettingsToSiteConfigurationUpdate::class,
+        'wnAiBridgeAimProviderConfiguration' => AimProviderConfigurationUpdate::class,
+        'wnAiBridgeAssistantColorScheme' => AssistantColorSchemeUpdate::class,
+        'wnAiBridgeBotAccessLogMigration' => BotAccessLogMigrationUpdate::class,
     ];
-    foreach ($wizards as $wizard) {
+    foreach ($wizards as $identifier => $wizard) {
         $services
             ->set($wizard)
             ->autowire()
-            ->tag('install.upgradewizard', ['identifier' => $wizard::IDENTIFIER]);
+            ->tag('install.upgradewizard', ['identifier' => $identifier]);
     }
 
     if ((new Typo3Version())->getMajorVersion() < 14) {
