@@ -143,9 +143,7 @@ as suggestions with links. Fast, free, and nothing leaves your server.
 retrieved pages and cite them. The model is reached through
 [AiM](https://extensions.typo3.org/extension/aim) (`b13/aim`), where provider,
 model, API key and token prices are configured once for the whole installation
-(*Admin Tools > AiM > Providers*). The Perplexity bridge
-(`symfony/ai-perplexity-platform`) is installed with this extension, in classic
-mode from the TER archive as well; for Claude, also install
+(*Admin Tools > AiM > Providers*); for Claude, also install
 `symfony/ai-anthropic-platform`. Any failure — no provider, quota, timeout,
 malformed response — falls back to search-only rather than showing an error.
 
