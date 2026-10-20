@@ -7,24 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.3.0] - 2026-10-20
-
-### Added
-- **The Perplexity bridge for AiM is installed with the extension.**
-  `symfony/ai-perplexity-platform` is now a Composer requirement, so AiM lists
-  *Symfony AI: Perplexity* under Admin Tools > AiM > Providers without a
-  separate `composer require`. In classic mode (TER) the archive carries the
-  bridge and the parts of Symfony AI it needs in `Resources/Private/PHP/vendor/`;
-  `Configuration/Services.php` loads that bundle while the service container is
-  built, so AiM finds the bridge, and `ext_localconf.php` loads it for requests
-  served from the cached container. The packages the TYPO3 core ships are not
-  bundled. `Build/Scripts/release.sh` builds the bundle from
-  `Build/Composer/composer.json` and checks it before packing.
-
-### Removed
-- The undocumented loading of a `vendor/autoload.php` placed in the extension
-  folder. The bundled libraries live in `Resources/Private/PHP/vendor/`.
-
 ## [2.2.1] - 2026-10-20
 
 ### Fixed
@@ -1297,8 +1279,7 @@ TYPO3 14.3 only.
 - Comprehensive documentation following TYPO3 standards
 - Support for TYPO3 v12, v13, and v14 LTS
 
-[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.3.0...HEAD
-[2.3.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.2.1...v2.3.0
+[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.2.1...HEAD
 [2.2.1]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.0.0...v2.1.0

@@ -17,8 +17,6 @@ services:
       # the tagged one — and a wizard without its tag is a wizard the install
       # tool never sees. That is what kept all of them unlisted.
       - '../Classes/Upgrades/*'
-      # Loads the classic-mode library bundle, not a service.
-      - '../Classes/Configuration/ClassicLibraries.php'
       # Value objects — constructed from data, never injected.
       - '../Classes/Configuration/AssistantColorRoles.php'
       - '../Classes/Domain/Model/*'

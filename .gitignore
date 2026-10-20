@@ -7,6 +7,5 @@
 # Tool caches
 /.php-cs-fixer.cache
 
-# Release archives built by Build/Scripts/release.sh and the classic-mode library bundle they carry
+# Release archives built by Build/Scripts/release.sh
 /*.zip
-/Resources/Private/PHP/vendor/

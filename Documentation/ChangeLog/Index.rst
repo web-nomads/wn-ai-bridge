@@ -27,14 +27,6 @@ Upgrading
     releases added tables or columns, and a missing column fails at the moment
     the feature is used, not at the moment of the update.
 
-..  note::
-
-    Version 2.3.0 installs the Perplexity bridge for AiM
-    (``symfony/ai-perplexity-platform``) with the extension. In classic mode
-    (TER) the archive carries it in :file:`Resources/Private/PHP/vendor/`.
-    Flush all caches after the update so AiM lists *Symfony AI: Perplexity*
-    under :guilabel:`Admin Tools > AiM > Providers`.
-
 ..  important::
 
     Version 2.2.0 turns the :guilabel:`Bot Access Log` into
