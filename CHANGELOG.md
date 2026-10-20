@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-10-20
+
+### Fixed
+- **Installing the extension without Composer (TER, classic mode) failed** with
+  `Class "WebNomads\WnAiBridge\Upgrades\AssistantSettingsToSiteConfigurationUpdate"
+  not found` in `Configuration/Services.php`. The upgrade wizard identifiers
+  were read from the class constants while the service container was built,
+  which loads the classes before the extension is autoloadable. They are now
+  given as plain strings; a unit test makes sure they match the constants.
+- **Upgrade wizards on TYPO3 v14 use the EXT:core API.** They implemented
+  `TYPO3\CMS\Install\Updates\UpgradeWizardInterface` and required
+  `TYPO3\CMS\Install\Updates\DatabaseUpdatedPrerequisite`, both deprecated
+  in v14 and removed in v15. On v14 they now use `TYPO3\CMS\Core\Upgrades\*`,
+  on v13 still the EXT:install classes.
+
 ## [2.2.0] - 2026-10-07
 
 ### Changed
@@ -1264,7 +1279,8 @@ TYPO3 14.3 only.
 - Comprehensive documentation following TYPO3 standards
 - Support for TYPO3 v12, v13, and v14 LTS
 
-[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.2.1...HEAD
+[2.2.1]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v1.32.0...v2.0.0
