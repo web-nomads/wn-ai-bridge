@@ -407,6 +407,12 @@
 			<trans-unit id="config.parsingFallbackHtml">
 				<source>HTML parsing fallback: Convert the rendered HTML of a page when no structured content could be read</source>
 			</trans-unit>
+			<trans-unit id="config.basicAuthUsername">
+				<source>Basic Authentication user (optional): For a site behind HTTP Basic Authentication, e.g. a staging server. Sent with the requests the extension makes to its own site: the HTML parsing fallback and ai-bridge:download-markdown. Leave empty when the site is publicly reachable</source>
+			</trans-unit>
+			<trans-unit id="config.basicAuthPassword">
+				<source>Basic Authentication password (optional): Password for the user above. Stored in plain text in config/system/settings.php, so use a dedicated account for this</source>
+			</trans-unit>
 			<trans-unit id="config.debug">
 				<source>Debug: Returns internal error details on the .md endpoint and writes rendered HTML to var/log. For local troubleshooting only — keep this off in production</source>
 			</trans-unit>

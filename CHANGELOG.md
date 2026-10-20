@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-10-20
+
+### Added
+- **Sites behind HTTP Basic Authentication**, such as a password-protected
+  staging server. Two new settings in the extension configuration,
+  `basicAuthUsername` and `basicAuthPassword`, are sent with every request the
+  extension makes to its own site: the HTML parsing fallback
+  (`parsingFallbackHtml`), which fetches the rendered page, and
+  `ai-bridge:download-markdown`, which fetches every `.md` URL. Without them
+  both got a 401 from the web server, and the Markdown came out as
+  "No page content could be rendered" or was skipped. Left empty, nothing is
+  sent and nothing changes.
+
+### Changed
+- The HTML parsing fallback requests the page through `RequestFactory`
+  directly instead of `GeneralUtility::getUrl()`, which cannot pass
+  credentials.
+- `ai-bridge:download-markdown` logs a 401 as a warning that points to the
+  new settings instead of a generic failed status.
+
 ## [2.2.1] - 2026-10-20
 
 ### Fixed
@@ -1279,7 +1299,8 @@ TYPO3 14.3 only.
 - Comprehensive documentation following TYPO3 standards
 - Support for TYPO3 v12, v13, and v14 LTS
 
-[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.2.1...HEAD
+[Unreleased]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.2.1...v2.3.0
 [2.2.1]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/web-nomads/wn-ai-bridge/compare/v2.0.0...v2.1.0

@@ -8,10 +8,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use WebNomads\WnAiBridge\Http\BasicAuthOptions;
 use WebNomads\WnAiBridge\Repository\PageRepository;
 use WebNomads\WnAiBridge\Service\ConfigurationService;
 use WebNomads\WnAiBridge\Service\LinkRelationService;
@@ -47,6 +49,7 @@ class LlmsTxtController
     private readonly UrlGeneratorService $urlGenerator;
     private readonly LinkRelationService $linkRelationService;
     private readonly CacheManager $cacheManager;
+    private readonly RequestFactory $requestFactory;
 
     public function __construct(
         ?LlmsTxtGeneratorService $llmsTxtGenerator = null,
@@ -57,7 +60,8 @@ class LlmsTxtController
         ?PageRepository $pageRepository = null,
         ?UrlGeneratorService $urlGenerator = null,
         ?LinkRelationService $linkRelationService = null,
-        ?CacheManager $cacheManager = null
+        ?CacheManager $cacheManager = null,
+        ?RequestFactory $requestFactory = null
     ) {
         $this->llmsTxtGenerator = $llmsTxtGenerator ?? GeneralUtility::makeInstance(LlmsTxtGeneratorService::class);
         $this->llmsFullTxtGenerator = $llmsFullTxtGenerator ?? GeneralUtility::makeInstance(LlmsFullTxtGeneratorService::class);
@@ -68,6 +72,7 @@ class LlmsTxtController
         $this->urlGenerator = $urlGenerator ?? GeneralUtility::makeInstance(UrlGeneratorService::class);
         $this->linkRelationService = $linkRelationService ?? GeneralUtility::makeInstance(LinkRelationService::class);
         $this->cacheManager = $cacheManager ?? GeneralUtility::makeInstance(CacheManager::class);
+        $this->requestFactory = $requestFactory ?? GeneralUtility::makeInstance(RequestFactory::class);
     }
 
     /**
@@ -378,6 +383,25 @@ class LlmsTxtController
     }
 
     /**
+     * The HTML behind a URL of this site, '' on any failure. Sends the Basic
+     * Authentication credentials from the extension configuration, if set.
+     */
+    protected function fetchHtml(string $url): string
+    {
+        try {
+            $response = $this->requestFactory->request(
+                $url,
+                'GET',
+                ['http_errors' => false] + BasicAuthOptions::forOwnSite()
+            );
+        } catch (\Throwable $e) {
+            return '';
+        }
+
+        return $response->getStatusCode() === 200 ? (string)$response->getBody() : '';
+    }
+
+    /**
      * Fetches the rendered HTML of the current page from its URL.
      * Special handling for OnePager: isolates the specific page section via anchor.
      */
@@ -393,8 +417,7 @@ class LlmsTxtController
 
         $url = $this->getSourceUrl($page);
 
-        // Fetch HTML via GeneralUtility::getUrl
-        $html = GeneralUtility::getUrl($url);
+        $html = $this->fetchHtml($url);
 
         if (empty($html)) {
             return '';

@@ -16,6 +16,12 @@ debug = 0
 # cat=basic; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.cacheMarkdown
 cacheMarkdown = 0
 
+# cat=basic; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.basicAuthUsername
+basicAuthUsername =
+
+# cat=basic; type=string; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.basicAuthPassword
+basicAuthPassword =
+
 # cat=agents; type=boolean; label=LLL:EXT:wn_ai_bridge/Resources/Private/Language/locallang.xlf:config.agentAnalytics
 agentAnalytics = 1
 
