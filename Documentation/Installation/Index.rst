@@ -39,8 +39,9 @@ Requirements
         noticeably better with a real search index
     * - AiM (``b13/aim``) 0.5 or later
       - Installed as a dependency. Holds the language model connection
-    * - A provider for AiM, e.g. ``symfony/ai-anthropic-platform`` and an
-        Anthropic API key
+    * - A provider for AiM and its API key, e.g. Perplexity
+        (``symfony/ai-perplexity-platform``, installed as a dependency, also
+        in classic mode) or Claude (``symfony/ai-anthropic-platform``)
       - Optional. Without it the assistant runs in search-only mode
     * - A subscription key
       - Required for the chat assistant and its two backend modules. llms.txt
@@ -262,6 +263,15 @@ together with this one. AiM holds provider, model and API key for every
 extension in the installation, enforces budgets and rate limits and logs each
 request with its cost. Any conversation-capable provider AiM supports works;
 the steps below are for Claude.
+
+..  note::
+
+    The Perplexity bridge (``symfony/ai-perplexity-platform``) comes with this
+    extension: Composer installs it as a dependency, and the TER archive carries
+    it for classic mode. It appears under :guilabel:`Admin Tools > AiM >
+    Providers` as *Symfony AI: Perplexity*; a provider configuration with the
+    provider ``perplexity`` and an API key from
+    `perplexity.ai <https://www.perplexity.ai/settings/api>`__ is all it needs.
 
 Getting an API key
 ------------------

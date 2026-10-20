@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 defined('TYPO3') or die();
 
-$autoloader = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('wn_ai_bridge') . 'vendor/autoload.php';
-if (file_exists($autoloader)) {
-    require_once $autoloader;
-}
+// classic mode: requests served from the cached container need the bundled libraries too
+\WebNomads\WnAiBridge\Configuration\ClassicLibraries::load();
 
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use WebNomads\WnAiBridge\Backend\SubscriptionRequiredGate;
+use WebNomads\WnAiBridge\Configuration\ClassicLibraries;
 use WebNomads\WnAiBridge\Upgrades\AimProviderConfigurationUpdate;
 use WebNomads\WnAiBridge\Upgrades\AssistantColorSchemeUpdate;
 use WebNomads\WnAiBridge\Upgrades\AssistantSettingsToSiteConfigurationUpdate;
@@ -17,6 +18,11 @@ use WebNomads\WnAiBridge\Upgrades\BotAccessLogMigrationUpdate;
  * The `use` statements above are aliases and `::class` a compile-time constant,
  * so neither loads the gate on v13 — which is the point of the whole file.
  */
+
+// classic mode: loaded while the container is built, so aim's compiler pass finds the bundled AI bridge
+require_once dirname(__DIR__) . '/Classes/Configuration/ClassicLibraries.php';
+ClassicLibraries::load();
+
 return static function (ContainerConfigurator $configurator): void {
     // The upgrade wizards are tagged by hand rather than through the
     // #[UpgradeWizard] attribute, because that attribute is in a different
