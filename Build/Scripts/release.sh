@@ -12,11 +12,20 @@
 # someone's local site in a public package. The exclusions below are the point
 # of the script; the checks afterwards make sure they worked.
 #
+# Classic mode does not install Composer requirements, so the archive carries
+# the Symfony AI Perplexity bridge in Resources/Private/PHP/vendor/, built by
+# Composer from Build/Composer/. Packages the TYPO3 core ships are declared as
+# "provide" there and must not end up in the bundle. Composer runs in a
+# container (composer:2) when Docker is available.
+#
 # Usage: Build/Scripts/release.sh [--keep-going]
 #
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+ROOT="$(pwd)"
+BUNDLE="Resources/Private/PHP/vendor"
+EXPECTED_BRIDGES="symfony/ai-perplexity-platform"
 
 EXT_KEY="wn_ai_bridge"
 KEEP_GOING="${1:-}"
@@ -62,6 +71,52 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
     fi
 fi
 
+# --- Bundle ------------------------------------------------------------------
+
+run_composer() {
+    if command -v docker >/dev/null; then
+        docker run --rm -u "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$ROOT":/app -w /app/Build/Composer composer:2 "$@"
+    else
+        (cd Build/Composer && composer "$@")
+    fi
+}
+
+rm -rf "$BUNDLE"
+trap 'rm -rf "$BUNDLE"' EXIT
+run_composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader --ignore-platform-req='ext-*' >/dev/null
+[ -f "$BUNDLE/autoload.php" ] || fail 'The bundle was not built.'
+[ -z "$(find "$BUNDLE" -name .git -type d)" ] || fail 'The bundle contains git checkouts instead of release archives.'
+ok "Bundle built ($(du -sh "$BUNDLE" | cut -f1))"
+
+# no package of the TYPO3 core in the bundle, except the declared overrides
+OVERLAP=$(php -r '
+    $bundle = json_decode(file_get_contents("Build/Composer/composer.json"), true);
+    $provided = array_keys($bundle["provide"] ?? []);
+    $overrides = array_keys($bundle["extra"]["core-overrides"] ?? []);
+    $installed = json_decode(file_get_contents("Resources/Private/PHP/vendor/composer/installed.json"), true);
+    $names = array_column($installed["packages"] ?? $installed, "name");
+    echo implode(" ", array_diff(array_merge(array_intersect($names, $provided), preg_grep("#^typo3/#", $names)), $overrides));
+')
+[ -z "$OVERLAP" ] || fail "The bundle contains packages the TYPO3 core ships: $OVERLAP"
+ok 'No package of the TYPO3 core in the bundle besides the declared overrides'
+
+# no providesPackages: with it and a version, TYPO3 14.3 ignores ext_emconf.php and turns every Composer requirement into a dependency
+php -r '
+    $ext = json_decode(file_get_contents("composer.json"), true);
+    exit(isset($ext["extra"]["typo3/cms"]["Package"]["providesPackages"]) ? 1 : 0);
+' || fail 'composer.json declares providesPackages; classic-mode dependencies would come from composer.json instead of ext_emconf.php.'
+ok 'Classic-mode dependencies still come from ext_emconf.php'
+
+# aim discovers bridges through Composer's runtime API, exactly as it will in TYPO3
+FOUND=$(php -r '
+    require "Resources/Private/PHP/vendor/autoload.php";
+    $names = \Composer\InstalledVersions::getInstalledPackagesByType("symfony-ai-platform");
+    sort($names);
+    echo implode(" ", $names);
+')
+[ "$FOUND" = "$EXPECTED_BRIDGES" ] || fail "Bridges found: $FOUND"
+ok "Discoverable AI bridges: $FOUND"
+
 # --- Build -------------------------------------------------------------------
 
 rm -f "$ARCHIVE"
@@ -104,7 +159,7 @@ if [ -n "$JUNK" ]; then
 fi
 ok 'No development or generated files in the archive'
 
-for required in ext_emconf.php ext_localconf.php composer.json LICENSE; do
+for required in ext_emconf.php ext_localconf.php composer.json LICENSE "$BUNDLE/autoload.php"; do
     grep -qx "$required" <<<"$CONTENTS" || fail "Missing from the archive: $required"
 done
 ok 'Required files present'
